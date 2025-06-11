@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -43,17 +44,14 @@ export function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
-                  asChild
                   isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
                   tooltip={{ children: item.label, className: "font-body" }}
                   className="font-body"
                 >
-                  <a>
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </a>
+                  {item.icon}
+                  <span>{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -63,21 +61,21 @@ export function AppSidebar() {
       <SidebarFooter className="p-2 border-t border-sidebar-border">
         <SidebarMenu>
            <SidebarMenuItem>
-             <Link href="/settings" legacyBehavior passHref>
-                <SidebarMenuButton 
-                  asChild 
+             <Link href="/settings">
+                <SidebarMenuButton
                   isActive={pathname === "/settings"}
                   tooltip={{ children: "Settings", className: "font-body"}}
                   className="font-body"
                 >
-                    <a><Settings/><span>Settings</span></a>
+                  <Settings/>
+                  <span>Settings</span>
                 </SidebarMenuButton>
              </Link>
            </SidebarMenuItem>
           {user && (
             <SidebarMenuItem>
-              <SidebarMenuButton 
-                onClick={signOut} 
+              <SidebarMenuButton
+                onClick={signOut}
                 tooltip={{ children: "Log Out", className: "font-body"}}
                 className="font-body"
               >
