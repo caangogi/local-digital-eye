@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter } from "lucide-react";
 import { Link } from "@/navigation"; // Use next-intl's Link
-import {getTranslator} from 'next-intl/server';
+import {getTranslations} from 'next-intl/server';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
-  const t = await getTranslator(locale, 'AppSidebar'); 
+  const t = await getTranslations('AppSidebar'); 
   return {
     title: t('businesses')
   };

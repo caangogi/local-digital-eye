@@ -4,11 +4,11 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { Briefcase, Users, BarChartBig, FileText, PlusCircle, Activity } from "lucide-react";
 import { Link } from "@/navigation"; // Use next-intl's Link
 import Image from "next/image";
-import {getTranslator} from 'next-intl/server';
+import {getTranslations} from 'next-intl/server';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   // Assuming you have a 'DashboardPage' namespace in your translation files
-  const t = await getTranslator(locale, 'AppSidebar'); // Or a specific Dashboard namespace
+  const t = await getTranslations('AppSidebar'); // Or a specific Dashboard namespace
   return {
     title: t('dashboard')
   };

@@ -4,11 +4,11 @@ import { CheckCircle, BarChart2, Users, MapPin, Search, Zap, ArrowRight, Globe }
 import { Link } from "@/navigation"; // Use next-intl's Link
 import Image from "next/image";
 import {useTranslations, useLocale} from 'next-intl';
-import {getTranslator} from 'next-intl/server';
+import {getTranslations} from 'next-intl/server';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
-  const t = await getTranslator(locale, 'LandingPage');
+  const t = await getTranslations('LandingPage');
   return {
     title: t('title')
   };

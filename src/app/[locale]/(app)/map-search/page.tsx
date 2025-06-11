@@ -2,10 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { MapPin, Search, Square, Circle as CircleIcon, Minimize2 } from "lucide-react"; 
 import Image from "next/image";
-import {getTranslator} from 'next-intl/server';
+import {getTranslations} from 'next-intl/server';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
-  const t = await getTranslator(locale, 'AppSidebar'); 
+  const t = await getTranslations('AppSidebar'); 
   return {
     title: t('mapSearch')
   };
