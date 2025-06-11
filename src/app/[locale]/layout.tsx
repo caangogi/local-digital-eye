@@ -2,14 +2,14 @@ import type {Metadata} from 'next';
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
 import { Toaster } from "@/components/ui/toaster";
-import '../globals.css'; // Ensure globals are imported
+import '../globals.css'; // Ensure globals are imported here for the locale layout
 
 export const metadata: Metadata = {
   title: 'Local Digital Eye',
   description: 'AI-Powered Business Analysis and Service Recommendations',
 };
 
-interface RootLayoutProps {
+interface LocaleLayoutProps {
   children: React.ReactNode;
   params: {locale: string};
 }
@@ -17,7 +17,7 @@ interface RootLayoutProps {
 export default async function LocaleLayout({
   children,
   params: {locale}
-}: RootLayoutProps) {
+}: LocaleLayoutProps) {
   const messages = await getMessages();
 
   return (
