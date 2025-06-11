@@ -7,9 +7,9 @@ import Image from "next/image";
 
 // Mock data for recent activity
 const recentActivity = [
-  { id: 1, text: "Analysis completed for 'The Cozy Cafe'", time: "2 hours ago", icon: <FileText className="h-4 w-4 text-green-500" /> },
-  { id: 2, text: "New competitor 'Modern Brews' identified for 'The Cozy Cafe'", time: "3 hours ago", icon: <Users className="h-4 w-4 text-blue-500" /> },
-  { id: 3, text: "'Sunnydale Bakery' re-analysis scheduled for tomorrow", time: "1 day ago", icon: <Activity className="h-4 w-4 text-purple-500" /> },
+  { id: 1, text: "Analysis completed for 'The Cozy Cafe'", time: "2 hours ago", icon: <FileText className="h-4 w-4 text-primary" /> },
+  { id: 2, text: "New competitor 'Modern Brews' identified for 'The Cozy Cafe'", time: "3 hours ago", icon: <Users className="h-4 w-4 text-primary" /> },
+  { id: 3, text: "'Sunnydale Bakery' re-analysis scheduled for tomorrow", time: "1 day ago", icon: <Activity className="h-4 w-4 text-primary" /> },
 ];
 
 
@@ -67,14 +67,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {/* Placeholder for a chart */}
-            <div className="w-full h-[300px] bg-muted rounded-md flex items-center justify-center">
+            <div className="w-full h-[300px] bg-card rounded-md flex items-center justify-center">
               <Image 
                 src="https://placehold.co/600x300.png" 
                 alt="Performance Chart Placeholder" 
                 width={600} 
                 height={300}
                 className="rounded-md object-cover"
-                data-ai-hint="line graph analytics"
+                data-ai-hint="line graph analytics dark"
               />
             </div>
           </CardContent>
@@ -105,3 +105,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

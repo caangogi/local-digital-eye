@@ -39,7 +39,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background to-secondary/30">
+    <div className="flex flex-col min-h-screen bg-background">
       <header className="container mx-auto py-6 px-4 md:px-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
@@ -76,7 +76,7 @@ export default function LandingPage() {
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => (
-              <Card key={feature.title} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card key={feature.title} className="bg-card shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                   {feature.icon}
                   <CardTitle className="font-headline text-xl">{feature.title}</CardTitle>
@@ -90,7 +90,7 @@ export default function LandingPage() {
         </section>
         
         <section className="text-center py-16">
-            <Card className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm shadow-lg p-8">
+            <Card className="max-w-4xl mx-auto bg-card shadow-lg p-8">
                 <CardHeader>
                     <CardTitle className="text-3xl font-headline text-primary">Ready to Elevate Local Businesses?</CardTitle>
                     <CardDescription className="text-muted-foreground text-lg mt-2">
@@ -104,7 +104,7 @@ export default function LandingPage() {
                         width={800} 
                         height={400}
                         className="rounded-lg shadow-md my-6"
-                        data-ai-hint="dashboard interface" 
+                        data-ai-hint="dashboard interface dark" 
                     />
                 </CardContent>
                 <CardFooter className="flex justify-center">
