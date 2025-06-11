@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -37,7 +38,7 @@ const analyzeReviewSentimentPrompt = ai.definePrompt({
   name: 'analyzeReviewSentimentPrompt',
   input: {schema: AnalyzeReviewSentimentInputSchema},
   output: {schema: AnalyzeReviewSentimentOutputSchema},
-  prompt: `Analyze the following customer reviews and identify the key topics discussed and the overall sentiment expressed towards those topics. Provide a concise summary of your findings.\n\nReviews:\n{{{reviews}}}',
+  prompt: `Analyze the following customer reviews and identify the key topics discussed and the overall sentiment expressed towards those topics. Provide a concise summary of your findings.\n\nReviews:\n{{{reviews}}}`,
 });
 
 const analyzeReviewSentimentFlow = ai.defineFlow(
@@ -51,3 +52,4 @@ const analyzeReviewSentimentFlow = ai.defineFlow(
     return output!;
   }
 );
+
