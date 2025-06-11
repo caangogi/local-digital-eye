@@ -1,0 +1,72 @@
+{
+  "LandingPage": {
+    "title": "Local Digital Eye",
+    "login": "Iniciar Sesión",
+    "heroTitle": "Desbloquea el Potencial de Negocios Locales <accent>con IA</accent>",
+    "heroSubtitle": "Local Digital Eye proporciona potentes perspectivas impulsadas por IA para ayudar a los negocios a prosperar en el panorama digital. Analiza, compara y obtén recomendaciones personalizadas.",
+    "openDashboardButton": "Abre tu Panel",
+    "dashboardButton": "Explora el Panel",
+    "whyChooseTitle": "¿Por qué elegir <accent>Local Digital Eye</accent>?",
+    "readyToElevateTitle": "¿Listo para Elevar los Negocios Locales?",
+    "readyToElevateSubtitle": "Únete a Local Digital Eye hoy y transforma cómo abordas la estrategia digital para empresas locales.",
+    "copyright": "&copy; {year} Local Digital Eye. Todos los derechos reservados."
+  },
+  "Features": {
+    "businessDiscovery": {
+      "title": "Descubrimiento de Negocios",
+      "description": "Encuentra y añade negocios fácilmente para un análisis profundo usando URLs o detalles del negocio."
+    },
+    "insightfulDashboards": {
+      "title": "Paneles Esclarecedores",
+      "description": "Visualiza análisis con puntuaciones, sentimientos y datos de la competencia en un panel claro y accionable."
+    },
+    "aiRecommendations": {
+      "title": "Recomendaciones con IA",
+      "description": "Recibe sugerencias impulsadas por IA para servicios digitales adaptados a las necesidades del negocio y brechas del mercado."
+    },
+    "competitiveAnalysis": {
+      "title": "Análisis Competitivo",
+      "description": "Identifica y compara automáticamente contra competidores directos para entender el posicionamiento en el mercado."
+    },
+    "geographicTargeting": {
+      "title": "Segmentación Geográfica",
+      "description": "Utiliza mapas interactivos para buscar negocios por categoría dentro de zonas geográficas específicas."
+    },
+    "actionableReports": {
+      "title": "Informes Accionables",
+      "description": "Genera informes completos incluyendo diagnósticos, recomendaciones y perspectivas competitivas."
+    }
+  },
+  "LanguageSwitcher": {
+    "changeLanguage": "Cambiar idioma"
+  },
+  "AppHeader": {
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logOut": "Cerrar Sesión",
+    "toggleSidebar": "Alternar barra lateral"
+  },
+  "AppSidebar": {
+    "dashboard": "Panel",
+    "businesses": "Negocios",
+    "reports": "Informes",
+    "mapSearch": "Búsqueda Mapa",
+    "aiServices": "Servicios IA",
+    "settings": "Configuración",
+    "logOut": "Cerrar Sesión"
+  },
+  "AuthLayout": {
+    "title": "Local Digital Eye",
+    "footer": "&copy; {year} Local Digital Eye. Tu socio en crecimiento digital."
+  },
+  "LoginForm": {
+    "welcome": "¡Bienvenido de Nuevo!",
+    "signInToAccess": "Inicia sesión para acceder a tu panel de Local Digital Eye.",
+    "emailLabel": "Correo Electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "signInButton": "Iniciar Sesión",
+    "noAccount": "¿No tienes una cuenta?",
+    "signUpLink": "Regístrate"
+  }
+}

@@ -16,16 +16,20 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/navigation";
+
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }), // Basic validation for demo
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export function LoginForm() {
   const { signIn, isLoading } = useAuth();
+  const t = useTranslations('LoginForm');
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -40,11 +44,11 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full shadow-2xl">
+    <Card className="w-full shadow-2xl bg-card/90 backdrop-blur-sm border border-border/50 hover:shadow-[0_0_25px_8px_hsl(var(--accent)/0.25)] transition-all duration-300">
       <CardHeader>
-        <CardTitle className="text-3xl font-headline text-center text-primary">Welcome Back!</CardTitle>
+        <CardTitle className="text-3xl font-headline text-center text-primary">{t('welcome')}</CardTitle>
         <CardDescription className="text-center">
-          Sign in to access your Local Digital Eye dashboard.
+          {t('signInToAccess')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -55,9 +59,9 @@ export function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t('emailLabel')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input placeholder={t('emailPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,7 +72,7 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t('passwordLabel')}</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
@@ -78,15 +82,15 @@ export function LoginForm() {
             />
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Sign In
+              {t('signInButton')}
             </Button>
           </form>
         </Form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
-          <a href="#" className="font-medium text-primary hover:underline">
-            Sign up
-          </a>
+          {t('noAccount')}{' '}
+          <Link href="#" className="font-medium text-primary hover:underline">
+            {t('signUpLink')}
+          </Link>
         </p>
       </CardContent>
     </Card>

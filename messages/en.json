@@ -1,0 +1,72 @@
+{
+  "LandingPage": {
+    "title": "Local Digital Eye",
+    "login": "Login",
+    "heroTitle": "Unlock Local Business Potential <accent>with AI</accent>",
+    "heroSubtitle": "Local Digital Eye provides powerful AI-driven insights to help businesses thrive in the digital landscape. Analyze, compare, and get tailored recommendations.",
+    "openDashboardButton": "Open your Dashboard",
+    "dashboardButton": "Explore The Dashboard",
+    "whyChooseTitle": "Why Choose <accent>Local Digital Eye</accent>?",
+    "readyToElevateTitle": "Ready to Elevate Local Businesses?",
+    "readyToElevateSubtitle": "Join Local Digital Eye today and transform how you approach digital strategy for local enterprises.",
+    "copyright": "&copy; {year} Local Digital Eye. All rights reserved."
+  },
+  "Features": {
+    "businessDiscovery": {
+      "title": "Business Discovery",
+      "description": "Easily find and add businesses for in-depth analysis using URLs or business details."
+    },
+    "insightfulDashboards": {
+      "title": "Insightful Dashboards",
+      "description": "Visualize analysis with scores, sentiments, and competitor data in a clear, actionable dashboard."
+    },
+    "aiRecommendations": {
+      "title": "AI-Powered Recommendations",
+      "description": "Receive AI-driven suggestions for digital services tailored to business needs and market gaps."
+    },
+    "competitiveAnalysis": {
+      "title": "Competitive Analysis",
+      "description": "Automatically identify and compare against direct competitors to understand market positioning."
+    },
+    "geographicTargeting": {
+      "title": "Geographic Targeting",
+      "description": "Utilize interactive maps to search businesses by category within specific geographic zones."
+    },
+    "actionableReports": {
+      "title": "Actionable Reports",
+      "description": "Generate comprehensive reports including diagnostics, recommendations, and competitive insights."
+    }
+  },
+  "LanguageSwitcher": {
+    "changeLanguage": "Change language"
+  },
+  "AppHeader": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "logOut": "Log out",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "AppSidebar": {
+    "dashboard": "Dashboard",
+    "businesses": "Businesses",
+    "reports": "Reports",
+    "mapSearch": "Map Search",
+    "aiServices": "AI Services",
+    "settings": "Settings",
+    "logOut": "Log Out"
+  },
+  "AuthLayout": {
+    "title": "Local Digital Eye",
+    "footer": "&copy; {year} Local Digital Eye. Your partner in digital growth."
+  },
+  "LoginForm": {
+    "welcome": "Welcome Back!",
+    "signInToAccess": "Sign in to access your Local Digital Eye dashboard.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "signInButton": "Sign In",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign up"
+  }
+}

@@ -4,50 +4,49 @@
 
 @layer base {
   :root {
-    --background: 220 15% 8%; /* Very dark, slightly desaturated blue */
-    --foreground: 0 0% 98%; /* Bright white for high contrast */
+    --background: 220 20% 7%; /* Darker, very desaturated blue-black */
+    --foreground: 0 0% 98%; 
 
-    --card: 220 15% 12%; /* Slightly lighter dark blue for cards */
+    --card: 220 20% 11%; /* Slightly lighter dark blue for cards */
     --card-foreground: 0 0% 95%;
 
-    --popover: 220 15% 10%; 
+    --popover: 220 15% 9%; 
     --popover-foreground: 0 0% 95%;
 
-    --primary: 217 89% 61%; /* Saturated blue (from PRD, good for app accents) */
-    --primary-foreground: 0 0% 98%; /* White text on blue buttons */
+    --primary: 217 90% 60%; /* Saturated blue */
+    --primary-foreground: 0 0% 98%; 
 
-    --secondary: 220 10% 25%; 
+    --secondary: 220 15% 20%; /* Darker secondary */
     --secondary-foreground: 0 0% 85%;
 
-    --muted: 220 10% 35%; 
-    --muted-foreground: 220 10% 65%;
+    --muted: 220 15% 25%; 
+    --muted-foreground: 220 10% 55%; /* Lighter muted for better readability */
 
-    --accent: 220 70% 55%; /* Bright blue from screenshot gradient */
+    --accent: 220 80% 65%; /* Bright vibrant blue for accents and glows */
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 70% 55%;
+    --destructive: 0 60% 50%; /* Darker red */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 20%; /* Subtle dark borders */
-    --input: 220 15% 15%;  /* Input background */
-    --ring: 217 89% 61%; /* Ring color, related to primary */
+    --border: 220 20% 18%; /* Subtle dark borders */
+    --input: 220 20% 14%;  /* Input background */
+    --ring: 220 80% 70%; /* Ring color, related to accent */
     
-    --chart-1: 220 70% 55%; /* accent blue */
-    --chart-2: 262 52% 50%; /* PRD purple for variety */
+    --chart-1: 220 70% 55%; 
+    --chart-2: 262 62% 55%; /* Vivid purple */
     --chart-3: 173 58% 50%; 
     --chart-4: 43 74% 70%; 
     --chart-5: 27 87% 70%; 
     
-    --radius: 0.75rem; /* Increased radius for more rounded look like screenshot */
+    --radius: 0.75rem;
 
-    /* Sidebar specific theme variables */
-    --sidebar-background: 220 15% 10%; 
+    --sidebar-background: 220 20% 9%; 
     --sidebar-foreground: 0 0% 90%; 
     --sidebar-primary: hsl(var(--primary)); 
     --sidebar-primary-foreground: hsl(var(--primary-foreground)); 
-    --sidebar-accent: 220 15% 18%; 
+    --sidebar-accent: 220 15% 16%; 
     --sidebar-accent-foreground: hsl(var(--foreground)); 
-    --sidebar-border: 220 15% 15%; 
+    --sidebar-border: 220 15% 13%; 
     --sidebar-ring: hsl(var(--ring));
   }
 
@@ -61,7 +60,6 @@
     @apply bg-background text-foreground;
     font-family: 'PT Sans', sans-serif;
   }
-  /* Ensure headings also use PT Sans by default if not overridden */
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
   }
@@ -69,17 +67,35 @@
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(var(--background) / 0.8); /* Darker track */
+  background: hsl(var(--background) / 0.7);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted) / 0.6); /* Muted color thumb */
+  background: hsl(var(--muted) / 0.5); 
   border-radius: 10px;
+  border: 2px solid hsl(var(--background) / 0.7);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted) / 0.8);
+  background: hsl(var(--muted) / 0.7);
+}
+
+/* Glow effects for buttons and cards on hover/focus */
+@layer components {
+  .btn-glow {
+    @apply transition-all duration-300 ease-out;
+  }
+  .btn-glow:hover, .btn-glow:focus-visible {
+    @apply shadow-[0_0_15px_5px_hsl(var(--accent)/0.3)];
+  }
+
+  .card-glow {
+     @apply transition-all duration-300 ease-out;
+  }
+  .card-glow:hover {
+    @apply shadow-[0_0_20px_8px_hsl(var(--accent)/0.15)] border-accent/30;
+  }
 }

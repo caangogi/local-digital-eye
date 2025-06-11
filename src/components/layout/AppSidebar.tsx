@@ -1,8 +1,7 @@
-
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname } from "next/navigation"; // Keep next/navigation for raw pathname
+import { Link } from "@/navigation"; // Use next-intl's Link for navigation
 import {
   Sidebar,
   SidebarHeader,
@@ -12,20 +11,26 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, Briefcase, FileText, Map, Settings, LogOut, Search, Eye } from "lucide-react";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard /> },
-  { href: "/businesses", label: "Businesses", icon: <Briefcase /> },
-  { href: "/reports", label: "Reports", icon: <FileText /> },
-  { href: "/map-search", label: "Map Search", icon: <Map /> },
-  { href: "/service-recommendations", label: "AI Services", icon: <Search /> },
-];
+import { useTranslations, useLocale } from "next-intl";
 
 export function AppSidebar() {
-  const pathname = usePathname();
+  const rawPathname = usePathname(); // Gets the full path including locale, e.g., /en/dashboard
+  const locale = useLocale();
+  const t = useTranslations('AppSidebar');
+
+  // Remove locale prefix for isActive check if present
+  const pathname = rawPathname.startsWith(`/${locale}`) ? rawPathname.substring(`/${locale}`.length) || '/' : rawPathname;
+
+  const navItems = [
+    { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
+    { href: "/businesses", label: t('businesses'), icon: <Briefcase /> },
+    { href: "/reports", label: t('reports'), icon: <FileText /> },
+    { href: "/map-search", label: t('mapSearch'), icon: <Map /> },
+    { href: "/service-recommendations", label: t('aiServices'), icon: <Search /> },
+  ];
+  
   const { signOut, user } = useAuth();
 
   return (
@@ -64,11 +69,11 @@ export function AppSidebar() {
              <Link href="/settings">
                 <SidebarMenuButton
                   isActive={pathname === "/settings"}
-                  tooltip={{ children: "Settings", className: "font-body"}}
+                  tooltip={{ children: t('settings'), className: "font-body"}}
                   className="font-body"
                 >
                   <Settings/>
-                  <span>Settings</span>
+                  <span>{t('settings')}</span>
                 </SidebarMenuButton>
              </Link>
            </SidebarMenuItem>
@@ -76,11 +81,11 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={signOut}
-                tooltip={{ children: "Log Out", className: "font-body"}}
+                tooltip={{ children: t('logOut'), className: "font-body"}}
                 className="font-body"
               >
                 <LogOut />
-                <span>Log Out</span>
+                <span>{t('logOut')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}

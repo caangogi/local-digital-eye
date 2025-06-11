@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from '@/navigation'; // Use next-intl's navigation
+import { useLocale } from 'next-intl';
+
 
 const AUTH_KEY = 'localDigitalEye.auth';
 
@@ -24,6 +26,8 @@ export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname(); // current path without locale
+  const locale = useLocale(); // current locale
 
   const loadUserFromStorage = useCallback(() => {
     setIsLoading(true);
@@ -34,7 +38,7 @@ export function useAuth(): AuthState {
       }
     } catch (error) {
       console.error("Failed to load user from storage:", error);
-      localStorage.removeItem(AUTH_KEY); // Clear corrupted data
+      localStorage.removeItem(AUTH_KEY); 
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +61,6 @@ export function useAuth(): AuthState {
 
   const signIn = async (email: string): Promise<void> => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     const mockUser: User = {
       id: '1',
@@ -68,17 +71,16 @@ export function useAuth(): AuthState {
     localStorage.setItem(AUTH_KEY, JSON.stringify(mockUser));
     setUser(mockUser);
     setIsLoading(false);
-    router.push('/dashboard');
+    router.push('/dashboard'); // next-intl's router handles locale automatically
   };
 
   const signOut = async (): Promise<void> => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 300));
     localStorage.removeItem(AUTH_KEY);
     setUser(null);
     setIsLoading(false);
-    router.push('/login');
+    router.push('/login'); // next-intl's router handles locale automatically
   };
 
   return {
