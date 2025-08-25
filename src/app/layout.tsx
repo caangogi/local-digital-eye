@@ -1,15 +1,25 @@
-// This is the root layout for non-internationalized paths.
-// With next-intl, this should be minimal and delegate HTML structure to src/app/[locale]/layout.tsx.
+// The root layout now defines the main HTML structure.
+// src/app/[locale]/layout.tsx will provide the content FOR this layout.
+import type { Metadata } from "next";
 
-// Remove Metadata export, CSS imports, font links, and Toaster.
-// These will be handled by src/app/[locale]/layout.tsx.
+export const metadata: Metadata = {
+  title: 'Local Digital Eye',
+  description: 'AI-Powered Business Analysis and Service Recommendations',
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // The root layout should just return children when using next-intl's recommended setup.
-  // The actual <html> and <body> tags will be rendered by src/app/[locale]/layout.tsx.
-  return children;
+  // The root layout must define <html> and <body>
+  return (
+    // The lang and other attributes will be inherited from the child layout (src/app/[locale]/layout.tsx)
+    // but the tags themselves must exist here.
+    <html>
+      <body>
+        {children}
+      </body>
+    </html>
+  );
 }
