@@ -37,6 +37,8 @@ const phases = [
       {
         title: "Hito 1.1: Autenticación y Perfil de Usuario (Arquitectura Hexagonal)",
         tasks: [
+          { who: "bot", text: "Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend)." },
+          { who: "user", text: "En Firebase Console, generar una nueva clave privada (archivo JSON) para el SDK de Admin desde Configuración > Cuentas de servicio." },
           { who: "bot", text: "Crear estructura de directorios: `src/backend/user/domain`, `application`, `infrastructure`." },
           { who: "bot", text: "Definir la entidad `User` y el puerto `UserRepositoryPort` en la capa de dominio." },
           { who: "bot", text: "Crear el caso de uso `GetUserProfileUseCase` en la capa de aplicación." },

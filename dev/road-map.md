@@ -29,6 +29,8 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 ### Hito 1.1: Autenticación y Perfil de Usuario (Arquitectura Hexagonal)
 
+- **🤖 Tarea (Backend - Configuración):** Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend).
+- **👨‍🦲 Tarea:** Ir a la [Consola de Firebase](https://console.firebase.google.com/) -> Configuración del proyecto -> Cuentas de servicio. Generar una nueva clave privada (archivo JSON) para el SDK de Admin y guardarla de forma segura en el proyecto (por ejemplo, en variables de entorno).
 - **🤖 Tarea (Backend - Dominio):**
     1.  Crear la estructura de directorios: `src/backend/user/domain/`, `src/backend/user/application/`, `src/backend/user/infrastructure/`.
     2.  Definir la entidad de dominio `User` (`src/backend/user/domain/user.entity.ts`).
