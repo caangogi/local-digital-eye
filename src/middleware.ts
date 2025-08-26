@@ -1,5 +1,5 @@
 import createMiddleware from 'next-intl/middleware';
-import {locales, defaultLocale, localePrefix} from './navigation';
+import {locales, defaultLocale} from './navigation';
 
 export default createMiddleware({
   // A list of all locales that are supported
@@ -7,7 +7,18 @@ export default createMiddleware({
   // Used when no locale matches
   defaultLocale,
   // Always use a locale prefix
-  localePrefix,
+  localePrefix: 'as-needed',
+  pathnames: {
+    '/': '/',
+    '/login': '/login',
+    '/dashboard': '/dashboard',
+    '/businesses': '/businesses',
+    '/reports': '/reports',
+    '/map-search': '/map-search',
+    '/service-recommendations': '/service-recommendations',
+    '/settings': '/settings',
+    '/road-map': '/road-map'
+  }
 });
 
 export const config = {
