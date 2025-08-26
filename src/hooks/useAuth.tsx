@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
@@ -70,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         console.log('[Auth] No Firebase user. Clearing session and user state.');
+        // Only clear the server session if there was a user before.
         if (user) { 
           await clearSession();
         }
@@ -83,11 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, []); // Dependency array is empty to run only once on mount
+  }, []); // The empty dependency array is correct here.
 
   const isAuthenticated = !isLoading && !!user;
 
   useEffect(() => {
+    // This effect handles redirection after authentication state is determined.
     if (!isLoading && isAuthenticated) {
         // Only redirect if not already on a dashboard-like page to avoid loops
         if (!window.location.pathname.includes('/dashboard')) {
@@ -102,11 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Attempting to sign in with Google via redirect...');
     const provider = new GoogleAuthProvider();
     try {
+      // The key change: use signInWithRedirect
       await signInWithRedirect(clientAuth, provider);
-      console.log('[Auth] signInWithRedirect initiated. Waiting for redirect to complete.');
+      // No code will execute after this line on the initial click, as the page will redirect.
+      // The logic continues in the onAuthStateChanged listener when the user is redirected back.
     } catch (error) {
       console.error("[Auth] Error during Google sign-in redirect initiation:", error);
-      setIsLoading(false);
+      setIsLoading(false); // Only reached if signInWithRedirect fails immediately
     }
   };
 
@@ -115,13 +120,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await firebaseSignout(clientAuth);
-      console.log('[Auth] Firebase sign-out successful. onAuthStateChanged will handle cleanup.');
+      // onAuthStateChanged will handle setting user to null and clearing server session.
+      console.log('[Auth] Firebase sign-out successful. Redirecting to login.');
       router.push('/login');
     } catch (error) {
       console.error("[Auth] Error signing out:", error);
+      // Fallback cleanup
       await clearSession();
       setUser(null);
       router.push('/login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
