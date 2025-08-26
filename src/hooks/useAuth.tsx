@@ -40,9 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (firebaseUser) {
         try {
           const idToken = await firebaseUser.getIdToken();
+          // This is the crucial part: call our backend to create/verify the session
           const response = await createSession(idToken);
           
           if (response.success) {
+            // If the server confirms, create the user object for the context
             const appUser: User = {
               id: firebaseUser.uid,
               email: firebaseUser.email || '',
@@ -50,10 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               avatarUrl: firebaseUser.photoURL || undefined,
             };
             setUser(appUser);
-            // Redirect to dashboard ONLY after user state is set and session is confirmed
-            router.push('/dashboard');
+            // Only now is it safe to consider the user fully authenticated
+            // The layout effect will handle redirection if needed.
           } else {
-            // If session creation fails, sign out from client and server
+            // If our backend fails to create a session, something is wrong.
+            // Log the user out from the client to prevent an inconsistent state.
+            console.error("Backend session creation failed:", response.message);
             await firebaseSignout(clientAuth); 
           }
         } catch (error) {
@@ -61,29 +65,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await firebaseSignout(clientAuth);
         }
       } else {
-        // User is signed out
+        // User is signed out, clear the server session and local user state
         await clearSession();
         setUser(null);
       }
       setIsLoading(false);
     });
+
+    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [router]); // dependency array ensures this runs once
+  }, []); // The empty dependency array ensures this effect runs only once on mount
 
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      // The onAuthStateChanged listener will handle the result of this popup
+      // onAuthStateChanged will handle the rest of the logic
       await signInWithPopup(clientAuth, provider);
-      // DO NOT redirect here. Let the listener handle it.
     } catch (error) {
-      // The most common error here is 'auth/popup-closed-by-user', which is fine.
-      // For other errors, we log them.
+      // This error is common and expected if the user closes the popup.
+      // We only log other, unexpected errors.
       if ((error as any).code !== 'auth/popup-closed-by-user') {
           console.error("Error during Google sign-in:", error);
       }
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading if sign-in is cancelled
     }
   };
 
@@ -91,11 +96,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await firebaseSignout(clientAuth);
-      // onAuthStateChanged will handle clearing session and user state
+      // onAuthStateChanged listener will automatically handle clearing session and user state
       router.push('/login');
     } catch (error) {
       console.error("Error signing out:", error);
-      // Still attempt to redirect and clear state
+      // As a fallback, manually clear session and state and redirect
       await clearSession();
       setUser(null);
       router.push('/login');
@@ -116,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth(): AuthState {
-  const context = useContext(AuthContext);
+  const context = useContext(Auth.AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
