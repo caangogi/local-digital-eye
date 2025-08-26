@@ -5,7 +5,7 @@ import { useRouter } from '@/navigation';
 import { 
   onAuthStateChanged, 
   GoogleAuthProvider, 
-  signInWithPopup,
+  signInWithRedirect, // Changed from signInWithPopup
   signOut as firebaseSignout,
   type User as FirebaseUser 
 } from "firebase/auth";
@@ -38,9 +38,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Setting up onAuthStateChanged listener...');
     const unsubscribe = onAuthStateChanged(clientAuth, async (firebaseUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
-      setIsLoading(true);
+      // Don't set loading to true here, as it can cause flickers during redirect flows
       if (firebaseUser) {
         console.log('[Auth] Firebase user found:', firebaseUser.uid);
+        
+        // Check if a user state is already set. This avoids redundant session creation after redirect.
+        if (user) {
+            setIsLoading(false);
+            return;
+        }
+
         try {
           const idToken = await firebaseUser.getIdToken();
           console.log('[Auth] ID Token obtained. Calling createSession server action...');
@@ -59,15 +66,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.log('[Auth] User state set in context.');
           } else {
             console.error("[Auth] Backend session creation failed:", response.message);
-            await firebaseSignout(clientAuth); 
+            await firebaseSignout(clientAuth);
+            setUser(null); // Ensure user is cleared on failure
           }
         } catch (error) {
           console.error("[Auth] Error during auth state processing:", error);
           await firebaseSignout(clientAuth);
+          setUser(null); // Ensure user is cleared on error
         }
       } else {
         console.log('[Auth] No Firebase user. Clearing session and user state.');
-        await clearSession();
+        if (user) { // Only clear session if there was a user before
+          await clearSession();
+        }
         setUser(null);
       }
       setIsLoading(false);
@@ -78,13 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, []);
+  }, [user]); // Add user to dependency array
 
   const isAuthenticated = !isLoading && !!user;
 
   useEffect(() => {
-    // This effect will run when isLoading or isAuthenticated changes.
-    // It handles redirection after the auth state is fully resolved.
     if (!isLoading && isAuthenticated) {
         router.push('/dashboard');
     }
@@ -92,20 +101,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
-    console.log('[Auth] Attempting to sign in with Google...');
+    console.log('[Auth] Attempting to sign in with Google via redirect...');
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(clientAuth, provider);
-      // onAuthStateChanged will handle the success case.
-      console.log('[Auth] signInWithPopup successful. Waiting for onAuthStateChanged.');
+      // Use signInWithRedirect instead of signInWithPopup
+      await signInWithRedirect(clientAuth, provider);
+      // The browser will redirect. onAuthStateChanged will handle the result when it comes back.
+      console.log('[Auth] signInWithRedirect initiated. Waiting for redirect to complete.');
     } catch (error) {
-      // This error is common and expected if the user closes the popup.
-      if ((error as any).code !== 'auth/popup-closed-by-user') {
-          console.error("[Auth] Error during Google sign-in:", error);
-      } else {
-        console.log('[Auth] Google sign-in popup closed by user.');
-      }
-      setIsLoading(false); // Stop loading if sign-in is cancelled/failed
+      console.error("[Auth] Error during Google sign-in redirect initiation:", error);
+      setIsLoading(false);
     }
   };
 
@@ -124,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       router.push('/login');
     } finally {
-        setIsLoading(false);
+        // isLoading will be set to false by the onAuthStateChanged listener
     }
   };
 
