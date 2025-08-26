@@ -5,12 +5,13 @@ import { useEffect } from 'react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth.tsx';
 import { Toaster } from '@/components/ui/toaster';
 import { usePathname, useRouter } from '@/navigation'; // Use next-intl's navigation
 import { useLocale } from 'next-intl';
+import { AuthProvider } from '@/hooks/useAuth.tsx';
 
-export default function AppLayout({
+function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -67,5 +68,17 @@ export default function AppLayout({
       </SidebarInset>
       <Toaster />
     </SidebarProvider>
+  );
+}
+
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AuthProvider>
+        <AuthenticatedLayout>{children}</AuthenticatedLayout>
+    </AuthProvider>
   );
 }

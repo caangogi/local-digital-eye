@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth.tsx";
 import { LayoutDashboard, Briefcase, FileText, Map, Settings, LogOut, Search, Eye } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 

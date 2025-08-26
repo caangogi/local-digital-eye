@@ -6,7 +6,7 @@ import { useRouter } from '@/navigation';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { AuthProvider, useAuth } from '@/hooks/useAuth.tsx';
 import { Toaster } from '@/components/ui/toaster'; 
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {

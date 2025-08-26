@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth.tsx";
 import { LogOut, Settings, UserCircle, PanelLeft } from "lucide-react";
 import { Link } from "@/navigation"; // Use next-intl's Link
 import { useTranslations } from "next-intl";
