@@ -37,8 +37,8 @@ const phases = [
       {
         title: "Hito 1.1: Autenticación y Perfil de Usuario (Arquitectura Hexagonal)",
         tasks: [
-          { who: "bot", text: "Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend)." },
-          { who: "user", text: "En Firebase Console, generar una nueva clave privada (archivo JSON) para el SDK de Admin desde Configuración > Cuentas de servicio." },
+          { who: "bot", text: "Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend).", completed: true },
+          { who: "user", text: "En Firebase Console, generar una nueva clave privada (archivo JSON) para el SDK de Admin desde Configuración > Cuentas de servicio.", completed: true },
           { who: "bot", text: "Crear estructura de directorios: `src/backend/user/domain`, `application`, `infrastructure`." },
           { who: "bot", text: "Definir la entidad `User` y el puerto `UserRepositoryPort` en la capa de dominio." },
           { who: "bot", text: "Crear el caso de uso `GetUserProfileUseCase` en la capa de aplicación." },
@@ -169,7 +169,10 @@ export default function RoadMapPage() {
                                 {milestone.tasks.map((task, taskIndex) => (
                                     <li key={taskIndex} className="flex items-start gap-3">
                                         <TaskIcon who={task.who} />
-                                        <span className="flex-1 text-sm text-foreground/90">{task.text}</span>
+                                        <span className={`flex-1 text-sm text-foreground/90 ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                                          {task.completed && '✅ '}
+                                          {task.text}
+                                        </span>
                                     </li>
                                 ))}
                             </ul>
