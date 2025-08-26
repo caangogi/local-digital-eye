@@ -37,15 +37,13 @@ Este documento describe el plan de acción para implementar las funcionalidades 
     3.  Definir el puerto del repositorio `UserRepositoryPort` (`src/backend/user/domain/user.repository.port.ts`).
 - **✅ 🤖 Tarea (Backend - Aplicación):**
     1.  Crear los casos de uso para el `User`: `GetUserProfileUseCase`, `CreateOrUpdateUserUseCase`, `DeleteUserUseCase`.
-- **👨‍🦲 Tarea:**
+- **✅ 👨‍🦲 Tarea:**
     1.  Ir a la [Consola de Firebase](https://console.firebase.google.com/).
     2.  Habilitar "Authentication" y activar el proveedor de "Google".
     3.  Asegurarse de que el dominio de la aplicación esté añadido a la lista de dominios autorizados para OAuth.
-    4.  Ir a la [Consola de Google Cloud](https://console.cloud.google.com/) y habilitar la **Google People API**.
-    5.  Configurar la pantalla de consentimiento de OAuth, especificando los scopes necesarios (`openid`, `email`, `profile`).
 - **✅ 🤖 Tarea (Backend - Infraestructura):**
     1.  Crear un adaptador `FirebaseUserRepository` que implemente el `UserRepositoryPort` (`src/backend/user/infrastructure/firebase-user.repository.ts`).
-- **🤖 Tarea (Integración Frontend):**
+- **✅ 🤖 Tarea (Integración Frontend):**
     1.  Modificar/Crear el hook `useAuth` para que actúe como adaptador primario en el cliente, invocando los mecanismos de autenticación de Firebase.
     2.  Crear un nuevo layout y página de login/registro que utilice exclusivamente la autenticación de Google manejada por `useAuth`.
 
