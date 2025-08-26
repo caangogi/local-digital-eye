@@ -88,7 +88,7 @@ export function LoginForm() {
         </Form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {t('noAccount')}{' '}
-          <Link href="#" className="font-medium text-primary hover:underline">
+          <Link href="/" className="font-medium text-primary hover:underline">
             {t('signUpLink')}
           </Link>
         </p>
