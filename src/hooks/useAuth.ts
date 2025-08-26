@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
 import { useRouter } from '@/navigation';
 import { 
   getAuth, 
@@ -28,7 +28,9 @@ interface AuthState {
   signOut: () => Promise<void>;
 }
 
-export function useAuth(): AuthState {
+const AuthContext = createContext<AuthState | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -36,19 +38,24 @@ export function useAuth(): AuthState {
   const handleAuthStateChanged = useCallback(async (firebaseUser: FirebaseUser | null) => {
     setIsLoading(true);
     if (firebaseUser) {
-      const idToken = await firebaseUser.getIdToken();
-      const response = await createSession(idToken);
-      
-      if (response.success) {
-        const appUser: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || 'No Name',
-          avatarUrl: firebaseUser.photoURL || undefined,
-        };
-        setUser(appUser);
-      } else {
-        // If session creation fails, sign out from client
+      try {
+        const idToken = await firebaseUser.getIdToken();
+        const response = await createSession(idToken);
+        
+        if (response.success) {
+          const appUser: User = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            name: firebaseUser.displayName || 'No Name',
+            avatarUrl: firebaseUser.photoURL || undefined,
+          };
+          setUser(appUser);
+        } else {
+          await firebaseSignOut(clientAuth);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error during auth state change:", error);
         await firebaseSignOut(clientAuth);
         setUser(null);
       }
@@ -69,7 +76,7 @@ export function useAuth(): AuthState {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(clientAuth, provider);
-      // onAuthStateChanged will handle the rest
+      // onAuthStateChanged will handle session creation and user state update
       router.push('/dashboard');
     } catch (error) {
       console.error("Error during Google sign-in:", error);
@@ -89,11 +96,21 @@ export function useAuth(): AuthState {
     }
   };
 
-  return {
+  const value: AuthState = {
     user,
-    isAuthenticated: !!user && !isLoading,
+    isAuthenticated: !!user,
     isLoading,
     signInWithGoogle,
     signOut,
   };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthState {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

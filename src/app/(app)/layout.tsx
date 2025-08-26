@@ -1,19 +1,15 @@
-"use client"; // This layout uses hooks, so it needs to be a client component at the top level that uses these hooks.
+"use client"; 
 
 import type React from 'react';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { useAuth } from '@/hooks/useAuth';
-import { Toaster } from '@/components/ui/toaster'; // Ensure Toaster is here if not in root
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { Toaster } from '@/components/ui/toaster'; 
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
@@ -37,9 +33,7 @@ export default function AppLayout({
   }
 
   if (!isAuthenticated) {
-    // This check is primarily for the initial render before useEffect kicks in.
-    // Or if somehow isLoading is false but not authenticated yet.
-    return null; // Or a minimal loading/redirecting state
+    return null; 
   }
 
   return (
@@ -53,5 +47,18 @@ export default function AppLayout({
       </SidebarInset>
       <Toaster />
     </SidebarProvider>
+  );
+}
+
+
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AuthProvider>
+      <AuthenticatedLayout>{children}</AuthenticatedLayout>
+    </AuthProvider>
   );
 }
