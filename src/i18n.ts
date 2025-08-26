@@ -19,6 +19,7 @@ export default getRequestConfig(async ({locale}) => {
   }
   
   return {
+    locale, // Add the locale to the return object
     messages
   };
 });
