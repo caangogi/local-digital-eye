@@ -66,7 +66,6 @@ function AuthenticatedLayout({
           {children}
         </main>
       </SidebarInset>
-      <Toaster />
     </SidebarProvider>
   );
 }

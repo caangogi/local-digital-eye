@@ -46,7 +46,6 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </SidebarInset>
-      <Toaster />
     </SidebarProvider>
   );
 }

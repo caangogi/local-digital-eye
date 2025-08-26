@@ -26,8 +26,8 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages}>
       <AuthProvider>
         {children}
-        <Toaster />
       </AuthProvider>
+      <Toaster />
     </NextIntlClientProvider>
   );
 }
