@@ -6,22 +6,44 @@ import {locales as availableLocales, defaultLocale as defaultAvailableLocale} fr
 
 export const locales = availableLocales;
 export const defaultLocale = defaultAvailableLocale;
-export const localePrefix = 'as-needed'; // Options: 'as-needed', 'always', 'never'
+export const localePrefix = 'as-needed';
 
 // The pathnames object holds the mappings from a canonical path
-// to locale-specific paths.
+// to locale-specific paths. This is used to translate URLs.
 export const pathnames = {
-  // If all locales use the same pathname, a single
-  // external path can be used for all locales.
   '/': '/',
-  '/login': '/login',
-  '/dashboard': '/dashboard',
-  '/businesses': '/businesses',
-  '/reports': '/reports',
-  '/map-search': '/map-search',
-  '/service-recommendations': '/service-recommendations',
-  '/settings': '/settings',
-  '/road-map': '/road-map'
+  '/login': {
+    en: '/login',
+    es: '/iniciar-sesion'
+  },
+  '/dashboard': {
+    en: '/dashboard',
+    es: '/panel'
+  },
+  '/businesses': {
+    en: '/businesses',
+    es: '/negocios'
+  },
+  '/reports': {
+    en: '/reports',
+    es: '/informes'
+  },
+  '/map-search': {
+    en: '/map-search',
+    es: '/busqueda-mapa'
+  },
+  '/service-recommendations': {
+    en: '/service-recommendations',
+    es: '/recomendaciones-ia'
+  },
+  '/settings': {
+    en: '/settings',
+    es: '/configuracion'
+  },
+  '/road-map': {
+    en: '/road-map',
+    es: '/hoja-de-ruta'
+  },
 } satisfies Pathnames<typeof locales>;
 
 
