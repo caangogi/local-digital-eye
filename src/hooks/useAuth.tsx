@@ -6,7 +6,7 @@ import {
   onAuthStateChanged, 
   GoogleAuthProvider, 
   signInWithPopup,
-  signOut as firebaseSignOut,
+  signOut as firebaseSignout,
   type User as FirebaseUser 
 } from "firebase/auth";
 import { auth as clientAuth } from '@/lib/firebase/firebase-client-config';
@@ -34,51 +34,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const handleAuthStateChanged = useCallback(async (firebaseUser: FirebaseUser | null) => {
-    setIsLoading(true);
-    if (firebaseUser) {
-      try {
-        const idToken = await firebaseUser.getIdToken();
-        const response = await createSession(idToken);
-        
-        if (response.success) {
-          const appUser: User = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            name: firebaseUser.displayName || 'No Name',
-            avatarUrl: firebaseUser.photoURL || undefined,
-          };
-          setUser(appUser);
-        } else {
-          await firebaseSignOut(clientAuth);
-          setUser(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(clientAuth, async (firebaseUser) => {
+      setIsLoading(true);
+      if (firebaseUser) {
+        try {
+          const idToken = await firebaseUser.getIdToken();
+          const response = await createSession(idToken);
+          
+          if (response.success) {
+            const appUser: User = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || 'No Name',
+              avatarUrl: firebaseUser.photoURL || undefined,
+            };
+            setUser(appUser);
+            // Redirect to dashboard ONLY after user state is set and session is confirmed
+            router.push('/dashboard');
+          } else {
+            // If session creation fails, sign out from client and server
+            await firebaseSignout(clientAuth); 
+          }
+        } catch (error) {
+          console.error("Error during auth state processing:", error);
+          await firebaseSignout(clientAuth);
         }
-      } catch (error) {
-        console.error("Error during auth state change:", error);
-        await firebaseSignOut(clientAuth);
+      } else {
+        // User is signed out
+        await clearSession();
         setUser(null);
       }
-    } else {
-      await clearSession();
-      setUser(null);
-    }
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(clientAuth, handleAuthStateChanged);
+      setIsLoading(false);
+    });
     return () => unsubscribe();
-  }, [handleAuthStateChanged]);
+  }, [router]); // dependency array ensures this runs once
 
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
+      // The onAuthStateChanged listener will handle the result of this popup
       await signInWithPopup(clientAuth, provider);
-      // onAuthStateChanged will handle session creation and user state update
-      router.push('/dashboard');
+      // DO NOT redirect here. Let the listener handle it.
     } catch (error) {
-      console.error("Error during Google sign-in:", error);
+      // The most common error here is 'auth/popup-closed-by-user', which is fine.
+      // For other errors, we log them.
+      if ((error as any).code !== 'auth/popup-closed-by-user') {
+          console.error("Error during Google sign-in:", error);
+      }
       setIsLoading(false);
     }
   };
@@ -86,18 +90,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      await firebaseSignOut(clientAuth);
-      // onAuthStateChanged will handle clearing the session
+      await firebaseSignout(clientAuth);
+      // onAuthStateChanged will handle clearing session and user state
       router.push('/login');
     } catch (error) {
       console.error("Error signing out:", error);
-      setIsLoading(false);
+      // Still attempt to redirect and clear state
+      await clearSession();
+      setUser(null);
+      router.push('/login');
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const value: AuthState = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !isLoading && !!user, // More reliable isAuthenticated check
     isLoading,
     signInWithGoogle,
     signOut,
