@@ -1,14 +1,32 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Bot, UserCog } from "lucide-react";
+import { Bot, UserCog } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
-  // Assuming a generic title for this page
   return {
     title: "Development Roadmap"
   };
 }
+
+const developmentPolicies = [
+  { 
+    title: "Arquitectura General",
+    description: "El proyecto será una aplicación Full-stack monolítica construida sobre Next.js App Router. Aprovecharemos las capacidades del servidor de Next.js (Server Actions, Route Handlers en `src/app/api`) para toda la lógica de backend."
+  },
+  { 
+    title: "Patrón de Diseño (Backend)",
+    description: "Implementaremos Arquitectura Hexagonal (Puertos y Adaptadores). El Núcleo (Dominio) contendrá la lógica de negocio pura, comunicándose a través de Puertos (interfaces) con Adaptadores que implementan la lógica de infraestructura (ej. Bases de datos, APIs externas)."
+  },
+  {
+    title: "Arquitectura de IA",
+    description: "Los flujos de Genkit se tratarán como adaptadores de infraestructura. Un caso de uso del dominio invocará un puerto de IA, cuya implementación (GenkitAdapter) llamará al flujo correspondiente, desacoplando la lógica de negocio de la implementación de IA."
+  },
+  {
+    title: "Frontend",
+    description: "Usaremos React Server Components por defecto, componentes ShadCN, y TailwindCSS. La comunicación con el backend se hará preferentemente a través de Server Actions."
+  }
+];
 
 const phases = [
   {
@@ -17,14 +35,15 @@ const phases = [
     description: "Implementar el flujo principal para capturar y filtrar reseñas, maximizando las valoraciones positivas en Google y gestionando las negativas de forma interna.",
     milestones: [
       {
-        title: "Autenticación y Vinculación con Google",
+        title: "Autenticación y Perfil de Usuario (Arquitectura Hexagonal)",
         tasks: [
-          { who: "bot", text: "Crear un nuevo layout y página de login/registro que utilice exclusivamente la autenticación de Google (Firebase Authentication)." },
-          { who: "user", text: "En la Consola de Firebase, habilitar 'Authentication' y activar el proveedor de 'Google'." },
-          { who: "user", text: "Asegurarse de que el dominio de la app esté en la lista de dominios autorizados para OAuth." },
-          { who: "bot", text: "Desarrollar un nuevo hook `useAuth` que maneje el flujo de autenticación con Google." },
-          { who: "user", text: "En Google Cloud Console, habilitar la 'Google People API' para obtener datos del perfil de usuario." },
-          { who: "user", text: "Configurar la pantalla de consentimiento de OAuth con los permisos (scopes) necesarios." },
+          { who: "bot", text: "Definir la entidad de dominio `User` y los puertos del repositorio en `src/domain/user`." },
+          { who: "bot", text: "Crear el caso de uso `GetUserProfileUseCase`." },
+          { who: "user", text: "En la Consola de Firebase, habilitar 'Authentication' y activar el proveedor de 'Google', y autorizar el dominio." },
+          { who: "user", text: "En Google Cloud Console, habilitar la 'Google People API' y configurar la pantalla de consentimiento de OAuth." },
+          { who: "bot", text: "Crear un adaptador `FirebaseUserRepository` en `src/infrastructure/firebase` que implemente el puerto del repositorio." },
+          { who: "bot", text: "Modificar el hook `useAuth` para que actúe como adaptador primario en el cliente." },
+          { who: "bot", text: "Crear la UI de login/registro que use el nuevo flujo de autenticación." }
         ]
       },
       {
@@ -41,7 +60,7 @@ const phases = [
         tasks: [
             { who: "bot", text: "Crear la página pública y dinámica para la captura de la 'pre-reseña'." },
             { who: "bot", text: "Implementar la lógica condicional: 5 estrellas redirige a Google, 1-4 estrellas expande el formulario." },
-            { who: "bot", text: "Crear endpoint API para guardar las reseñas negativas en Firestore y notificar al dueño del negocio." },
+            { who: "bot", text: "Crear Server Action para el feedback negativo, invocando un caso de uso que lo guarde en Firestore y notifique al dueño del negocio." },
         ]
       }
     ]
@@ -91,15 +110,31 @@ const TaskIcon = ({ who }: { who: string }) => {
 
 export default function RoadMapPage() {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-12">
       <div>
         <h1 className="text-4xl font-bold tracking-tight font-headline">Hoja de Ruta del Desarrollo</h1>
         <p className="text-muted-foreground mt-2">Nuestro plan para construir las próximas grandes funcionalidades de Local Digital Eye.</p>
-        <div className="flex gap-4 mt-4 text-sm">
+        <div className="flex flex-col sm:flex-row gap-4 mt-4 text-sm">
             <div className="flex items-center gap-2"><Bot className="h-4 w-4 text-primary" /><span>Tareas de Desarrollo (Gemini)</span></div>
             <div className="flex items-center gap-2"><UserCog className="h-4 w-4 text-amber-400" /><span>Tareas de Configuración (Usuario)</span></div>
         </div>
       </div>
+      
+      <section>
+        <h2 className="text-3xl font-bold font-headline mb-4">🏛️ Políticas y Principios de Desarrollo</h2>
+         <div className="grid md:grid-cols-2 gap-4">
+          {developmentPolicies.map(policy => (
+             <Card key={policy.title} className="bg-card/50">
+               <CardHeader className="pb-3">
+                 <CardTitle className="text-lg font-semibold">{policy.title}</CardTitle>
+               </CardHeader>
+               <CardContent>
+                 <p className="text-sm text-muted-foreground">{policy.description}</p>
+               </CardContent>
+             </Card>
+          ))}
+        </div>
+      </section>
 
       <div className="space-y-12">
         {phases.map((phase, phaseIndex) => (
@@ -113,7 +148,7 @@ export default function RoadMapPage() {
             <div className="space-y-6 border-l-2 border-border ml-4 pl-8 relative">
                  <div className="absolute -left-[1.3rem] top-0 h-full">
                     {Array.from({ length: phase.milestones.length }).map((_, i) => (
-                        <div key={i} className="h-24 last:h-0">
+                        <div key={i} className="h-auto pb-6">
                             <div className="h-6 w-6 bg-background border-2 border-primary rounded-full ring-4 ring-background"></div>
                              {i < phase.milestones.length - 1 && <div className="h-full w-px bg-border mx-auto"></div>}
                         </div>
