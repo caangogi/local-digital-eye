@@ -35,7 +35,7 @@ const phases = [
     description: "Implementar el flujo principal para capturar y filtrar reseñas, maximizando las valoraciones positivas en Google y gestionando las negativas de forma interna.",
     milestones: [
       {
-        title: "Autenticación y Perfil de Usuario (Arquitectura Hexagonal)",
+        title: "Hito 1.1: Autenticación y Perfil de Usuario (Arquitectura Hexagonal)",
         tasks: [
           { who: "bot", text: "Crear estructura de directorios: `src/backend/user/domain`, `application`, `infrastructure`." },
           { who: "bot", text: "Definir la entidad `User` y el puerto `UserRepositoryPort` en la capa de dominio." },
@@ -47,16 +47,18 @@ const phases = [
         ]
       },
       {
-        title: "Obtención del Place ID y Generación de Enlace/QR",
+        title: "Hito 1.2: Conectar Negocio y Generar Activos de Reseña",
         tasks: [
-           { who: "user", text: "Habilitar la 'Google Business Profile API' en la Google Cloud Console." },
-           { who: "bot", text: "Desarrollar la arquitectura del módulo `business` en el backend." },
-           { who: "bot", text: "Crear interfaz para que el usuario conecte su 'Google Business Profile' y almacenar el `place_id`." },
-           { who: "bot", text: "Implementar en el dashboard la generación del enlace de reseña y su código QR." },
+           { who: "user", text: "Habilitar la 'Places API' en la Google Cloud Console." },
+           { who: "bot", text: "Definir en el dominio la entidad `Business` y el puerto `BusinessRepositoryPort`." },
+           { who: "bot", text: "Crear en la capa de aplicación los casos de uso: `ConnectBusiness`, `ListUserBusinesses`, `GetBusinessDetails`, y `DisconnectBusiness`." },
+           { who: "bot", text: "Crear en la infraestructura los adaptadores: `FirebaseBusinessRepository` y `GooglePlacesAdapter`." },
+           { who: "bot", text: "Desarrollar la UI en el frontend para buscar, conectar y listar los negocios." },
+           { who: "bot", text: "Implementar en el dashboard la generación del enlace de reseña y su código QR para cada negocio." },
         ]
       },
       {
-        title: "Página de Captura de Reseñas y Lógica de Filtrado",
+        title: "Hito 1.3: Página de Captura de Reseñas y Lógica de Filtrado",
         tasks: [
             { who: "bot", text: "Crear la página pública para la captura de la 'pre-reseña'." },
             { who: "bot", text: "Implementar la lógica condicional: 5 estrellas redirige a Google, 1-4 estrellas expande el formulario." },
@@ -73,7 +75,8 @@ const phases = [
         {
             title: "Sincronización y Generación de Respuestas",
             tasks: [
-                { who: "bot", text: "Crear servicio para obtener periódicamente las nuevas reseñas vía Google Business Profile API." },
+                { who: "user", text: "Habilitar la 'Google Business Profile API' para leer y responder reseñas." },
+                { who: "bot", text: "Crear servicio para obtener periódicamente las nuevas reseñas vía API." },
                 { who: "bot", text: "Desarrollar flujo de Genkit (adaptador) para analizar reseñas y generar respuestas sugeridas." },
                 { who: "bot", text: "Diseñar interfaz en el dashboard para que el usuario apruebe o edite las respuestas." },
                 { who: "bot", text: "Integrar la publicación automática de la respuesta aprobada en Google." },

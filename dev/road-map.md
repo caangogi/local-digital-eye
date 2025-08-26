@@ -47,14 +47,25 @@ Este documento describe el plan de acción para implementar las funcionalidades 
     1.  Modificar/Crear el hook `useAuth` para que actúe como adaptador primario en el cliente, invocando los mecanismos de autenticación de Firebase.
     2.  Crear un nuevo layout y página de login/registro que utilice exclusivamente la autenticación de Google manejada por `useAuth`.
 
-### Hito 1.2: Obtención del Place ID y Generación de Enlace/QR
+### Hito 1.2: Conectar Negocio y Generar Activos de Reseña
 
-- **👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud.
-- **🤖 Tarea (Backend):** Definir la entidad `Business` y su correspondiente arquitectura (dominio, aplicación, infraestructura) en `src/backend/business/`.
-- **🤖 Tarea (Backend - Infraestructura):** Crear un adaptador para la Google Business Profile API.
-- **🤖 Tarea (Backend - IA/Infraestructura):** Crear un flujo de Genkit (`ListUserBusinessesFlow`) que use el adaptador anterior para listar los negocios asociados a la cuenta del usuario.
-- **🤖 Tarea (Frontend - UI):** Una vez autenticado, crear una interfaz donde el usuario pueda conectar su "Google Business Profile", invocar el flujo y permitirle seleccionar un negocio para almacenar su `place_id`.
-- **🤖 Tarea (Frontend - UI):** Desarrollar la interfaz en el dashboard del usuario para mostrar el enlace único de reseña (`/review/[businessId]`) y generar un código QR descargable a partir de ese enlace.
+- **👨‍🦲 Tarea:** Habilitar la **Places API** en la Consola de Google Cloud para poder buscar y validar negocios.
+- **🤖 Tarea (Backend - Dominio):**
+    1. Crear la estructura de directorios: `src/backend/business/domain/`, `application/`, `infrastructure/`.
+    2. Definir la entidad `Business` (`business.entity.ts`) con campos como `id`, `userId`, `placeId`, `name`, `reviewLink`.
+    3. Definir el puerto `BusinessRepositoryPort` (`business.repository.port.ts`) con métodos `save`, `findById`, `findByUserId`, `delete`.
+- **🤖 Tarea (Backend - Aplicación):**
+    1. Crear `ConnectBusinessUseCase`: Lógica para buscar un negocio usando la Places API, obtener su `placeId` y guardarlo asociado al usuario.
+    2. Crear `ListUserBusinessesUseCase`: Lógica para listar todos los negocios de un usuario.
+    3. Crear `GetBusinessDetailsUseCase`: Lógica para obtener la información de un negocio específico, incluyendo su enlace de reseña y QR.
+    4. Crear `DisconnectBusinessUseCase`: Lógica para desvincular un negocio de un usuario.
+- **🤖 Tarea (Backend - Infraestructura):**
+    1. Crear `FirebaseBusinessRepository` que implemente el `BusinessRepositoryPort` usando Firestore.
+    2. Crear `GooglePlacesAdapter` para buscar la información de los negocios. Este adaptador será usado por el `ConnectBusinessUseCase`.
+- **🤖 Tarea (Frontend - UI):**
+    1. Crear una interfaz donde el usuario pueda buscar su negocio.
+    2. Mostrar los resultados y permitirle "conectar" el correcto.
+    3. En el dashboard, listar los negocios conectados y mostrar para cada uno su enlace único de reseña y un botón para generar/descargar el código QR.
 
 ### Hito 1.3: Página de Captura de Reseñas y Lógica de Filtrado
 
@@ -73,6 +84,7 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 *Objetivo: Ahorrar tiempo a los dueños de negocios generando respuestas inteligentes y personalizadas a las reseñas de Google.*
 
+- **👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud para leer y responder reseñas.
 - **🤖 Tarea:** Crear un servicio (ej. un cron job o un trigger de Firestore) que se sincronice periódicamente con la Google Business Profile API para obtener las nuevas reseñas de un negocio.
 - **🤖 Tarea:** Desarrollar un flujo de Genkit avanzado (adaptador de infraestructura) que:
     1.  Analice la reseña (sentimiento, temas clave).
