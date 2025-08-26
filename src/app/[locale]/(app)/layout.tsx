@@ -22,7 +22,6 @@ export default function AppLayout({
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Prepend locale to the login path
       router.push(`/login`);
     }
   }, [isAuthenticated, isLoading, router, locale, pathname]);

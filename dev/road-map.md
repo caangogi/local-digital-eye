@@ -31,19 +31,19 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 - **✅ 🤖 Tarea (Backend - Configuración):** Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend).
 - **✅ 👨‍🦲 Tarea:** Ir a la [Consola de Firebase](https://console.firebase.google.com/) -> Configuración del proyecto -> Cuentas de servicio. Generar una nueva clave privada (archivo JSON) para el SDK de Admin y guardarla de forma segura en el proyecto (por ejemplo, en variables de entorno).
-- **🤖 Tarea (Backend - Dominio):**
+- **✅ 🤖 Tarea (Backend - Dominio):**
     1.  Crear la estructura de directorios: `src/backend/user/domain/`, `src/backend/user/application/`, `src/backend/user/infrastructure/`.
     2.  Definir la entidad de dominio `User` (`src/backend/user/domain/user.entity.ts`).
     3.  Definir el puerto del repositorio `UserRepositoryPort` (`src/backend/user/domain/user.repository.port.ts`).
-- **🤖 Tarea (Backend - Aplicación):**
-    1.  Crear el caso de uso `GetUserProfileUseCase` (`src/backend/user/application/get-user-profile.use-case.ts`).
+- **✅ 🤖 Tarea (Backend - Aplicación):**
+    1.  Crear los casos de uso para el `User`: `GetUserProfileUseCase`, `CreateOrUpdateUserUseCase`, `DeleteUserUseCase`.
 - **👨‍🦲 Tarea:**
     1.  Ir a la [Consola de Firebase](https://console.firebase.google.com/).
     2.  Habilitar "Authentication" y activar el proveedor de "Google".
     3.  Asegurarse de que el dominio de la aplicación esté añadido a la lista de dominios autorizados para OAuth.
     4.  Ir a la [Consola de Google Cloud](https://console.cloud.google.com/) y habilitar la **Google People API**.
     5.  Configurar la pantalla de consentimiento de OAuth, especificando los scopes necesarios (`openid`, `email`, `profile`).
-- **🤖 Tarea (Backend - Infraestructura):**
+- **✅ 🤖 Tarea (Backend - Infraestructura):**
     1.  Crear un adaptador `FirebaseUserRepository` que implemente el `UserRepositoryPort` (`src/backend/user/infrastructure/firebase-user.repository.ts`).
 - **🤖 Tarea (Integración Frontend):**
     1.  Modificar/Crear el hook `useAuth` para que actúe como adaptador primario en el cliente, invocando los mecanismos de autenticación de Firebase.

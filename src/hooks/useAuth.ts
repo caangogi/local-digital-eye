@@ -61,13 +61,16 @@ export function useAuth(): AuthState {
 
   const signIn = async (email: string): Promise<void> => {
     setIsLoading(true);
+    // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
+    // Create a mock user object
     const mockUser: User = {
       id: '1',
       email: email,
       name: email.split('@')[0] || 'User',
       avatarUrl: `https://placehold.co/100x100.png?text=${(email.split('@')[0] || 'U').charAt(0).toUpperCase()}`
     };
+    // Save to localStorage and state
     localStorage.setItem(AUTH_KEY, JSON.stringify(mockUser));
     setUser(mockUser);
     setIsLoading(false);

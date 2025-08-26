@@ -33,3 +33,23 @@ export class GetUserProfileUseCase {
     return user;
   }
 }
+
+/**
+ * @fileoverview Defines the use case for creating or updating a user.
+ */
+export class CreateOrUpdateUserUseCase {
+  constructor(private readonly userRepository: UserRepositoryPort) {}
+  async execute(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
+}
+
+/**
+ * @fileoverview Defines the use case for deleting a user.
+ */
+export class DeleteUserUseCase {
+  constructor(private readonly userRepository: UserRepositoryPort) {}
+  async execute(id: string): Promise<void> {
+    return this.userRepository.delete(id);
+  }
+}

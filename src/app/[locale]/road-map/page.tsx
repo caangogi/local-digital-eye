@@ -39,12 +39,12 @@ const phases = [
         tasks: [
           { who: "bot", text: "Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend).", completed: true },
           { who: "user", text: "En Firebase Console, generar una nueva clave privada (archivo JSON) para el SDK de Admin desde Configuración > Cuentas de servicio.", completed: true },
-          { who: "bot", text: "Crear estructura de directorios: `src/backend/user/domain`, `application`, `infrastructure`." },
-          { who: "bot", text: "Definir la entidad `User` y el puerto `UserRepositoryPort` en la capa de dominio." },
-          { who: "bot", text: "Crear el caso de uso `GetUserProfileUseCase` en la capa de aplicación." },
+          { who: "bot", text: "Crear estructura de directorios: `src/backend/user/domain`, `application`, `infrastructure`.", completed: true },
+          { who: "bot", text: "Definir la entidad `User` y el puerto `UserRepositoryPort` en la capa de dominio.", completed: true },
+          { who: "bot", text: "Crear los casos de uso para el `User`: `GetUserProfileUseCase`, `CreateOrUpdateUserUseCase`, `DeleteUserUseCase`.", completed: true },
           { who: "user", text: "En Firebase Console, habilitar Authentication con el proveedor de Google y autorizar el dominio." },
           { who: "user", text: "En Google Cloud Console, habilitar la 'Google People API' y configurar la pantalla de consentimiento de OAuth." },
-          { who: "bot", text: "Crear un adaptador `FirebaseUserRepository` en la capa de infraestructura." },
+          { who: "bot", text: "Crear un adaptador `FirebaseUserRepository` en la capa de infraestructura.", completed: true },
           { who: "bot", text: "Integrar la autenticación en el frontend a través del hook `useAuth` y crear la UI de login." }
         ]
       },

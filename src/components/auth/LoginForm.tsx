@@ -39,6 +39,8 @@ export function LoginForm() {
     },
   });
 
+  // Since this is a mock, we'll just use the email.
+  // In a real scenario, you'd pass email and password.
   async function onSubmit(data: LoginFormValues) {
     await signIn(data.email);
   }
