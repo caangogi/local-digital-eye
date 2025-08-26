@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import type React from 'react';
@@ -7,9 +8,9 @@ import { AppSidebar } from '@/components/layout/AppSidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth.tsx';
 import { Toaster } from '@/components/ui/toaster';
-import { usePathname, useRouter } from '@/navigation'; // Use next-intl's navigation
+import { usePathname, useRouter } from '@/navigation'; 
 import { useLocale } from 'next-intl';
-import { AuthProvider } from '@/hooks/useAuth.tsx';
+
 
 function AuthenticatedLayout({
   children,
@@ -44,7 +45,6 @@ function AuthenticatedLayout({
     return null; 
   }
   
-  // Add a large, soft radial gradient for a "glow" effect
   const appBackgroundGlow = (
     <div className="absolute inset-0 z-[-2] overflow-hidden pointer-events-none">
       <div className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-20"
@@ -77,8 +77,6 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider>
-        <AuthenticatedLayout>{children}</AuthenticatedLayout>
-    </AuthProvider>
+      <AuthenticatedLayout>{children}</AuthenticatedLayout>
   );
 }

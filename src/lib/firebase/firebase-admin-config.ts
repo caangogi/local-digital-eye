@@ -10,6 +10,12 @@ function getFirebaseAdminApp(): App {
     return app;
   }
 
+  // On server-side, it's safe to check if any app exists.
+  if (admin.apps.length > 0) {
+    app = admin.app();
+    return app;
+  }
+
   const serviceAccount: ServiceAccount = {
     projectId: process.env.FIREBASE_PROJECT_ID,
     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Important: Replace escaped newlines
