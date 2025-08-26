@@ -12,6 +12,10 @@ export const localePrefix = 'as-needed'; // Options: 'as-needed', 'always', 'nev
 // If you have pages like `/about` and `/contact`, you can define their translations here.
 export const pathnames = {
   '/': '/',
+  '/login': {
+    en: '/login',
+    es: '/iniciar-sesion'
+  },
   '/dashboard': {
     en: '/dashboard',
     es: '/panel'
@@ -20,7 +24,26 @@ export const pathnames = {
     en: '/businesses',
     es: '/negocios'
   },
-  // Add more paths as needed
+  '/reports': {
+    en: '/reports',
+    es: '/informes'
+  },
+  '/map-search': {
+    en: '/map-search',
+    es: '/busqueda-mapa'
+  },
+  '/service-recommendations': {
+    en: '/service-recommendations',
+    es: '/recomendaciones-ia'
+  },
+  '/settings': {
+    en: '/settings',
+    es: '/configuracion'
+  },
+  '/road-map': {
+    en: '/road-map',
+    es: '/hoja-de-ruta'
+  }
 } satisfies Pathnames<typeof locales>;
 
 
