@@ -7,6 +7,7 @@ import {
   onAuthStateChanged, 
   GoogleAuthProvider, 
   signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignout,
   type User as FirebaseUser 
 } from "firebase/auth";
@@ -35,83 +36,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    console.log('[Auth] Setting up onAuthStateChanged listener...');
-    const unsubscribe = onAuthStateChanged(clientAuth, async (firebaseUser) => {
-      console.log('[Auth] onAuthStateChanged triggered.');
+  const handleUserSession = useCallback(async (firebaseUser: FirebaseUser | null) => {
+    if (firebaseUser) {
+      console.log('[Auth] Firebase user detected:', firebaseUser.uid);
+      const idToken = await firebaseUser.getIdToken();
       
-      if (firebaseUser) {
-        console.log('[Auth] Firebase user found:', firebaseUser.uid);
-        
-        try {
-          const idToken = await firebaseUser.getIdToken();
-          console.log('[Auth] ID Token obtained. Calling createSession server action...');
-          
-          const response = await createSession(idToken);
-          console.log('[Auth] Server response from createSession:', response);
-          
-          if (response.success) {
-            const appUser: User = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              name: firebaseUser.displayName || 'No Name',
-              avatarUrl: firebaseUser.photoURL || undefined,
-            };
-            setUser(appUser);
-            console.log('[Auth] User state set in context.');
-          } else {
-            console.error("[Auth] Backend session creation failed:", response.message);
-            await firebaseSignout(clientAuth);
-            setUser(null);
-          }
-        } catch (error) {
-          console.error("[Auth] Error during auth state processing:", error);
-          await firebaseSignout(clientAuth);
-          setUser(null); 
-        }
+      console.log('[Auth] ID Token obtained. Calling createSession server action...');
+      const response = await createSession(idToken);
+      console.log('[Auth] Server response from createSession:', response);
+
+      if (response.success) {
+        const appUser: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: firebaseUser.displayName || 'No Name',
+          avatarUrl: firebaseUser.photoURL || undefined,
+        };
+        setUser(appUser);
+        console.log('[Auth] User state set in context.');
       } else {
-        console.log('[Auth] No Firebase user. Clearing session and user state.');
-        // Only clear the server session if there was a user before.
-        if (user) { 
-          await clearSession();
+        console.error("[Auth] Backend session creation failed:", response.message);
+        await firebaseSignout(clientAuth); // Sign out if backend fails
+        setUser(null);
+      }
+    } else {
+      console.log('[Auth] No Firebase user. Clearing session and user state.');
+      setUser(null);
+      await clearSession();
+    }
+  }, []);
+
+  // Effect to handle the redirect result on component mount
+  useEffect(() => {
+    console.log('[Auth] Checking for redirect result...');
+    getRedirectResult(clientAuth)
+      .then(async (result) => {
+        if (result) {
+          console.log('[Auth] Redirect result found:', result.user.uid);
+          await handleUserSession(result.user);
+        } else {
+          console.log('[Auth] No redirect result found. Checking current auth state.');
+          // If there's no redirect result, check if a user is already signed in
+           if (!clientAuth.currentUser) {
+             setIsLoading(false);
+           }
         }
+      })
+      .catch((error) => {
+        console.error('[Auth] Error getting redirect result:', error);
+        setIsLoading(false);
+      });
+      
+    // Set up the onAuthStateChanged listener for session persistence and changes
+    const unsubscribe = onAuthStateChanged(clientAuth, async (firebaseUser) => {
+      console.log('[Auth] onAuthStateChanged listener triggered.');
+      if (firebaseUser) {
+        // This will handle session persistence across reloads, but not the initial redirect.
+        await handleUserSession(firebaseUser);
+      } else {
         setUser(null);
       }
       setIsLoading(false);
-      console.log('[Auth] Auth state processing finished. Loading is false.');
     });
 
     return () => {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, []); // The empty dependency array is correct here.
-
+  }, [handleUserSession]);
+  
   const isAuthenticated = !isLoading && !!user;
-
-  useEffect(() => {
-    // This effect handles redirection after authentication state is determined.
-    if (!isLoading && isAuthenticated) {
-        // Only redirect if not already on a dashboard-like page to avoid loops
-        if (!window.location.pathname.includes('/dashboard')) {
-            console.log('[Auth] User authenticated, redirecting to dashboard.');
-            router.push('/dashboard');
-        }
-    }
-  }, [isAuthenticated, isLoading, router]);
-
+  
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
     console.log('[Auth] Attempting to sign in with Google via redirect...');
     const provider = new GoogleAuthProvider();
     try {
-      // The key change: use signInWithRedirect
       await signInWithRedirect(clientAuth, provider);
-      // No code will execute after this line on the initial click, as the page will redirect.
-      // The logic continues in the onAuthStateChanged listener when the user is redirected back.
+      // The page will now redirect. The result is handled by getRedirectResult on return.
     } catch (error) {
-      console.error("[Auth] Error during Google sign-in redirect initiation:", error);
-      setIsLoading(false); // Only reached if signInWithRedirect fails immediately
+      console.error("[Auth] Error initiating Google sign-in redirect:", error);
+      setIsLoading(false);
     }
   };
 
@@ -120,15 +125,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await firebaseSignout(clientAuth);
-      // onAuthStateChanged will handle setting user to null and clearing server session.
+      setUser(null); // Clear user state immediately
+      await clearSession();
       console.log('[Auth] Firebase sign-out successful. Redirecting to login.');
       router.push('/login');
     } catch (error) {
       console.error("[Auth] Error signing out:", error);
-      // Fallback cleanup
-      await clearSession();
-      setUser(null);
-      router.push('/login');
     } finally {
       setIsLoading(false);
     }
