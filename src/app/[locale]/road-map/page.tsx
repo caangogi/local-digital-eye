@@ -12,19 +12,19 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 const developmentPolicies = [
   { 
     title: "Arquitectura General",
-    description: "El proyecto será una aplicación Full-stack monolítica construida sobre Next.js App Router. Aprovecharemos las capacidades del servidor de Next.js (Server Actions, Route Handlers en `src/app/api`) para toda la lógica de backend."
+    description: "El proyecto será una aplicación Full-stack monolítica sobre Next.js App Router. Para mantener una separación clara, toda la lógica de backend residirá en un directorio `src/backend`. Los puntos de entrada a este backend se realizarán a través de Server Actions o Route Handlers (`src/app/api`)."
   },
   { 
-    title: "Patrón de Diseño (Backend)",
-    description: "Implementaremos Arquitectura Hexagonal (Puertos y Adaptadores). El Núcleo (Dominio) contendrá la lógica de negocio pura, comunicándose a través de Puertos (interfaces) con Adaptadores que implementan la lógica de infraestructura (ej. Bases de datos, APIs externas)."
+    title: "Estructura del Backend (`src/backend`)",
+    description: "Organizamos el backend siguiendo un enfoque modular y por capas (domain, application, infrastructure). Cada módulo de negocio (ej. `user`) tendrá su propio directorio, promoviendo la separación de conceptos y la escalabilidad, inspirado en la Arquitectura Hexagonal."
   },
   {
     title: "Arquitectura de IA",
-    description: "Los flujos de Genkit se tratarán como adaptadores de infraestructura. Un caso de uso del dominio invocará un puerto de IA, cuya implementación (GenkitAdapter) llamará al flujo correspondiente, desacoplando la lógica de negocio de la implementación de IA."
+    description: "Los flujos de Genkit se tratarán como adaptadores de infraestructura. Un caso de uso de la capa de aplicación invocará un puerto del dominio, y un adaptador en `infrastructure` implementará ese puerto llamando al flujo de Genkit."
   },
   {
     title: "Frontend",
-    description: "Usaremos React Server Components por defecto, componentes ShadCN, y TailwindCSS. La comunicación con el backend se hará preferentemente a través de Server Actions."
+    description: "Usaremos React Server Components por defecto, componentes ShadCN, y TailwindCSS. La comunicación con el backend se hará preferentemente a través de Server Actions que invocarán los casos de uso de la capa de aplicación."
   }
 ];
 
@@ -37,30 +37,30 @@ const phases = [
       {
         title: "Autenticación y Perfil de Usuario (Arquitectura Hexagonal)",
         tasks: [
-          { who: "bot", text: "Definir la entidad de dominio `User` y los puertos del repositorio en `src/domain/user`." },
-          { who: "bot", text: "Crear el caso de uso `GetUserProfileUseCase`." },
-          { who: "user", text: "En la Consola de Firebase, habilitar 'Authentication' y activar el proveedor de 'Google', y autorizar el dominio." },
+          { who: "bot", text: "Crear estructura de directorios: `src/backend/user/domain`, `application`, `infrastructure`." },
+          { who: "bot", text: "Definir la entidad `User` y el puerto `UserRepositoryPort` en la capa de dominio." },
+          { who: "bot", text: "Crear el caso de uso `GetUserProfileUseCase` en la capa de aplicación." },
+          { who: "user", text: "En Firebase Console, habilitar Authentication con el proveedor de Google y autorizar el dominio." },
           { who: "user", text: "En Google Cloud Console, habilitar la 'Google People API' y configurar la pantalla de consentimiento de OAuth." },
-          { who: "bot", text: "Crear un adaptador `FirebaseUserRepository` en `src/infrastructure/firebase` que implemente el puerto del repositorio." },
-          { who: "bot", text: "Modificar el hook `useAuth` para que actúe como adaptador primario en el cliente." },
-          { who: "bot", text: "Crear la UI de login/registro que use el nuevo flujo de autenticación." }
+          { who: "bot", text: "Crear un adaptador `FirebaseUserRepository` en la capa de infraestructura." },
+          { who: "bot", text: "Integrar la autenticación en el frontend a través del hook `useAuth` y crear la UI de login." }
         ]
       },
       {
         title: "Obtención del Place ID y Generación de Enlace/QR",
         tasks: [
            { who: "user", text: "Habilitar la 'Google Business Profile API' en la Google Cloud Console." },
-           { who: "bot", text: "Crear interfaz para que el usuario conecte su 'Google Business Profile' vía OAuth." },
-           { who: "bot", text: "Desarrollar flujo para listar negocios del usuario y almacenar el `place_id` seleccionado." },
-           { who: "bot", text: "Implementar en el dashboard la generación del enlace único de reseña y su código QR descargable." },
+           { who: "bot", text: "Desarrollar la arquitectura del módulo `business` en el backend." },
+           { who: "bot", text: "Crear interfaz para que el usuario conecte su 'Google Business Profile' y almacenar el `place_id`." },
+           { who: "bot", text: "Implementar en el dashboard la generación del enlace de reseña y su código QR." },
         ]
       },
       {
         title: "Página de Captura de Reseñas y Lógica de Filtrado",
         tasks: [
-            { who: "bot", text: "Crear la página pública y dinámica para la captura de la 'pre-reseña'." },
+            { who: "bot", text: "Crear la página pública para la captura de la 'pre-reseña'." },
             { who: "bot", text: "Implementar la lógica condicional: 5 estrellas redirige a Google, 1-4 estrellas expande el formulario." },
-            { who: "bot", text: "Crear Server Action para el feedback negativo, invocando un caso de uso que lo guarde en Firestore y notifique al dueño del negocio." },
+            { who: "bot", text: "Crear Server Action, caso de uso y adaptadores para procesar el feedback negativo." },
         ]
       }
     ]
@@ -74,7 +74,7 @@ const phases = [
             title: "Sincronización y Generación de Respuestas",
             tasks: [
                 { who: "bot", text: "Crear servicio para obtener periódicamente las nuevas reseñas vía Google Business Profile API." },
-                { who: "bot", text: "Desarrollar flujo de Genkit para analizar reseñas y generar respuestas sugeridas y personalizadas." },
+                { who: "bot", text: "Desarrollar flujo de Genkit (adaptador) para analizar reseñas y generar respuestas sugeridas." },
                 { who: "bot", text: "Diseñar interfaz en el dashboard para que el usuario apruebe o edite las respuestas." },
                 { who: "bot", text: "Integrar la publicación automática de la respuesta aprobada en Google." },
             ]
@@ -90,9 +90,8 @@ const phases = [
             title: "Recopilación y Análisis de Datos",
             tasks: [
                  { who: "user", text: "Configurar acceso a la 'Google Search Console API' y conceder permisos." },
-                 { who: "bot", text: "Desarrollar servicio para conectar con la API de Google Search Console y extraer métricas." },
-                 { who: "bot", text: "Desarrollar servicio para extraer 'Insights' de la Google Business Profile API." },
-                 { who: "bot", text: "Crear flujo de Genkit para consolidar datos y generar resúmenes ejecutivos y recomendaciones SEO." },
+                 { who: "bot", text: "Desarrollar adaptadores para conectar con las APIs de GSC y GMB." },
+                 { who: "bot", text: "Crear flujo de Genkit (adaptador) para consolidar datos y generar resúmenes y recomendaciones SEO." },
                  { who: "bot", text: "Diseñar nueva sección en el dashboard para visualizar estas métricas con gráficos y tablas." },
                  { who: "bot", text: "Implementar sistema de generación de reportes automáticos en PDF (semanal/mensual)." },
             ]
