@@ -1,49 +1,16 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
-
-
-const loginFormSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
-});
-
-type LoginFormValues = z.infer<typeof loginFormSchema>;
+import Image from "next/image";
 
 export function LoginForm() {
-  const { signIn, isLoading } = useAuth();
+  const { signInWithGoogle, isLoading } = useAuth();
   const t = useTranslations('LoginForm');
-
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  // Since this is a mock, we'll just use the email.
-  // In a real scenario, you'd pass email and password.
-  async function onSubmit(data: LoginFormValues) {
-    await signIn(data.email);
-  }
 
   return (
     <Card className="w-full shadow-2xl bg-card/90 backdrop-blur-sm border border-border/50 hover:shadow-[0_0_25px_8px_hsl(var(--accent)/0.25)] transition-all duration-300">
@@ -53,42 +20,23 @@ export function LoginForm() {
           {t('signInToAccess')}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('emailLabel')}</FormLabel>
-                  <FormControl>
-                    <Input placeholder={t('emailPlaceholder')} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('passwordLabel')}</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {t('signInButton')}
-            </Button>
-          </form>
-        </Form>
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+      <CardContent className="flex flex-col items-center justify-center space-y-6">
+        <Button 
+          onClick={signInWithGoogle} 
+          className="w-full bg-primary hover:bg-primary/90 text-lg py-6" 
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          ) : (
+            <div className="flex items-center justify-center">
+              <Image src="/google-logo.svg" alt="Google Logo" width={24} height={24} className="mr-3 bg-white rounded-full p-1"/>
+              <span>Sign in with Google</span>
+            </div>
+          )}
+        </Button>
+        
+        <p className="text-center text-sm text-muted-foreground">
           {t('noAccount')}{' '}
           <Link href="/" className="font-medium text-primary hover:underline">
             {t('signUpLink')}

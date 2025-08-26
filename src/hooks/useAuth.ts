@@ -1,11 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter, usePathname } from '@/navigation'; // Use next-intl's navigation
-import { useLocale } from 'next-intl';
-
-
-const AUTH_KEY = 'localDigitalEye.auth';
+import { useRouter } from '@/navigation';
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  GoogleAuthProvider, 
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  type User as FirebaseUser 
+} from "firebase/auth";
+import { auth as clientAuth } from '@/lib/firebase/firebase-client-config';
+import { createSession, clearSession } from '@/actions/auth.actions';
 
 interface User {
   id: string;
@@ -18,7 +24,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  signIn: (email: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -26,71 +32,68 @@ export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); // current path without locale
-  const locale = useLocale(); // current locale
 
-  const loadUserFromStorage = useCallback(() => {
+  const handleAuthStateChanged = useCallback(async (firebaseUser: FirebaseUser | null) => {
     setIsLoading(true);
-    try {
-      const storedUser = localStorage.getItem(AUTH_KEY);
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    if (firebaseUser) {
+      const idToken = await firebaseUser.getIdToken();
+      const response = await createSession(idToken);
+      
+      if (response.success) {
+        const appUser: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: firebaseUser.displayName || 'No Name',
+          avatarUrl: firebaseUser.photoURL || undefined,
+        };
+        setUser(appUser);
+      } else {
+        // If session creation fails, sign out from client
+        await firebaseSignOut(clientAuth);
+        setUser(null);
       }
-    } catch (error) {
-      console.error("Failed to load user from storage:", error);
-      localStorage.removeItem(AUTH_KEY); 
-    } finally {
-      setIsLoading(false);
+    } else {
+      await clearSession();
+      setUser(null);
     }
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    loadUserFromStorage();
-    
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === AUTH_KEY) {
-        loadUserFromStorage();
-      }
-    };
+    const unsubscribe = onAuthStateChanged(clientAuth, handleAuthStateChanged);
+    return () => unsubscribe();
+  }, [handleAuthStateChanged]);
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [loadUserFromStorage]);
-
-  const signIn = async (email: string): Promise<void> => {
+  const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Create a mock user object
-    const mockUser: User = {
-      id: '1',
-      email: email,
-      name: email.split('@')[0] || 'User',
-      avatarUrl: `https://placehold.co/100x100.png?text=${(email.split('@')[0] || 'U').charAt(0).toUpperCase()}`
-    };
-    // Save to localStorage and state
-    localStorage.setItem(AUTH_KEY, JSON.stringify(mockUser));
-    setUser(mockUser);
-    setIsLoading(false);
-    router.push('/dashboard'); // next-intl's router handles locale automatically
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(clientAuth, provider);
+      // onAuthStateChanged will handle the rest
+      router.push('/dashboard');
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+      setIsLoading(false);
+    }
   };
 
   const signOut = async (): Promise<void> => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    localStorage.removeItem(AUTH_KEY);
-    setUser(null);
-    setIsLoading(false);
-    router.push('/login'); // next-intl's router handles locale automatically
+    try {
+      await firebaseSignOut(clientAuth);
+      // onAuthStateChanged will handle clearing the session
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setIsLoading(false);
+    }
   };
 
   return {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !isLoading,
     isLoading,
-    signIn,
+    signInWithGoogle,
     signOut,
   };
 }
