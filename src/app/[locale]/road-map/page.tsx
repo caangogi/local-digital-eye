@@ -12,7 +12,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 const developmentPolicies = [
   { 
     title: "Arquitectura General",
-    description: "El proyecto será una aplicación Full-stack monolítica sobre Next.js App Router. Para mantener una separación clara, toda la lógica de backend residirá en un directorio `src/backend`. Los puntos de entrada a este backend se realizarán a través de Server Actions o Route Handlers (`src/app/api`)."
+    description: "El proyecto será una aplicación Full-stack monolítica sobre Next.js App Router. Para mantener una separación clara, toda la lógica de backend residirá en un directorio `src/backend`. Los puntos de entrada a este backend desde el frontend se realizarán a través de Server Actions o Route Handlers (`src/app/api`)."
   },
   { 
     title: "Estructura del Backend (`src/backend`)",
