@@ -4,9 +4,11 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from '@/navigation'; // Import the router from our navigation utilities
 
 export function ToastHandler() {
     const searchParams = useSearchParams();
+    const router = useRouter(); // Get router instance
     const { toast } = useToast();
 
     useEffect(() => {
@@ -21,6 +23,8 @@ export function ToastHandler() {
                 description: `El perfil de Google para "${businessName}" ha sido verificado y conectado correctamente.`,
                 variant: 'default',
             });
+            // This is the key change: refresh server components to get new data
+            router.refresh(); 
              // Clean up URL to avoid re-triggering toast on refresh
              window.history.replaceState(null, '', window.location.pathname);
         }
@@ -35,7 +39,7 @@ export function ToastHandler() {
              window.history.replaceState(null, '', window.location.pathname);
         }
 
-    }, [searchParams, toast]);
+    }, [searchParams, toast, router]);
 
     return null; // This component does not render anything
 }
