@@ -54,13 +54,10 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     console.log(`[AuthAction] Session created for user ${decodedIdToken.uid}`);
     return { success: true, message: 'Session created successfully.' };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating session:', error);
-    // Type guard to check for Firebase-specific error properties
-    let errorMessage = 'An unknown error occurred during session creation.';
-    if (error && typeof error === 'object' && 'code' in error) {
-      errorMessage = `Failed to create session. Code: ${error.code}`;
-    }
+    // Return the actual error message for better diagnostics
+    const errorMessage = error.message || 'An unknown error occurred during session creation.';
     return { success: false, message: errorMessage };
   }
 }
