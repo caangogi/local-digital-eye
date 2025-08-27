@@ -9,7 +9,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchGooglePlace, type Place } from '@/services/googleMapsService';
+import { searchGooglePlace, type Place, Photo, Review, OpeningHours } from '@/services/googleMapsService';
+
 
 const GmbDataExtractionInputSchema = z.object({
   businessName: z.string().describe('The name of the business to search on Google Maps.'),
@@ -17,7 +18,9 @@ const GmbDataExtractionInputSchema = z.object({
 });
 export type GmbDataExtractionInput = z.infer<typeof GmbDataExtractionInputSchema>;
 
+// Expanded output schema to include all the new fields
 const GmbDataExtractionOutputSchema = z.object({
+  placeId: z.string().optional().describe('Google Place ID of the business.'),
   extractedName: z.string().describe('The official name of the business found.'),
   address: z.string().optional().describe('Full address of the business.'),
   phone: z.string().optional().describe('Primary phone number.'),
@@ -25,28 +28,38 @@ const GmbDataExtractionOutputSchema = z.object({
   rating: z.number().min(0).max(5).optional().describe('Average customer rating (e.g., 4.5).'),
   reviewCount: z.number().int().optional().describe('Total number of reviews.'),
   category: z.string().optional().describe('Primary business category (e.g., Restaurant, Hair Salon).'),
-  briefReviewSummary: z.string().optional().describe('A very brief AI-generated summary of the business perception based on available data like rating and category. Max 150 characters.'),
-  gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
   businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
-  placeId: z.string().optional().describe('Google Place ID of the business.'),
+  gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
+  
+  // New detailed fields
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }).optional().describe('Geographic coordinates of the business.'),
+  
+  photos: z.array(z.any()).optional().describe('List of photos of the business.'), // Using z.any() for simplicity in the flow
+  reviews: z.array(z.any()).optional().describe('List of customer reviews.'), // Using z.any() for simplicity in the flow
+  
+  openingHours: z.object({
+    openNow: z.boolean().optional(),
+    weekdayDescriptions: z.array(z.string()).optional(),
+  }).optional().describe('Opening hours information.'),
+  
+  editorialSummary: z.string().optional().describe('An AI-generated summary from Google.'),
+  briefReviewSummary: z.string().optional().describe('A very brief AI-generated summary of the business perception based on available data like rating and category. Max 150 characters.'),
+
 });
 export type GmbDataExtractionOutput = z.infer<typeof GmbDataExtractionOutputSchema>;
 
-/**
- * Maps the raw Place data from Google API to our defined GmbDataExtractionOutput structure.
- * This now handles the format from Places API (New).
- * @param placeData The raw data from Google Places API (New).
- * @returns A structured business data object or null if input is invalid.
- */
+
 function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
   if (!placeData || !placeData.id) {
     return null;
   }
 
-  // Generate a plausible summary based on rating and category without an LLM.
-  let summary = `A ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establishment'} in the area.`;
+  let summary = `Un ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establecimiento'} en la zona.`;
   if (placeData.rating && placeData.userRatingCount) {
-    summary = `A well-regarded ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establishment'} with a rating of ${placeData.rating} from ${placeData.userRatingCount} reviews.`
+    summary = `Un ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establecimiento'} bien valorado con una puntuación de ${placeData.rating} de ${placeData.userRatingCount} reseñas.`
   }
 
   return {
@@ -57,10 +70,17 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
     website: placeData.websiteUri,
     rating: placeData.rating,
     reviewCount: placeData.userRatingCount,
-    category: placeData.types?.[0], // Get the first category
+    category: placeData.types?.[0], 
     businessStatus: placeData.businessStatus,
     gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeData.id}`,
     briefReviewSummary: summary,
+    
+    // Mapping new fields
+    location: placeData.location,
+    photos: placeData.photos,
+    reviews: placeData.reviews,
+    openingHours: placeData.openingHours,
+    editorialSummary: placeData.editorialSummary?.text,
   };
 }
 
@@ -72,7 +92,6 @@ const extractGmbDataFlow = ai.defineFlow(
     outputSchema: GmbDataExtractionOutputSchema.nullable(),
   },
   async (input) => {
-    // Step 1: Directly call the Google Places service
     console.log(`Flow: Searching Google Place for ${input.businessName} in ${input.location}`);
     const placeApiData = await searchGooglePlace(input.businessName, input.location);
 
@@ -81,7 +100,6 @@ const extractGmbDataFlow = ai.defineFlow(
       return null;
     }
     
-    // Step 2: Directly map the data to the output format
     const mappedData = mapPlaceToOutput(placeApiData);
 
     if (!mappedData) {

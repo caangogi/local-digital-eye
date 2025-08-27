@@ -4,37 +4,81 @@
  */
 import {z} from 'genkit';
 
-// Schema definitions based on the "Places API (New)" response format.
+// Schema for a single photo from the Places API
+const PhotoSchema = z.object({
+    name: z.string(),
+    widthPx: z.number(),
+    heightPx: z.number(),
+    authorAttributions: z.array(z.object({
+        displayName: z.string(),
+        uri: z.string().url(),
+        photoUri: z.string().url(),
+    })).optional(),
+});
+export type Photo = z.infer<typeof PhotoSchema>;
+
+
+// Schema for a single review from the Places API
+const ReviewSchema = z.object({
+    name: z.string(),
+    relativePublishTimeDescription: z.string(),
+    rating: z.number().min(0).max(5),
+    text: z.object({
+        text: z.string(),
+        languageCode: z.string(),
+    }).optional(),
+    originalText: z.object({
+        text: z.string(),
+        languageCode: z.string(),
+    }).optional(),
+    authorAttribution: z.object({
+        displayName: z.string(),
+        uri: z.string().url(),
+        photoUri: z.string().url(),
+    }).optional(),
+});
+export type Review = z.infer<typeof ReviewSchema>;
+
+// Schema for opening hours
+const OpeningHoursSchema = z.object({
+    openNow: z.boolean().optional(),
+    weekdayDescriptions: z.array(z.string()).optional(),
+});
+export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
+
+
+// Main schema for a Place, expanded with more details
 const PlaceSchema = z.object({
   id: z.string().describe("The unique identifier of the place."),
+  name: z.string().optional().describe("The human-readable name for the place."),
   formattedAddress: z.string().optional(),
   internationalPhoneNumber: z.string().optional(),
-  name: z.string().optional().describe("The human-readable name for the place."),
   rating: z.number().min(0).max(5).optional(),
   userRatingCount: z.number().int().optional(),
   types: z.array(z.string()).optional(),
   websiteUri: z.string().url().optional(),
   businessStatus: z.string().optional(),
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }).optional(),
+  photos: z.array(PhotoSchema).optional(),
+  reviews: z.array(ReviewSchema).optional(),
+  openingHours: OpeningHoursSchema.optional(),
+  editorialSummary: z.object({ text: z.string(), languageCode: z.string() }).optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
 
 const GooglePlacesNewTextSearchResponseSchema = z.object({
-  places: z.array(z.any()).optional(), // Use z.any() because the raw response is slightly different
+  places: z.array(z.any()).optional(),
 });
 
-/**
- * Normalizes the response from Google Places API (New) to a more consistent format
- * that our application can use. This is particularly useful because the new API
- * returns an array of places, and we typically want to work with the first, most relevant one.
- * @param place The Place object from the new API response.
- * @returns A normalized Place object for our application.
- */
+
 function normalizePlace(place: any): Place {
-  // CORRECTED: The 'name' field in the response is nested under 'displayName.text'.
   return {
     id: place.id,
-    name: place.displayName?.text, // This is the fix
+    name: place.displayName?.text,
     formattedAddress: place.formattedAddress,
     internationalPhoneNumber: place.internationalPhoneNumber,
     websiteUri: place.websiteUri,
@@ -42,6 +86,15 @@ function normalizePlace(place: any): Place {
     userRatingCount: place.userRatingCount,
     types: place.types,
     businessStatus: place.businessStatus,
+    location: place.location,
+    editorialSummary: place.editorialSummary,
+    // Map complex nested objects
+    photos: place.photos, // Assuming structure matches PhotoSchema
+    reviews: place.reviews, // Assuming structure matches ReviewSchema
+    openingHours: { // Normalize opening hours
+        openNow: place.openingHours?.openNow,
+        weekdayDescriptions: place.openingHours?.weekdayDescriptions,
+    },
   };
 }
 
@@ -64,11 +117,12 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // These are the fields we want to get back from the API
+  // Expanded field mask to get all desired data
   const fieldMask = [
     "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
     "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
-    "places.businessStatus"
+    "places.businessStatus", "places.location", "places.photos", "places.reviews", "places.openingHours",
+    "places.editorialSummary"
   ].join(",");
 
   const requestBody = {
@@ -110,7 +164,6 @@ export async function searchGooglePlace(
     }
     
     console.log(`[GoogleMapsService] Found ${validatedData.data.places.length} result(s). Returning the first one.`);
-    // Normalize the first result to our internal Place type.
     const firstPlace = validatedData.data.places[0];
     return normalizePlace(firstPlace);
 
