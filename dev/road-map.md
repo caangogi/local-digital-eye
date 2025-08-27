@@ -55,7 +55,7 @@ Este documento describe el plan de acción para implementar las funcionalidades 
     2. Definir la entidad `Business` (`business.entity.ts`) con campos como `id`, `userId`, `placeId`, `name`, `reviewLink`.
     3. Definir el puerto `BusinessRepositoryPort` (`business.repository.port.ts`) con métodos `save`, `findById`, `findByUserId`, `delete`.
 - **✅ 🤖 Tarea (Backend - Aplicación):**
-    1. Crear `ConnectBusinessUseCase`: Lógica para buscar un negocio usando la Places API, obtener su `placeId` y guardarlo asociado al usuario. La validación de propiedad real se realizará en la Fase 2 mediante OAuth.
+    1. Crear `ConnectBusinessUseCase`: Lógica para buscar un negocio usando la Places API, obtener su `placeId` y guardarlo asociado al usuario.
     2. Crear `ListUserBusinessesUseCase`: Lógica para listar todos los negocios de un usuario.
     3. Crear `GetBusinessDetailsUseCase`: Lógica para obtener la información de un negocio específico, incluyendo su enlace de reseña y QR.
     4. Crear `DisconnectBusinessUseCase`: Lógica para desvincular un negocio de un usuario.
@@ -69,8 +69,8 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 ### Hito 1.3: Página de Captura de Reseñas y Lógica de Filtrado
 
-- **🤖 Tarea (Frontend - UI):** Crear la página pública y dinámica `[locale]/review/[businessId]/page.tsx`. Esta página mostrará el nombre y logo del negocio.
-- **🤖 Tarea (Frontend - UI):** Implementar el formulario de "pre-reseña" en esa página, con el selector de estrellas y el campo de texto.
+- **✅ 🤖 Tarea (Frontend - UI):** Crear la página pública y dinámica `[locale]/review/[businessId]/page.tsx`. Esta página mostrará el nombre y logo del negocio.
+- **✅ 🤖 Tarea (Frontend - UI):** Implementar el formulario de "pre-reseña" en esa página, con el selector de estrellas y el campo de texto.
 - **🤖 Tarea (Frontend - UI):** Desarrollar la lógica condicional en el cliente:
     - Si la calificación es 5 estrellas, redirigir al usuario a `https://search.google.com/local/writereview?placeid=<place_id>`.
     - Si la calificación es 1-4 estrellas, mostrar campos adicionales para capturar nombre y email/teléfono.
