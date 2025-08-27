@@ -1,18 +1,18 @@
 
-import { Button, buttonVariants } from "@/components/ui/button";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link2 as LinkIcon, ExternalLink, Trash2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link as LinkIcon, ExternalLink, Trash2, QrCode } from "lucide-react";
 import { Link } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
+import { ConnectGoogleProfile } from "./_components/ConnectGoogleProfile";
+import { ToastHandler } from "./_components/ToastHandler";
 import { CopyReviewLink } from "./_components/CopyReviewLink";
 import { GenerateQrCode } from "./_components/GenerateQrCode";
-import { ConnectGoogleProfile } from "./_components/ConnectGoogleProfile";
-import { cn } from "@/lib/utils";
-import { ToastHandler } from "./_components/ToastHandler";
 
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
