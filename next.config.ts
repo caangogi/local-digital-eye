@@ -6,7 +6,7 @@ import { config } from 'dotenv';
 config({ path: '.env.local' });
 
 
-const withNextIntl = createNextIntlPlugin();
+const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 const nextConfig: NextConfig = {
   /* config options here */
