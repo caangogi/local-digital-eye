@@ -121,7 +121,8 @@ export async function searchGooglePlace(
   const fieldMask = [
     "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
     "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
-    "places.businessStatus", "places.location", "places.photos", "places.reviews", "places.openingHours",
+    "places.businessStatus", "places.location", "places.photos", "places.reviews", 
+    "places.openingHours.openNow", "places.openingHours.weekdayDescriptions",
     "places.editorialSummary"
   ].join(",");
 
