@@ -68,5 +68,42 @@
     "signInButton": "Iniciar Sesión",
     "noAccount": "¿No tienes una cuenta?",
     "signUpLink": "Regístrate"
+  },
+  "BusinessesPage": {
+    "title": "Negocios Analizados",
+    "description": "Gestiona y revisa tus negocios analizados.",
+    "addButton": "Añadir Nuevo Negocio",
+    "searchPlaceholder": "Buscar negocios...",
+    "filterButton": "Filtrar",
+    "sortButton": "Ordenar",
+    "table": {
+      "name": "Nombre",
+      "status": "Estado",
+      "score": "Puntuación General",
+      "dateAdded": "Fecha de Alta",
+      "tags": "Etiquetas",
+      "actions": "Acciones"
+    },
+    "add": {
+      "title": "Conectar un Nuevo Negocio",
+      "subtitle": "Encuentra tu negocio en Google para iniciar el análisis.",
+      "findTitle": "Encuentra tu negocio",
+      "findDescription": "Introduce el nombre oficial y la ubicación de tu negocio para encontrarlo en Google Maps.",
+      "nameLabel": "Nombre del Negocio",
+      "namePlaceholder": "Ej: El Café Acogedor",
+      "locationLabel": "Ubicación",
+      "locationPlaceholder": "Ej: Madrid, España",
+      "searchButton": "Buscar en Google",
+      "resultTitle": "Resultado de la Búsqueda",
+      "connectButton": "Conectar este Negocio",
+      "notFound": "No se encontró ningún negocio con ese nombre y ubicación. Revisa si hay errores tipográficos o intenta una ubicación más específica.",
+      "searchError": "Ocurrió un error durante la búsqueda. Por favor, inténtalo de nuevo.",
+      "ratingLabel": "Valoración",
+      "reviewsLabel": "reseñas",
+      "connectSuccessTitle": "¡Negocio Conectado!",
+      "connectSuccessDescription": "El negocio ha sido vinculado a tu cuenta correctamente.",
+      "connectErrorTitle": "Fallo en la Conexión",
+      "connectErrorDescription": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
+    }
   }
 }

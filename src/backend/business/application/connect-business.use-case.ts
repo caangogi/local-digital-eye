@@ -1,43 +1,55 @@
 import type { Business } from '../domain/business.entity';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
-// import type { GooglePlacesAdapterPort } from '../ports/google-places.adapter.port'; // We will create this port later
 
 /**
  * @fileoverview Defines the use case for connecting a business to a user.
- * This involves finding the business via an external API and saving it.
+ * This involves creating a new business entity in our system based on external data.
  */
+
+interface ConnectBusinessInput {
+    placeId: string;
+    name: string;
+    userId: string;
+    reviewLink: string;
+}
 
 export class ConnectBusinessUseCase {
   constructor(
     private readonly businessRepository: BusinessRepositoryPort
-    // private readonly placesAdapter: GooglePlacesAdapterPort,
   ) {}
 
   /**
    * Executes the use case.
-   * @param businessName The name of the business to search for.
-   * @param location The location context (e.g., city).
-   * @param userId The ID of the user connecting the business.
-   * @returns The connected Business object.
+   * @param input The data required to create the business connection.
+   * @returns The newly created and saved Business object.
    */
-  async execute(businessName: string, location: string, userId: string): Promise<Business | null> {
-    console.log(`[ConnectBusinessUseCase] User ${userId} trying to connect "${businessName}" in "${location}"`);
+  async execute(input: ConnectBusinessInput): Promise<Business | null> {
+    console.log(`[ConnectBusinessUseCase] User ${input.userId} attempting to connect business with placeId ${input.placeId}`);
+
+    // Check if business is already connected
+    const existingBusiness = await this.businessRepository.findById(input.placeId);
+    if (existingBusiness) {
+      // It could belong to another user, or already to this one.
+      if (existingBusiness.userId === input.userId) {
+          console.log(`[ConnectBusinessUseCase] Business ${input.placeId} is already connected to user ${input.userId}.`);
+          // Optionally, return the existing business or throw a specific "already-exists" error.
+          return existingBusiness;
+      } else {
+          // This is a business integrity issue. Two users cannot own the same placeId.
+          throw new Error("This business is already connected by another user.");
+      }
+    }
     
-    // Step 1: Find business details using the Google Places Adapter (to be implemented)
-    // const placeDetails = await this.placesAdapter.findPlace(businessName, location);
-    // if (!placeDetails) {
-    //   console.log(`[ConnectBusinessUseCase] No business found for the given query.`);
-    //   return null;
-    // }
+    // Create a new Business entity from the input
+    const businessToSave: Business = {
+      id: input.placeId, // Use Google Place ID as our unique ID
+      userId: input.userId,
+      placeId: input.placeId,
+      name: input.name,
+      reviewLink: input.reviewLink,
+    };
 
-    // Step 2: Create a Business entity from the details (logic to be added)
-    // const businessToSave: Business = { ... };
-
-    // Step 3: Save the business to our database
-    // return this.businessRepository.save(businessToSave);
-
-    // For now, this is a placeholder.
-    console.warn("[ConnectBusinessUseCase] is not fully implemented yet.");
-    return null;
+    // Save the business to our database
+    return this.businessRepository.save(businessToSave);
   }
 }

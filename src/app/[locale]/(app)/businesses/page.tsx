@@ -8,9 +8,9 @@ import { Link } from "@/navigation"; // Use next-intl's Link
 import {getTranslations} from 'next-intl/server';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
-  const t = await getTranslations('AppSidebar'); 
+  const t = await getTranslations('BusinessesPage'); 
   return {
-    title: t('businesses')
+    title: t('title')
   };
 }
 
@@ -33,17 +33,19 @@ function getStatusBadgeVariant(status: string | null) {
   }
 }
 
-export default function BusinessesPage() {
+export default async function BusinessesPage() {
+  const t = await getTranslations('BusinessesPage');
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Analyzed Businesses</h1>
-          <p className="text-muted-foreground">Manage and review your analyzed businesses.</p>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
         <Link href="/businesses/add">
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Business
+            <PlusCircle className="mr-2 h-4 w-4" /> {t('addButton')}
           </Button>
         </Link>
       </div>
@@ -51,14 +53,14 @@ export default function BusinessesPage() {
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="relative flex-grow w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search businesses..." className="pl-10 w-full" />
+          <Input placeholder={t('searchPlaceholder')} className="pl-10 w-full" />
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
-            <Filter className="mr-2 h-4 w-4" /> Filter
+            <Filter className="mr-2 h-4 w-4" /> {t('filterButton')}
           </Button>
           <Button variant="outline">
-            <ArrowUpDown className="mr-2 h-4 w-4" /> Sort
+            <ArrowUpDown className="mr-2 h-4 w-4" /> {t('sortButton')}
           </Button>
         </div>
       </div>
@@ -67,12 +69,12 @@ export default function BusinessesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-center">Overall Score</TableHead>
-              <TableHead>Date Added</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('table.name')}</TableHead>
+              <TableHead>{t('table.status')}</TableHead>
+              <TableHead className="text-center">{t('table.score')}</TableHead>
+              <TableHead>{t('table.dateAdded')}</TableHead>
+              <TableHead>{t('table.tags')}</TableHead>
+              <TableHead className="text-right">{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
