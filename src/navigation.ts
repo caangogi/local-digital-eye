@@ -16,6 +16,14 @@ export const pathnames = {
     en: '/login',
     es: '/iniciar-sesion'
   },
+  '/signup': {
+    en: '/signup',
+    es: '/registro'
+  },
+  '/password-reset': {
+    en: '/password-reset',
+    es: '/restablecer-contrasena'
+  },
   '/dashboard': {
     en: '/dashboard',
     es: '/panel'

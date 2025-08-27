@@ -12,26 +12,26 @@ import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import Image from "next/image";
-import { Separator } from '../ui/separator';
 
-const loginSchema = z.object({
+const signUpSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters." }),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-export function LoginForm() {
-  const { signInWithEmail, signInWithGoogle, isLoading } = useAuth();
+export function SignUpForm() {
+  const { signUpWithEmail, signInWithGoogle, isLoading } = useAuth();
   const t = useTranslations('AuthPage');
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { name: "", email: "", password: "" },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    signInWithEmail(data.email, data.password);
+  const onSubmit = (data: SignUpFormValues) => {
+    signUpWithEmail(data.name, data.email, data.password);
   };
 
   return (
@@ -39,11 +39,22 @@ export function LoginForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-headline text-primary">{t('loginTitle')}</CardTitle>
-            <CardDescription>{t('loginSubtitle')}</CardDescription>
+            <CardTitle className="text-3xl font-headline text-primary">{t('signupTitle')}</CardTitle>
+            <CardDescription>{t('signupSubtitle')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('nameLabel')}</FormLabel>
+                  <FormControl><Input placeholder={t('namePlaceholder')} {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
@@ -59,12 +70,7 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex justify-between items-center">
                     <FormLabel>{t('passwordLabel')}</FormLabel>
-                    <Link href="/password-reset" className="text-xs text-primary hover:underline">
-                      {t('forgotPasswordLink')}
-                    </Link>
-                  </div>
                   <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -72,7 +78,7 @@ export function LoginForm() {
             />
             <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('loginButton')}
+              {t('signupButton')}
             </Button>
 
             <div className="relative">
@@ -99,9 +105,9 @@ export function LoginForm() {
           </CardContent>
           <CardFooter className="flex justify-center text-sm">
             <p className="text-muted-foreground">
-              {t('noAccount')}{' '}
-              <Link href="/signup" className="text-primary hover:underline font-medium">
-                {t('signUpLink')}
+              {t('alreadyAccount')}{' '}
+              <Link href="/login" className="text-primary hover:underline font-medium">
+                {t('loginLink')}
               </Link>
             </p>
           </CardFooter>

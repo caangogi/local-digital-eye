@@ -1,13 +1,13 @@
-import { LoginForm } from "@/components/auth/LoginForm";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 import {getTranslations} from 'next-intl/server';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AuthPage');
   return {
-    title: t('loginTitle')
+    title: t('signupTitle')
   };
 }
 
-export default function LoginPage() {
-  return <LoginForm />;
+export default function SignUpPage() {
+  return <SignUpForm />;
 }

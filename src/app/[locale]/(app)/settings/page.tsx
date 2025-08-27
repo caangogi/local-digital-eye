@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Bell, ListChecks, Palette, UserCircle, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import {getTranslations} from 'next-intl/server';
+import { PasswordAuthForm } from "./_components/PasswordAuthForm";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AppSidebar'); 
@@ -35,7 +36,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" defaultValue="demo@example.com" />
+              <Input id="email" type="email" defaultValue="demo@example.com" readOnly />
             </div>
             <Button className="w-full sm:w-auto">Save Changes</Button>
           </CardContent>
@@ -62,6 +63,17 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         
+        <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
+          <CardHeader>
+            <CardTitle className="font-headline flex items-center"><ShieldCheck className="mr-2 h-5 w-5 text-primary"/>Security</CardTitle>
+            <CardDescription>Manage your account security.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <PasswordAuthForm />
+          </CardContent>
+        </Card>
+
+
         <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
           <CardHeader>
             <CardTitle className="font-headline flex items-center"><ListChecks className="mr-2 h-5 w-5 text-primary"/>Service Catalog</CardTitle>
@@ -92,17 +104,6 @@ export default function SettingsPage() {
               <Switch id="dark-mode" defaultChecked disabled/> {/* Assuming dark mode is now default */}
             </div>
              <p className="text-sm text-muted-foreground">More appearance settings coming soon.</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center"><ShieldCheck className="mr-2 h-5 w-5 text-primary"/>Security</CardTitle>
-            <CardDescription>Manage your account security.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full">Change Password</Button>
-            <Button variant="outline" className="w-full">Enable Two-Factor Authentication</Button>
           </CardContent>
         </Card>
 

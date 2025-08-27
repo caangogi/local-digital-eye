@@ -59,15 +59,34 @@
     "title": "Local Digital Eye",
     "footer": "&copy; {year} Local Digital Eye. Tu socio en crecimiento digital."
   },
-  "LoginForm": {
-    "welcome": "¡Bienvenido de Nuevo!",
-    "signInToAccess": "Inicia sesión para acceder a tu panel de Local Digital Eye.",
+  "AuthPage": {
+    "loginTitle": "¡Bienvenido de Nuevo!",
+    "loginSubtitle": "Inicia sesión para acceder a tu panel de Local Digital Eye.",
+    "loginButton": "Iniciar Sesión",
+    "signupTitle": "Crea una Cuenta",
+    "signupSubtitle": "Empieza con tu análisis de negocio local impulsado por IA.",
+    "signupButton": "Crear Cuenta",
     "emailLabel": "Correo Electrónico",
     "emailPlaceholder": "tu@ejemplo.com",
     "passwordLabel": "Contraseña",
-    "signInButton": "Iniciar Sesión",
+    "nameLabel": "Nombre Completo",
+    "namePlaceholder": "Juan Pérez",
     "noAccount": "¿No tienes una cuenta?",
-    "signUpLink": "Regístrate"
+    "signUpLink": "Regístrate",
+    "alreadyAccount": "¿Ya tienes una cuenta?",
+    "loginLink": "Inicia sesión",
+    "forgotPasswordLink": "¿Has olvidado la contraseña?",
+    "orContinueWith": "O continuar con",
+    "googleSignInButton": "Iniciar sesión con Google",
+    "passwordReset": {
+      "title": "Restablecer tu Contraseña",
+      "description": "Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.",
+      "successDescription": "Revisa tu correo para el enlace de restablecimiento. Si no lo ves, comprueba tu carpeta de spam.",
+      "button": "Enviar Enlace de Restablecimiento",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "backToLogin": "Volver a inicio de sesión"
+    }
   },
   "BusinessesPage": {
     "title": "Negocios Analizados",

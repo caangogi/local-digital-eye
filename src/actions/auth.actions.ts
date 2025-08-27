@@ -31,6 +31,9 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     const decodedIdToken = await adminAuth.verifyIdToken(idToken, true);
     
     // Create or update user in our database
+    // The user might sign up with email and password and not have a name or picture yet
+    // on the token. The client-side logic should have updated the Firebase Auth profile
+    // before calling this.
     const userToSave: User = {
       id: decodedIdToken.uid,
       email: decodedIdToken.email || '',
@@ -42,11 +45,13 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     // Create session cookie
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
     
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     // Set the cookie in the browser
     cookies().set(SESSION_COOKIE_NAME, sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002').protocol === 'https:',
+      secure: !isDevelopment, // Use secure cookies in production
       path: '/',
       sameSite: 'lax',
     });
