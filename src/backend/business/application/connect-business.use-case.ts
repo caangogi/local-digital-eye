@@ -68,9 +68,7 @@ export class ConnectBusinessUseCase {
       businessStatus: gmbData.businessStatus,
       location: gmbData.location,
       photos: gmbData.photos,
-      reviews: gmbData.reviews,
       openingHours: gmbData.openingHours,
-      editorialSummary: gmbData.editorialSummary?.text,
     };
 
     // Save the business to our database

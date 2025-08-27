@@ -20,6 +20,7 @@ const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessReposito
 
 /**
  * Connects a business to the currently logged-in user.
+ * The searchResult only contains basic info. The full details are fetched inside the use case.
  * @param searchResult The business data from the initial Google search.
  * @returns An object indicating success or failure.
  */
@@ -53,7 +54,7 @@ export async function connectBusiness(searchResult: GmbDataExtractionOutput): Pr
 
   } catch (error: any) {
     console.error('Error connecting business:', error);
-    // Avoid exposing detailed internal errors to the client
+    // Propagate the detailed error message to the client
     return { success: false, message: error.message || 'An unexpected error occurred while connecting the business.' };
   }
 }
