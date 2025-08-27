@@ -96,14 +96,15 @@ export async function searchGooglePlace(
 
     if (!response.ok) {
         const errorBody = await response.json().catch(() => ({})); // Catch if error body is not valid JSON
-        console.error(`[GoogleMapsService] API Error: ${response.status} - ${JSON.stringify(errorBody, null, 2)}`);
+        const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No additional error details available.';
+        console.error(`[GoogleMapsService] API Error: ${response.status} - ${detailedError}`);
         
         if (response.status === 403) {
              console.error("[GoogleMapsService] This PERMISSION_DENIED error usually means the Places API (New) is not enabled on your Google Cloud project, or the API key is invalid/restricted. Please check your Google Cloud Console.");
              throw new Error(`Google Places API Request Denied. Please ensure the 'Places API (New)' is enabled and your API key is correct and unrestricted.`);
         }
         
-        throw new Error(`Google Places API request failed with status: ${response.status}`);
+        throw new Error(`Google Places API request failed with status ${response.status}. Details: ${detailedError}`);
     }
 
     const data = await response.json();
