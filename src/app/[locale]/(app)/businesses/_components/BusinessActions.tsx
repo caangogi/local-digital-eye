@@ -23,16 +23,19 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
   
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const { toast } = useToast();
 
   const profileLink = `${baseUrl}/negocio/${business.id}`;
 
-  // Close menu if clicking outside
+  // Effect to handle clicks outside the menu to close it
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     }
@@ -40,8 +43,20 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuRef]);
+  }, [menuRef, buttonRef]);
 
+  const toggleMenu = () => {
+    if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        // Position menu below the button, aligned to the right edge of the window.
+        setMenuPosition({
+            top: rect.bottom + window.scrollY,
+            right: window.innerWidth - rect.right - rect.width,
+        });
+    }
+    setIsMenuOpen(!isMenuOpen);
+  };
+  
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileLink);
     toast({
@@ -94,22 +109,26 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
       });
       setIsConnecting(false);
     }
-    // No need to set isConnecting to false on success, as page redirects.
   };
 
   const menuItemClasses = "flex items-center w-full px-3 py-2 text-sm text-left text-foreground hover:bg-accent rounded-md";
 
   return (
-    <div className="relative" ref={menuRef}>
-      <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+    <>
+      <Button variant="ghost" className="h-8 w-8 p-0" onClick={toggleMenu} ref={buttonRef}>
         <span className="sr-only">Abrir menú</span>
         <MoreHorizontal className="h-4 w-4" />
       </Button>
+
       {isMenuOpen && (
-        <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-popover p-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div
+          ref={menuRef}
+          style={{ top: `${menuPosition.top + 8}px`, right: `${menuPosition.right}px`}}
+          className="fixed z-50 w-56 origin-top-right rounded-md bg-popover p-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        >
           <div className="py-1" role="menu" aria-orientation="vertical">
             <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Acciones del Perfil</p>
-            <Link href={profileLink} target="_blank" className={menuItemClasses} role="menuitem">
+            <Link href={profileLink} target="_blank" className={menuItemClasses} role="menuitem" onClick={() => setIsMenuOpen(false)}>
               <ExternalLink className="mr-2 h-4 w-4" />
               <span>Ir al perfil del negocio</span>
             </Link>
@@ -161,6 +180,6 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
