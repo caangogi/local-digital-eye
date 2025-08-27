@@ -23,10 +23,13 @@ function AuthenticatedLayout({
   const locale = useLocale();
 
   useEffect(() => {
+    // Only redirect if loading is finished, user is not authenticated,
+    // and we are not already on a public auth page.
     if (!isLoading && !isAuthenticated) {
-      router.push(`/login`);
+       console.log(`[Auth Guard] Not authenticated. Redirecting to /login from ${pathname}`);
+       router.push(`/login`);
     }
-  }, [isAuthenticated, isLoading, router, locale, pathname]);
+  }, [isAuthenticated, isLoading, router, pathname]);
 
   if (isLoading) {
     return (
@@ -41,6 +44,9 @@ function AuthenticatedLayout({
     );
   }
 
+  // If loading is finished but user is still not authenticated,
+  // return null to prevent a flash of the authenticated layout.
+  // The useEffect above will handle the redirection.
   if (!isAuthenticated) {
     return null; 
   }
