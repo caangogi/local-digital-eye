@@ -45,7 +45,7 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Start as true
   const [isProviderPasswordEnabled, setIsProviderPasswordEnabled] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -124,10 +124,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await handleAuthSuccess(result.user);
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        toast({ title: "Account Exists", description: "An account already exists with this email address. Please sign in with the original method.", variant: "destructive" });
+       if (error.code === 'auth/account-exists-with-different-credential') {
+        toast({ title: "Cuenta ya existe", description: "Ya existe una cuenta con esta dirección de email. Por favor, inicia sesión con el método original.", variant: "destructive" });
       } else {
-        toast({ title: "Sign-in Error", description: error.message, variant: "destructive" });
+        toast({ title: "Error de inicio de sesión", description: error.message, variant: "destructive" });
       }
     } finally {
         setIsLoading(false);
@@ -150,9 +150,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
       if (error.code === 'auth/email-already-in-use') {
-        toast({ title: "Email in Use", description: "This email is already associated with an account. Please log in.", variant: "destructive" });
+        toast({ title: "Email en Uso", description: "Este email ya está asociado a una cuenta. Por favor, inicia sesión o utiliza otro email.", variant: "destructive" });
       } else {
-        toast({ title: "Sign-up Failed", description: error.message, variant: "destructive" });
+        toast({ title: "Fallo en el Registro", description: error.message, variant: "destructive" });
       }
       setIsLoading(false);
     }
@@ -167,10 +167,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any)
 {
       console.error("[Auth] Error signing in:", error);
-      if (error.code === 'auth/invalid-credential') {
-         toast({ title: "Invalid Credentials", description: "The email or password you entered is incorrect. If you signed up with Google, please use the Google login button.", variant: "destructive" });
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+         toast({ title: "Credenciales Inválidas", description: "El email o la contraseña que ingresaste son incorrectos. Si te registraste con Google, por favor usa ese método.", variant: "destructive" });
       } else {
-        toast({ title: "Sign-in Failed", description: error.message, variant: "destructive" });
+        toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
       setIsLoading(false);
     }
@@ -200,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await firebaseSendPasswordResetEmail(clientAuth, targetEmail);
-      toast({ title: "Email Sent", description: `A password reset link has been sent to ${targetEmail}.` });
+      toast({ title: "Email Enviado", description: `Se ha enviado un enlace de restablecimiento de contraseña a ${targetEmail}.` });
     } catch (error: any) {
       console.error("[Auth] Error sending password reset email:", error);
       toast({ title: "Error", description: error.message, variant: "destructive" });
