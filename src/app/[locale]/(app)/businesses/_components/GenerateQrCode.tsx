@@ -1,0 +1,81 @@
+
+"use client";
+
+import { useState } from "react";
+import QRCode from "qrcode";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { QrCode, Download } from "lucide-react";
+
+interface GenerateQrCodeProps {
+  reviewLink: string;
+  businessName: string;
+}
+
+export function GenerateQrCode({ reviewLink, businessName }: GenerateQrCodeProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+
+  const generateQRCode = async () => {
+    try {
+      const dataUrl = await QRCode.toDataURL(reviewLink, {
+        width: 400,
+        margin: 2,
+        errorCorrectionLevel: 'H'
+      });
+      setQrCodeDataUrl(dataUrl);
+    } catch (err) {
+      console.error("Failed to generate QR code", err);
+    }
+  };
+
+  const handleOpen = () => {
+    setIsOpen(true);
+    generateQRCode();
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = qrCodeDataUrl;
+    link.download = `qr-reseña-${businessName.toLowerCase().replace(/\s+/g, '-')}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  return (
+    <>
+      <DropdownMenuItem onSelect={handleOpen}>
+        <QrCode className="mr-2 h-4 w-4" />
+        <span>Generar QR</span>
+      </DropdownMenuItem>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-headline">Código QR para Reseñas</DialogTitle>
+            <DialogDescription>
+              Tus clientes pueden escanear este código para ir directamente a la página y dejar una reseña en Google para &quot;{businessName}&quot;.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-center p-4 bg-white rounded-md my-4">
+            {qrCodeDataUrl ? (
+              <img src={qrCodeDataUrl} alt={`Código QR para ${businessName}`} />
+            ) : (
+              <div className="h-[256px] w-[256px] flex items-center justify-center">
+                <p>Generando código QR...</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+             <Button onClick={handleDownload} className="w-full" disabled={!qrCodeDataUrl}>
+                <Download className="mr-2 h-4 w-4" />
+                Descargar PNG
+             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
