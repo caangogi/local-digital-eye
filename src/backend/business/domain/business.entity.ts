@@ -5,6 +5,33 @@ import { z } from 'zod';
  * This represents a business connected to a user in the system.
  */
 
+// Schemas for nested objects from Google Places API
+const LocationSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
+});
+
+const PhotoSchema = z.object({
+  name: z.string(),
+  widthPx: z.number(),
+  heightPx: z.number(),
+  authorAttributions: z.array(z.any()).optional(), // Keeping it simple
+});
+
+const ReviewSchema = z.object({
+  name: z.string(),
+  relativePublishTimeDescription: z.string(),
+  rating: z.number(),
+  text: z.any().optional(), // text can be null
+  originalText: z.any().optional(),
+  authorAttribution: z.any().optional(),
+});
+
+const OpeningHoursSchema = z.object({
+  openNow: z.boolean().optional(),
+  weekdayDescriptions: z.array(z.string()).optional(),
+});
+
 export const BusinessSchema = z.object({
   id: z.string().describe("Unique identifier for the business, typically the Google Place ID."),
   userId: z.string().describe("The ID of the user who connected this business."),
@@ -18,7 +45,7 @@ export const BusinessSchema = z.object({
   gmbRefreshToken: z.string().optional().describe("Long-lived refresh token for GMB API."),
   gmbTokenExpiryDate: z.date().optional().describe("Expiry date of the access token."),
   
-  // Public business data from Google Places API
+  // Enriched public business data from Google Places API
   address: z.string().optional().describe('Full address of the business.'),
   phone: z.string().optional().describe('Primary phone number.'),
   website: z.string().url().optional().describe('Official website URL.'),
@@ -27,6 +54,11 @@ export const BusinessSchema = z.object({
   category: z.string().optional().describe('Primary business category (e.g., Restaurant, Hair Salon).'),
   gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
   businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
+  location: LocationSchema.optional().describe('Geographic coordinates of the business.'),
+  photos: z.array(PhotoSchema).optional().describe('List of photos of the business.'),
+  reviews: z.array(ReviewSchema).optional().describe('List of customer reviews.'),
+  openingHours: OpeningHoursSchema.optional().describe('Opening hours information.'),
+  editorialSummary: z.string().optional().describe('An AI-generated summary from Google.'),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;

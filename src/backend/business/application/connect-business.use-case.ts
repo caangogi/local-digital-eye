@@ -43,13 +43,14 @@ export class ConnectBusinessUseCase {
       }
     }
     
-    // Create a new Business entity from the input
+    // Create a new Business entity from the input, now including all enriched data
     const businessToSave: Business = {
       id: placeId,
       userId: userId,
       placeId: placeId,
       name: gmbData.extractedName,
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
+      
       // Add all the enriched public data
       address: gmbData.address,
       phone: gmbData.phone,
@@ -59,6 +60,11 @@ export class ConnectBusinessUseCase {
       category: gmbData.category,
       gmbPageUrl: gmbData.gmbPageUrl,
       businessStatus: gmbData.businessStatus,
+      location: gmbData.location,
+      photos: gmbData.photos,
+      reviews: gmbData.reviews,
+      openingHours: gmbData.openingHours,
+      editorialSummary: gmbData.editorialSummary,
     };
 
     // Save the business to our database
