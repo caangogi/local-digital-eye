@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link as LinkIcon, Share2, Eye } from "lucide-react";
-import { Link, usePathname } from "@/navigation";
+import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link2 as LinkIcon, ExternalLink, Trash2 } from "lucide-react";
+import { Link } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
 import { CopyReviewLink } from "./_components/CopyReviewLink";
@@ -22,6 +22,7 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
 export default async function BusinessesPage() {
   const t = await getTranslations('BusinessesPage');
   const businesses = await listUserBusinesses();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,20 +84,20 @@ export default async function BusinessesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/negocio/${business.id}`}>
-                           <Eye className="mr-2 h-4 w-4" />
-                           Ver Perfil Público
-                        </Link>
-                      </DropdownMenuItem>
-                       <DropdownMenuSeparator />
+                      <DropdownMenuSeparator />
                        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Activos del Perfil</DropdownMenuLabel>
-                       <CopyReviewLink businessProfileLink={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/negocio/${business.id}`} />
-                       <GenerateQrCode profileLink={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/negocio/${business.id}`} businessName={business.name} />
+                        <DropdownMenuItem asChild>
+                            <Link href={`/negocio/${business.id}`} target="_blank">
+                               <ExternalLink className="mr-2 h-4 w-4" />
+                               Ir al perfil del negocio
+                            </Link>
+                        </DropdownMenuItem>
+                       <CopyReviewLink businessProfileLink={`${baseUrl}/negocio/${business.id}`} />
+                       <GenerateQrCode profileLink={`${baseUrl}/negocio/${business.id}`} businessName={business.name} />
                       <DropdownMenuSeparator />
                       <ConnectGoogleProfile businessId={business.id} />
                       <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
-                        <LinkIcon className="mr-2 h-4 w-4" />
+                        <Trash2 className="mr-2 h-4 w-4" />
                         Desconectar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
