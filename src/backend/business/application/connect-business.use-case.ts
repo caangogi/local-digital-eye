@@ -1,6 +1,6 @@
 import type { Business } from '../domain/business.entity';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
-import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
+import { getGooglePlaceDetails } from '@/services/googleMapsService';
 
 /**
  * @fileoverview Defines the use case for connecting a business to a user.
@@ -9,7 +9,7 @@ import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flo
 
 interface ConnectBusinessInput {
     userId: string;
-    gmbData: GmbDataExtractionOutput;
+    placeId: string;
 }
 
 export class ConnectBusinessUseCase {
@@ -23,8 +23,7 @@ export class ConnectBusinessUseCase {
    * @returns The newly created and saved Business object.
    */
   async execute(input: ConnectBusinessInput): Promise<Business | null> {
-    const { userId, gmbData } = input;
-    const placeId = gmbData.placeId;
+    const { userId, placeId } = input;
 
     if (!placeId) {
         throw new Error("Cannot connect a business without a valid Place ID.");
@@ -42,29 +41,36 @@ export class ConnectBusinessUseCase {
           throw new Error("This business is already connected by another user.");
       }
     }
+
+    // Fetch full, enriched data from Google Places Details API
+    const gmbData = await getGooglePlaceDetails(placeId);
+
+    if (!gmbData || !gmbData.name) {
+        throw new Error(`Could not fetch complete details for placeId ${placeId} from Google.`);
+    }
     
-    // Create a new Business entity from the input, now including all enriched data
+    // Create a new Business entity from the enriched data
     const businessToSave: Business = {
       id: placeId,
       userId: userId,
       placeId: placeId,
-      name: gmbData.extractedName,
+      name: gmbData.name,
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
       
-      // Add all the enriched public data
-      address: gmbData.address,
-      phone: gmbData.phone,
-      website: gmbData.website,
+      // Add all the enriched public data from the details call
+      address: gmbData.formattedAddress,
+      phone: gmbData.internationalPhoneNumber,
+      website: gmbData.websiteUri,
       rating: gmbData.rating,
-      reviewCount: gmbData.reviewCount,
-      category: gmbData.category,
-      gmbPageUrl: gmbData.gmbPageUrl,
+      reviewCount: gmbData.userRatingCount,
+      category: gmbData.types?.[0],
+      gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeId}`,
       businessStatus: gmbData.businessStatus,
       location: gmbData.location,
       photos: gmbData.photos,
       reviews: gmbData.reviews,
       openingHours: gmbData.openingHours,
-      editorialSummary: gmbData.editorialSummary,
+      editorialSummary: gmbData.editorialSummary?.text,
     };
 
     // Save the business to our database

@@ -75,7 +75,6 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
 function normalizePlace(place: any): Place {
   if (!place) return place;
   
-  // The API returns reviews as an array of objects. We need to handle this.
   const normalizedReviews = place.reviews?.map((review: any) => {
     return {
       name: review.name,
@@ -89,7 +88,7 @@ function normalizePlace(place: any): Place {
 
   return {
     id: place.id,
-    name: place.displayName?.text || place.name, // name can be displayName.text or just name
+    name: place.displayName?.text || place.name,
     formattedAddress: place.formattedAddress,
     internationalPhoneNumber: place.internationalPhoneNumber,
     websiteUri: place.websiteUri,
@@ -127,7 +126,6 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Basic, cost-effective field mask for search results.
   const fieldMask = [
     "places.id", "places.displayName", "places.formattedAddress",
     "places.rating", "places.userRatingCount", "places.types"
@@ -188,15 +186,15 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    // Field mask for detailed data. Note the absence of the 'places.' prefix.
+    // Field mask for detailed data. NOTE: NO 'places.' prefix here.
     const fieldMask = [
-      "id", "name", "displayName", "formattedAddress", "internationalPhoneNumber",
+      "id", "displayName", "formattedAddress", "internationalPhoneNumber",
       "websiteUri", "rating", "userRatingCount", "types", 
       "businessStatus", "location", "photos", "reviews", 
       "openingHours", "editorialSummary"
     ].join(",");
   
-    const url = `https://places.googleapis.com/v1/places/${placeId}`;
+    const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
       console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);

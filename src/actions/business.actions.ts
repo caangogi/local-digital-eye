@@ -20,10 +20,10 @@ const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessReposito
 
 /**
  * Connects a business to the currently logged-in user.
- * @param businessData The business data extracted from Google Places API.
+ * @param searchResult The business data from the initial Google search.
  * @returns An object indicating success or failure.
  */
-export async function connectBusiness(businessData: GmbDataExtractionOutput): Promise<{ success: boolean; message: string; businessId?: string }> {
+export async function connectBusiness(searchResult: GmbDataExtractionOutput): Promise<{ success: boolean; message: string; businessId?: string }> {
   try {
     // 1. Get current user from session cookie
     const sessionCookie = cookies().get('session')?.value;
@@ -32,15 +32,16 @@ export async function connectBusiness(businessData: GmbDataExtractionOutput): Pr
     }
     const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
     const userId = decodedToken.uid;
+    const placeId = searchResult.placeId;
 
-    if (!businessData.placeId || !businessData.extractedName) {
-        return { success: false, message: 'Invalid business data provided. Place ID and name are required.' };
+    if (!placeId) {
+        return { success: false, message: 'Invalid business data provided. Place ID is required.' };
     }
 
-    // 2. Execute the use case with the full GMB data object
+    // 2. Execute the use case. It will handle fetching full details.
     const business = await connectBusinessUseCase.execute({
       userId: userId,
-      gmbData: businessData
+      placeId: placeId,
     });
 
     if (!business) {
