@@ -36,16 +36,11 @@ export async function connectBusiness(businessData: GmbDataExtractionOutput): Pr
     if (!businessData.placeId || !businessData.extractedName) {
         return { success: false, message: 'Invalid business data provided. Place ID and name are required.' };
     }
-    
-    // The google maps url for writing a review is required.
-    const reviewLink = `https://search.google.com/local/writereview?placeid=${businessData.placeId}`;
 
-    // 2. Execute the use case
+    // 2. Execute the use case with the full GMB data object
     const business = await connectBusinessUseCase.execute({
-      placeId: businessData.placeId,
-      name: businessData.extractedName,
       userId: userId,
-      reviewLink: reviewLink,
+      gmbData: businessData
     });
 
     if (!business) {
