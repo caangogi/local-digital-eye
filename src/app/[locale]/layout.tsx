@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getRequestConfig } from 'next-intl/server';
 import { Toaster } from "@/components/ui/toaster";
 import '../globals.css'; 
 import { AuthProvider } from '@/hooks/useAuth.tsx';
@@ -20,6 +20,7 @@ export default async function LocaleLayout({
   params: {locale}
 }: LocaleLayoutProps) {
   const messages = await getMessages();
+  const { timeZone } = await getRequestConfig({locale});
 
   return (
     <html lang={locale} suppressHydrationWarning className="dark">
@@ -29,7 +30,11 @@ export default async function LocaleLayout({
           <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider
+          locale={locale}
+          messages={messages}
+          timeZone={timeZone}
+        >
           <AuthProvider>
             {children}
           </AuthProvider>

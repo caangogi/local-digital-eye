@@ -19,7 +19,8 @@ export default getRequestConfig(async ({locale}) => {
   }
   
   return {
-    locale, // Add the locale to the return object
-    messages
+    locale,
+    messages,
+    timeZone: 'Europe/London' // Example, can be configured
   };
 });
