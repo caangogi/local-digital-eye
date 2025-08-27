@@ -24,6 +24,10 @@ export const pathnames = {
     en: '/businesses',
     es: '/negocios'
   },
+   '/businesses/add': {
+    en: '/businesses/add',
+    es: '/negocios/anadir'
+  },
   '/reports': {
     en: '/reports',
     es: '/informes'
