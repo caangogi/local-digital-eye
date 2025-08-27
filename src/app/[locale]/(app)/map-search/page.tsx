@@ -64,7 +64,7 @@ export default function MapSearchPage() {
             <CardContent className="h-[calc(100%-100px)]"> 
               <div className="w-full h-full bg-muted rounded-md flex items-center justify-center">
                 <Image 
-                    src="https://placehold.co/800x600.png" 
+                    src="https://picsum.photos/800/600" 
                     alt="Interactive Map Placeholder" 
                     width={800} 
                     height={600} 

@@ -69,7 +69,7 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="text-center">
              <Image 
-                src="https://placehold.co/300x200.png" 
+                src="https://picsum.photos/300/200" 
                 alt="Service Catalog Placeholder" 
                 width={300} 
                 height={200}

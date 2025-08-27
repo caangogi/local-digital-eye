@@ -77,7 +77,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="w-full h-[300px] bg-card rounded-md flex items-center justify-center">
               <Image 
-                src="https://placehold.co/600x300.png" 
+                src="https://picsum.photos/600/300" 
                 alt="Performance Chart Placeholder" 
                 width={600} 
                 height={300}
