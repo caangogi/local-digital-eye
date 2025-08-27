@@ -15,6 +15,11 @@ export class GetBusinessDetailsUseCase {
    */
   async execute(businessId: string): Promise<Business | null> {
     console.log(`[GetBusinessDetailsUseCase] Fetching details for business ${businessId}`);
-    return this.businessRepository.findById(businessId);
+    const business = await this.businessRepository.findById(businessId);
+    if (!business) {
+        console.warn(`[GetBusinessDetailsUseCase] Business not found with id: ${businessId}`);
+        return null;
+    }
+    return business;
   }
 }

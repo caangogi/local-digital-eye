@@ -9,12 +9,14 @@ import { cookies } from 'next/headers';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
 import { ConnectBusinessUseCase } from '@/backend/business/application/connect-business.use-case';
 import { ListUserBusinessesUseCase } from '@/backend/business/application/list-user-businesses.use-case';
+import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import type { Business } from '@/backend/business/domain/business.entity';
 
 const businessRepository = new FirebaseBusinessRepository();
 const connectBusinessUseCase = new ConnectBusinessUseCase(businessRepository);
 const listUserBusinessesUseCase = new ListUserBusinessesUseCase(businessRepository);
+const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
 
 /**
  * Connects a business to the currently logged-in user.
@@ -86,5 +88,27 @@ export async function listUserBusinesses(): Promise<Business[]> {
         }
         console.error('Error listing user businesses:', error);
         return []; // Return empty array on error to prevent page crashes
+    }
+}
+
+
+/**
+ * Gets the public details of a specific business.
+ * This action does not require authentication as it's for the public review page.
+ * @param businessId The ID of the business to retrieve.
+ * @returns A promise that resolves to a Business object or null if not found.
+ */
+export async function getBusinessDetails(businessId: string): Promise<Business | null> {
+    try {
+        console.log(`[BusinessAction] Fetching public details for business ${businessId}`);
+        const business = await getBusinessDetailsUseCase.execute(businessId);
+        if (!business) {
+            console.warn(`[BusinessAction] Business not found: ${businessId}`);
+            return null;
+        }
+        return business;
+    } catch (error: any) {
+        console.error(`Error fetching business details for ${businessId}:`, error);
+        return null; // Return null on error to prevent page crashes.
     }
 }
