@@ -1,5 +1,6 @@
 import type { Business } from '../domain/business.entity';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
+import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 
 /**
  * @fileoverview Defines the use case for connecting a business to a user.
@@ -7,10 +8,8 @@ import type { BusinessRepositoryPort } from '../domain/business.repository.port'
  */
 
 interface ConnectBusinessInput {
-    placeId: string;
-    name: string;
     userId: string;
-    reviewLink: string;
+    gmbData: GmbDataExtractionOutput;
 }
 
 export class ConnectBusinessUseCase {
@@ -24,29 +23,42 @@ export class ConnectBusinessUseCase {
    * @returns The newly created and saved Business object.
    */
   async execute(input: ConnectBusinessInput): Promise<Business | null> {
-    console.log(`[ConnectBusinessUseCase] User ${input.userId} attempting to connect business with placeId ${input.placeId}`);
+    const { userId, gmbData } = input;
+    const placeId = gmbData.placeId;
+
+    if (!placeId) {
+        throw new Error("Cannot connect a business without a valid Place ID.");
+    }
+    
+    console.log(`[ConnectBusinessUseCase] User ${userId} attempting to connect business with placeId ${placeId}`);
 
     // Check if business is already connected
-    const existingBusiness = await this.businessRepository.findById(input.placeId);
+    const existingBusiness = await this.businessRepository.findById(placeId);
     if (existingBusiness) {
-      // It could belong to another user, or already to this one.
-      if (existingBusiness.userId === input.userId) {
-          console.log(`[ConnectBusinessUseCase] Business ${input.placeId} is already connected to user ${input.userId}.`);
-          // Optionally, return the existing business or throw a specific "already-exists" error.
+      if (existingBusiness.userId === userId) {
+          console.log(`[ConnectBusinessUseCase] Business ${placeId} is already connected to user ${userId}.`);
           return existingBusiness;
       } else {
-          // This is a business integrity issue. Two users cannot own the same placeId.
           throw new Error("This business is already connected by another user.");
       }
     }
     
     // Create a new Business entity from the input
     const businessToSave: Business = {
-      id: input.placeId, // Use Google Place ID as our unique ID
-      userId: input.userId,
-      placeId: input.placeId,
-      name: input.name,
-      reviewLink: input.reviewLink,
+      id: placeId,
+      userId: userId,
+      placeId: placeId,
+      name: gmbData.extractedName,
+      reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
+      // Add all the enriched public data
+      address: gmbData.address,
+      phone: gmbData.phone,
+      website: gmbData.website,
+      rating: gmbData.rating,
+      reviewCount: gmbData.reviewCount,
+      category: gmbData.category,
+      gmbPageUrl: gmbData.gmbPageUrl,
+      businessStatus: gmbData.businessStatus,
     };
 
     // Save the business to our database

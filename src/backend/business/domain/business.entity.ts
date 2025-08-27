@@ -17,6 +17,16 @@ export const BusinessSchema = z.object({
   gmbAccessToken: z.string().optional().describe("Short-lived access token for GMB API."),
   gmbRefreshToken: z.string().optional().describe("Long-lived refresh token for GMB API."),
   gmbTokenExpiryDate: z.date().optional().describe("Expiry date of the access token."),
+  
+  // Public business data from Google Places API
+  address: z.string().optional().describe('Full address of the business.'),
+  phone: z.string().optional().describe('Primary phone number.'),
+  website: z.string().url().optional().describe('Official website URL.'),
+  rating: z.number().min(0).max(5).optional().describe('Average customer rating (e.g., 4.5).'),
+  reviewCount: z.number().int().optional().describe('Total number of reviews.'),
+  category: z.string().optional().describe('Primary business category (e.g., Restaurant, Hair Salon).'),
+  gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
+  businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
