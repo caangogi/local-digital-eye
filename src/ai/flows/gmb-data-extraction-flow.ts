@@ -35,32 +35,33 @@ export type GmbDataExtractionOutput = z.infer<typeof GmbDataExtractionOutputSche
 
 /**
  * Maps the raw Place data from Google API to our defined GmbDataExtractionOutput structure.
- * @param placeData The raw data from Google Places API.
+ * This now handles the format from Places API (New).
+ * @param placeData The raw data from Google Places API (New).
  * @returns A structured business data object or null if input is invalid.
  */
 function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
-  if (!placeData || !placeData.place_id) {
+  if (!placeData || !placeData.id) {
     return null;
   }
 
   // Generate a plausible summary based on rating and category without an LLM.
   let summary = `A ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establishment'} in the area.`;
-  if (placeData.rating && placeData.user_ratings_total) {
-    summary = `A well-regarded ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establishment'} with a rating of ${placeData.rating} from ${placeData.user_ratings_total} reviews.`
+  if (placeData.rating && placeData.userRatingCount) {
+    summary = `A well-regarded ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establishment'} with a rating of ${placeData.rating} from ${placeData.userRatingCount} reviews.`
   }
 
   return {
-    placeId: placeData.place_id,
+    placeId: placeData.id,
     extractedName: placeData.name || 'Unknown Name',
-    address: placeData.formatted_address,
-    phone: placeData.international_phone_number,
-    website: placeData.website,
+    address: placeData.formattedAddress,
+    phone: placeData.internationalPhoneNumber,
+    website: placeData.websiteUri,
     rating: placeData.rating,
-    reviewCount: placeData.user_ratings_total,
+    reviewCount: placeData.userRatingCount,
     category: placeData.types?.[0], // Get the first category
-    openingHours: placeData.opening_hours?.weekday_text,
-    businessStatus: placeData.business_status,
-    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${placeData.place_id}`,
+    openingHours: placeData.openingHours?.weekdayDescriptions,
+    businessStatus: placeData.businessStatus,
+    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeData.id}`,
     briefReviewSummary: summary,
   };
 }
@@ -96,7 +97,7 @@ const extractGmbDataFlow = ai.defineFlow(
 );
 
 export async function extractGmbData(input: GmbDataExtractionInput): Promise<GmbDataExtractionOutput | null> {
-  console.log("Local Digital Eye - GMB Data Extraction from Google Places API");
+  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (New)");
   console.log("This feature uses the Google Places API. Usage is subject to Google's terms and pricing.");
   console.log("--------------------------------------------------------------------");
   return extractGmbDataFlow(input);
