@@ -11,7 +11,12 @@ export const BusinessSchema = z.object({
   name: z.string().describe("The official name of the business."),
   placeId: z.string().describe("The Google Place ID for this business."),
   reviewLink: z.string().url().describe("The direct URL for a user to write a Google review."),
-  // Additional fields like address, category, etc., can be added later.
+  
+  // GMB OAuth Credentials
+  gmbStatus: z.enum(['unlinked', 'linked', 'revoked']).optional().default('unlinked').describe("The status of the Google My Business connection."),
+  gmbAccessToken: z.string().optional().describe("Short-lived access token for GMB API."),
+  gmbRefreshToken: z.string().optional().describe("Long-lived refresh token for GMB API."),
+  gmbTokenExpiryDate: z.date().optional().describe("Expiry date of the access token."),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
