@@ -24,6 +24,7 @@ export async function getGoogleOAuthConsentUrl(businessId: string): Promise<stri
 
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // 'offline' is required to get a refresh token
+    prompt: 'consent', // Force the consent screen to be shown, which helps in getting a refresh token on re-authorization.
     scope: scopes,
     // The 'state' parameter is used to pass data through the OAuth flow.
     // We'll encode the businessId here to retrieve it in the callback.
