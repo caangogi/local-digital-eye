@@ -67,8 +67,8 @@ export class ConnectBusinessUseCase {
       gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeId}`,
       businessStatus: gmbData.businessStatus,
       location: gmbData.location,
-      photos: gmbData.photos,
-      openingHours: gmbData.regularOpeningHours || gmbData.currentOpeningHours,
+      photos: gmbData.photos || [], // Provide default empty array
+      openingHours: gmbData.regularOpeningHours || gmbData.currentOpeningHours, // Keep this logic
     };
 
     // Save the business to our database

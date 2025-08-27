@@ -37,17 +37,17 @@ export const BusinessSchema = z.object({
   gmbTokenExpiryDate: z.date().optional().describe("Expiry date of the access token."),
   
   // Enriched public business data from Google Places API
-  address: z.string().optional().describe('Full address of the business.'),
-  phone: z.string().optional().describe('Primary phone number.'),
-  website: z.string().url().optional().describe('Official website URL.'),
-  rating: z.number().min(0).max(5).optional().describe('Average customer rating (e.g., 4.5).'),
-  reviewCount: z.number().int().optional().describe('Total number of reviews.'),
-  category: z.string().optional().describe('Primary business category (e.g., Restaurant, Hair Salon).'),
-  gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
-  businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
-  location: LocationSchema.optional().describe('Geographic coordinates of the business.'),
-  photos: z.array(PhotoSchema).optional().describe('List of photos of the business.'),
-  openingHours: OpeningHoursSchema.optional().describe('Opening hours information.'),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  website: z.string().url().optional(),
+  rating: z.number().min(0).max(5).optional(),
+  reviewCount: z.number().int().optional(),
+  category: z.string().optional(),
+  gmbPageUrl: z.string().url().optional(),
+  businessStatus: z.string().optional(),
+  location: LocationSchema.optional(),
+  photos: z.array(PhotoSchema).optional().default([]), // Default to empty array
+  openingHours: OpeningHoursSchema.optional(),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
