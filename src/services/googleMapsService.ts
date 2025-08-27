@@ -69,8 +69,8 @@ function normalizePlace(place: any): Place {
     location: place.location,
     photos: place.photos,
     openingHours: {
-        openNow: place.openingHours?.openNow,
-        weekdayDescriptions: place.openingHours?.weekdayDescriptions,
+        openNow: place.opening_hours?.openNow,
+        weekdayDescriptions: place.opening_hours?.weekdayDescriptions,
     },
   };
 }
@@ -94,7 +94,6 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Basic field mask for search results - keeping it minimal and cheap
   const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types";
 
   const requestBody = {
@@ -152,9 +151,7 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    // Correct fieldMask for the 'details' endpoint. NO 'places.' prefix.
-    const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,openingHours";
-  
+    const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,opening_hours";
     const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
@@ -170,10 +167,8 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
   
       if (!response.ok) {
           const errorBody = await response.json().catch(() => ({}));
-          // Capture the detailed error message from Google
-          const detailedError = errorBody.error ? JSON.stringify(errorBody.error.details) : `Status: ${response.status}`;
+          const detailedError = errorBody.error ? JSON.stringify(errorBody.error.details || errorBody.error) : `Status: ${response.status}`;
           console.error(`[GoogleMapsService] Details API Error: ${detailedError}`);
-          // Throw the more informative error message
           throw new Error(`Google Places Details API request failed with status ${response.status}. Details: ${detailedError}`);
       }
   
@@ -183,7 +178,6 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
   
     } catch (error: any) {
       console.error(`[GoogleMapsService] Critical error during getGooglePlaceDetails for placeId ${placeId}:`, error.message);
-      // Re-throw the error so it can be caught by the calling function
       throw error;
     }
 }
