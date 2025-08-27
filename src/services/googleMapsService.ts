@@ -89,7 +89,7 @@ function normalizePlace(place: any): Place {
 
   return {
     id: place.id,
-    name: place.displayName?.text,
+    name: place.displayName?.text || place.name, // name can be displayName.text or just name
     formattedAddress: place.formattedAddress,
     internationalPhoneNumber: place.internationalPhoneNumber,
     websiteUri: place.websiteUri,
@@ -188,16 +188,16 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    // Add languageCode to the URL as a query parameter
-    const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
-    
     // Rich field mask for detailed data. More expensive.
+    // Corrected the field mask to use valid fields for the details endpoint.
     const fieldMask = [
-      "id", "displayName", "formattedAddress", "internationalPhoneNumber",
+      "id", "name", "displayName", "formattedAddress", "internationalPhoneNumber",
       "websiteUri", "rating", "userRatingCount", "types", 
       "businessStatus", "location", "photos", "reviews", 
       "openingHours", "editorialSummary"
     ].join(",");
+  
+    const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
       console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
