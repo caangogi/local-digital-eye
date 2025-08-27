@@ -8,6 +8,7 @@ import { Link } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
 import { CopyReviewLink } from "./_components/CopyReviewLink";
+import { GenerateQrCode } from "./_components/GenerateQrCode";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('BusinessesPage'); 
@@ -77,7 +78,7 @@ export default async function BusinessesPage() {
                       <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                       <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
                        <CopyReviewLink reviewLink={business.reviewLink} />
-                      <DropdownMenuItem>Generar QR</DropdownMenuItem>
+                       <GenerateQrCode reviewLink={business.reviewLink} businessName={business.name} />
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">Desconectar</DropdownMenuItem>
                     </DropdownMenuContent>
