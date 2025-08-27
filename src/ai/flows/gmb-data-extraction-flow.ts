@@ -13,7 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchGooglePlace, getGooglePlaceDetails, type Place } from '@/services/googleMapsService';
+import { searchGooglePlace } from '@/services/googleMapsService';
 
 
 const GmbDataExtractionInputSchema = z.object({
@@ -41,21 +41,19 @@ const GmbDataExtractionOutputSchema = z.object({
   }).optional().describe('Geographic coordinates of the business.'),
   
   photos: z.array(z.any()).optional().describe('List of photos of the business.'),
-  reviews: z.array(z.any()).optional().describe('List of customer reviews.'),
   
   openingHours: z.object({
     openNow: z.boolean().optional(),
     weekdayDescriptions: z.array(z.string()).optional(),
   }).optional().describe('Opening hours information.'),
   
-  editorialSummary: z.string().nullable().optional().describe('An AI-generated summary from Google.'),
   briefReviewSummary: z.string().optional().describe('A very brief AI-generated summary of the business perception based on available data like rating and category. Max 150 characters.'),
 
 });
 export type GmbDataExtractionOutput = z.infer<typeof GmbDataExtractionOutputSchema>;
 
 
-function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
+function mapPlaceToOutput(placeData: any | null): GmbDataExtractionOutput | null {
   if (!placeData || !placeData.id || !placeData.name) {
     return null;
   }
@@ -81,9 +79,7 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
     // Mapping new fields
     location: placeData.location,
     photos: placeData.photos,
-    reviews: placeData.reviews,
     openingHours: placeData.openingHours,
-    editorialSummary: placeData.editorialSummary?.text,
   };
 }
 
@@ -105,7 +101,6 @@ const extractGmbDataFlow = ai.defineFlow(
     }
     
     // Step 2: Map the search result data to the output format.
-    // We are no longer calling getGooglePlaceDetails here.
     const mappedData = mapPlaceToOutput(searchResult);
 
     if (!mappedData) {

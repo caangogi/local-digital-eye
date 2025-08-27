@@ -14,24 +14,6 @@ const PhotoSchema = z.object({
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
-
-// Schema for a single review from the Places API
-const ReviewSchema = z.object({
-    name: z.string().optional(),
-    relativePublishTimeDescription: z.string().optional(),
-    rating: z.number().min(0).max(5).optional(),
-    text: z.object({
-        text: z.string(),
-        languageCode: z.string(),
-    }).nullable().optional(),
-    originalText: z.object({
-        text: z.string(),
-        languageCode: z.string(),
-    }).nullable().optional(),
-    authorAttribution: z.any().optional(),
-});
-export type Review = z.infer<typeof ReviewSchema>;
-
 // Schema for opening hours
 const OpeningHoursSchema = z.object({
     openNow: z.boolean().optional(),
@@ -56,9 +38,7 @@ const PlaceSchema = z.object({
     longitude: z.number(),
   }).optional(),
   photos: z.array(PhotoSchema).optional(),
-  reviews: z.array(ReviewSchema).optional(),
   openingHours: OpeningHoursSchema.optional(),
-  editorialSummary: z.object({ text: z.string(), languageCode: z.string() }).nullable().optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
@@ -74,17 +54,6 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
  */
 function normalizePlace(place: any): Place {
   if (!place) return place;
-  
-  const normalizedReviews = place.reviews?.map((review: any) => {
-    return {
-      name: review.name,
-      relativePublishTimeDescription: review.relativePublishTimeDescription,
-      rating: review.rating,
-      text: review.text,
-      originalText: review.originalText,
-      authorAttribution: review.authorAttribution
-    };
-  }) || [];
 
   return {
     id: place.id,
@@ -97,9 +66,7 @@ function normalizePlace(place: any): Place {
     types: place.types,
     businessStatus: place.businessStatus,
     location: place.location,
-    editorialSummary: place.editorialSummary,
     photos: place.photos,
-    reviews: normalizedReviews,
     openingHours: {
         openNow: place.openingHours?.openNow,
         weekdayDescriptions: place.openingHours?.weekdayDescriptions,
@@ -175,7 +142,7 @@ export async function searchGooglePlace(
 
 /**
  * Gets detailed information for a specific place ID using Places API (New).
- * Use this to fetch rich data like reviews, photos, opening hours, etc.
+ * Use this to fetch rich data like photos, opening hours, etc.
  * @param placeId The place ID to get details for.
  * @returns A promise that resolves to a detailed Place object, or null.
  */
@@ -190,8 +157,8 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
     const fieldMask = [
       "id", "displayName", "formattedAddress", "internationalPhoneNumber",
       "websiteUri", "rating", "userRatingCount", "types", 
-      "businessStatus", "location", "photos", "reviews", 
-      "openingHours", "editorialSummary"
+      "businessStatus", "location", "photos", 
+      "openingHours"
     ].join(",");
   
     const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
