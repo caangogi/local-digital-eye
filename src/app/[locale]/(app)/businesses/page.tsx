@@ -11,8 +11,8 @@ import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
 import { ConnectGoogleProfile } from "./_components/ConnectGoogleProfile";
 import { ToastHandler } from "./_components/ToastHandler";
-import { CopyReviewLink } from "./_components/CopyReviewLink";
 import { GenerateQrCode } from "./_components/GenerateQrCode";
+import { CopyReviewLink } from "./_components/CopyReviewLink";
 
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
@@ -89,7 +89,7 @@ export default async function BusinessesPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Acciones del Perfil</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
+                       <DropdownMenuItem asChild>
                            <Link href={`/negocio/${business.id}`} target="_blank">
                               <ExternalLink className="mr-2 h-4 w-4" />
                               Ir al perfil del negocio
