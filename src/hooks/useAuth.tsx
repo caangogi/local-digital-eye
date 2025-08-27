@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push('/dashboard');
     } else {
       console.error("[Auth] Backend session creation failed:", response.message);
-      await firebaseSignout(clientAuth);
+      await clientAuth.signOut();
       setUser(null);
       toast({ title: "Login Failed", description: response.message, variant: "destructive" });
     }
@@ -124,7 +124,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await handleAuthSuccess(result.user);
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
-      toast({ title: "Sign-in Error", description: error.message, variant: "destructive" });
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        toast({ title: "Account Exists", description: "An account already exists with this email address. Please sign in with the original method.", variant: "destructive" });
+      } else {
+        toast({ title: "Sign-in Error", description: error.message, variant: "destructive" });
+      }
     } finally {
         setIsLoading(false);
     }
@@ -145,7 +149,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
-      toast({ title: "Sign-up Failed", description: error.message, variant: "destructive" });
+      if (error.code === 'auth/email-already-in-use') {
+        toast({ title: "Email in Use", description: "This email is already associated with an account. Please log in.", variant: "destructive" });
+      } else {
+        toast({ title: "Sign-up Failed", description: error.message, variant: "destructive" });
+      }
       setIsLoading(false);
     }
     // setIsLoading(false) is handled in handleAuthSuccess or the catch block
@@ -156,9 +164,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
       await handleAuthSuccess(userCredential.user);
-    } catch (error: any) {
+    } catch (error: any)
+{
       console.error("[Auth] Error signing in:", error);
-      toast({ title: "Sign-in Failed", description: error.message, variant: "destructive" });
+      if (error.code === 'auth/invalid-credential') {
+         toast({ title: "Invalid Credentials", description: "The email or password you entered is incorrect. If you signed up with Google, please use the Google login button.", variant: "destructive" });
+      } else {
+        toast({ title: "Sign-in Failed", description: error.message, variant: "destructive" });
+      }
       setIsLoading(false);
     }
   };
@@ -200,7 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async (): Promise<void> => {
     console.log('[Auth] Attempting to sign out...');
     try {
-      await firebaseSignout(clientAuth);
+      await clientAuth.signOut();
       await clearSession();
       setUser(null);
       setIsProviderPasswordEnabled(false);
