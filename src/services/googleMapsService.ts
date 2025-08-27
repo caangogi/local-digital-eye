@@ -20,7 +20,7 @@ const PlaceSchema = z.object({
 export type Place = z.infer<typeof PlaceSchema>;
 
 const GooglePlacesNewTextSearchResponseSchema = z.object({
-  places: z.array(PlaceSchema).optional(),
+  places: z.array(z.any()).optional(), // Use z.any() because the raw response is slightly different
 });
 
 /**
@@ -31,10 +31,10 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
  * @returns A normalized Place object for our application.
  */
 function normalizePlace(place: any): Place {
-  // The 'name' field in the response is nested under 'displayName.text'.
+  // CORRECTED: The 'name' field in the response is nested under 'displayName.text'.
   return {
     id: place.id,
-    name: place.displayName?.text,
+    name: place.displayName?.text, // This is the fix
     formattedAddress: place.formattedAddress,
     internationalPhoneNumber: place.internationalPhoneNumber,
     websiteUri: place.websiteUri,
@@ -64,8 +64,7 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Corrected: The field mask requires the 'places.' prefix for each field.
-  // 'openingHours' is removed as it's not supported by searchText.
+  // These are the fields we want to get back from the API
   const fieldMask = [
     "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
     "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
