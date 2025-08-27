@@ -1,9 +1,5 @@
-// src/lib/firebase/firebase-admin-config.ts
 import admin from 'firebase-admin';
-import { config } from 'dotenv';
-
-// Load environment variables from .env.local RIGHT before they are needed.
-config({ path: '.env.local' });
+import type { ServiceAccount } from 'firebase-admin';
 
 // This is a singleton pattern to ensure we only initialize Firebase Admin once.
 let app: admin.app.App;
@@ -19,22 +15,19 @@ function getFirebaseAdminApp(): admin.app.App {
     return app;
   }
 
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  const serviceAccount: ServiceAccount = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Important: Replace escaped newlines
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  };
 
-  if (!serviceAccountJson) {
-      throw new Error('Firebase Admin environment variable "FIREBASE_SERVICE_ACCOUNT_KEY" is not set. This should contain the entire service account JSON object. Check your .env.local file and your hosting provider\'s environment variable settings.');
+  if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
+    throw new Error('Firebase Admin environment variables are not set. Check your .env file.');
   }
 
-  try {
-    const serviceAccount = JSON.parse(serviceAccountJson);
-    app = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-  } catch (error: any) {
-    console.error('Failed to parse or use FIREBASE_SERVICE_ACCOUNT_KEY:', error.message);
-    throw new Error('Could not initialize Firebase Admin SDK. Ensure FIREBASE_SERVICE_ACCOUNT_KEY is a valid JSON string.');
-  }
-
+  app = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 
   console.log('Firebase Admin SDK initialized successfully.');
   return app;
