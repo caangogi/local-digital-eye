@@ -1,5 +1,6 @@
 import { LoginForm } from "@/components/auth/LoginForm";
 import {getTranslations} from 'next-intl/server';
+import { ClientAuthForm } from "@/components/auth/ClientAuthForm";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AuthPage');
@@ -9,5 +10,9 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
 }
 
 export default function LoginPage() {
-  return <LoginForm />;
+  return (
+    <ClientAuthForm>
+      <LoginForm />
+    </ClientAuthForm>
+  )
 }
