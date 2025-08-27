@@ -9,17 +9,17 @@ import { Button } from "@/components/ui/button";
 import { QrCode, Download } from "lucide-react";
 
 interface GenerateQrCodeProps {
-  reviewLink: string;
+  profileLink: string;
   businessName: string;
 }
 
-export function GenerateQrCode({ reviewLink, businessName }: GenerateQrCodeProps) {
+export function GenerateQrCode({ profileLink, businessName }: GenerateQrCodeProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
   const generateQRCode = async () => {
     try {
-      const dataUrl = await QRCode.toDataURL(reviewLink, {
+      const dataUrl = await QRCode.toDataURL(profileLink, {
         width: 400,
         margin: 2,
         errorCorrectionLevel: 'H'
@@ -38,7 +38,7 @@ export function GenerateQrCode({ reviewLink, businessName }: GenerateQrCodeProps
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = qrCodeDataUrl;
-    link.download = `qr-reseña-${businessName.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.download = `qr-perfil-${businessName.toLowerCase().replace(/\s+/g, '-')}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -48,15 +48,15 @@ export function GenerateQrCode({ reviewLink, businessName }: GenerateQrCodeProps
     <>
       <DropdownMenuItem onSelect={handleOpen}>
         <QrCode className="mr-2 h-4 w-4" />
-        <span>Generar QR</span>
+        <span>Generar QR del Perfil</span>
       </DropdownMenuItem>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-headline">Código QR para Reseñas</DialogTitle>
+            <DialogTitle className="font-headline">Código QR para Perfil de Negocio</DialogTitle>
             <DialogDescription>
-              Tus clientes pueden escanear este código para ir directamente a la página y dejar una reseña en Google para &quot;{businessName}&quot;.
+              Tus clientes pueden escanear este código para ir directamente a la página de perfil público de &quot;{businessName}&quot;.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-center p-4 bg-white rounded-md my-4">
