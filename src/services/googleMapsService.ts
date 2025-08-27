@@ -39,7 +39,7 @@ export type Place = z.infer<typeof PlaceSchema>;
 
 const GooglePlacesTextSearchResponseSchema = z.object({
   results: z.array(PlaceSchema),
-  status: z.string(), // e.g., "OK", "ZERO_RESULTS"
+  status: z.string(), // e.g., "OK", "ZERO_RESULTS", "REQUEST_DENIED"
   error_message: z.string().optional(),
   info_messages: z.array(z.string()).optional(),
   next_page_token: z.string().optional(),
@@ -59,14 +59,11 @@ export async function searchGooglePlace(
 ): Promise<Place | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
-    console.error("Google Maps API key is missing. Please set GOOGLE_MAPS_API_KEY in your environment variables.");
-    // For a production app, throwing an error is better to fail fast.
-    throw new Error("Server configuration error: Google Maps API key is missing.");
+    console.error("CRITICAL: GOOGLE_MAPS_API_KEY environment variable is not set.");
+    throw new Error("Server configuration error: The Google Maps API key is missing. Please set it in your hosting environment (e.g., Vercel).");
   }
 
   const query = `${businessName} in ${location}`;
-  // Basic fields are free. More fields might incur costs.
-  // Refer to Google Maps Places API documentation for details on fields and pricing.
   const fields = [
     "place_id", "name", "formatted_address", "international_phone_number",
     "website", "rating", "user_ratings_total", "types", "opening_hours", "business_status"
@@ -79,24 +76,28 @@ export async function searchGooglePlace(
     const response = await fetch(url);
     const data: GooglePlacesTextSearchResponse = await response.json();
 
-    if (!response.ok) {
-        console.error(`[GoogleMapsService] API request failed with status ${response.status}. Response: ${JSON.stringify(data)}`);
-        // Throw an error to be caught by the calling function, so it knows the request failed.
-        throw new Error(`Google Places API error: ${data.error_message || 'Request failed'}`);
-    }
-    
-    if (data.status === "OK" && data.results && data.results.length > 0) {
+    if (data.status === "OK") {
       console.log(`[GoogleMapsService] Found ${data.results.length} result(s). Returning the first one.`);
-      return data.results[0];
-    } else if (data.status === "ZERO_RESULTS") {
+      return data.results[0] || null;
+    } 
+    
+    if (data.status === "ZERO_RESULTS") {
       console.log(`[GoogleMapsService] No results found for "${query}".`);
       return null;
-    } else {
-      console.error(`[GoogleMapsService] API Error: ${data.status} - ${data.error_message || 'Unknown error'}`);
-      if (data.info_messages) console.info("Info messages:", data.info_messages);
-       // Throw an error for unexpected statuses like 'REQUEST_DENIED' or 'INVALID_REQUEST'.
-      throw new Error(`Google Places API returned status: ${data.status}`);
+    } 
+    
+    // Handle specific, actionable errors
+    if (data.status === "REQUEST_DENIED") {
+      console.error(`[GoogleMapsService] API Error: ${data.status} - ${data.error_message || 'Request was denied.'}`);
+      console.error("[GoogleMapsService] This usually means the Places API is not enabled on your Google Cloud project, or the API key is invalid/restricted. Please check your Google Cloud Console.");
+      throw new Error(`Google Places API Request Denied. Please ensure the 'Places API' is enabled and your API key is correct and unrestricted.`);
     }
+
+    // Handle other unexpected statuses
+    console.error(`[GoogleMapsService] Unexpected API Status: ${data.status} - ${data.error_message || 'Unknown error'}`);
+    if (data.info_messages) console.info("Info messages:", data.info_messages);
+    throw new Error(`Google Places API returned an unexpected status: ${data.status}`);
+
   } catch (error) {
     console.error("[GoogleMapsService] A critical error occurred while calling Google Places API:", error);
     // Re-throw the error so the caller can handle it, e.g., show a generic error message to the user.
