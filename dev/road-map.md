@@ -55,7 +55,7 @@ Este documento describe el plan de acción para implementar las funcionalidades 
     2. Definir la entidad `Business` (`business.entity.ts`) con campos como `id`, `userId`, `placeId`, `name`, `reviewLink`.
     3. Definir el puerto `BusinessRepositoryPort` (`business.repository.port.ts`) con métodos `save`, `findById`, `findByUserId`, `delete`.
 - **✅ 🤖 Tarea (Backend - Aplicación):**
-    1. Crear `ConnectBusinessUseCase`: Lógica para buscar un negocio usando la Places API, obtener su `placeId` y guardarlo asociado al usuario. La validación de propiedad se realizará en la Fase 2 mediante OAuth.
+    1. Crear `ConnectBusinessUseCase`: Lógica para buscar un negocio usando la Places API, obtener su `placeId` y guardarlo asociado al usuario. La validación de propiedad real se realizará en la Fase 2 mediante OAuth.
     2. Crear `ListUserBusinessesUseCase`: Lógica para listar todos los negocios de un usuario.
     3. Crear `GetBusinessDetailsUseCase`: Lógica para obtener la información de un negocio específico, incluyendo su enlace de reseña y QR.
     4. Crear `DisconnectBusinessUseCase`: Lógica para desvincular un negocio de un usuario.
@@ -80,20 +80,26 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 ---
 
-## Fase 2: El Asistente IA para Responder Reseñas
+## Fase 2: Vinculación Segura y Asistente de Reseñas IA
 
-*Objetivo: Ahorrar tiempo a los dueños de negocios generando respuestas inteligentes y personalizadas a las reseñas de Google, conectando de forma segura con sus perfiles de negocio.*
+*Objetivo: Validar la propiedad de los perfiles de negocio a través de Google y ahorrar tiempo a los dueños generando respuestas inteligentes y personalizadas a las reseñas.*
+
+### Hito 2.1: Validación de Propiedad del Negocio (OAuth 2.0)
 
 - **👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud para leer y responder reseñas.
-- **🤖 Tarea (Backend - Autorización):** Implementar el flujo de conexión con OAuth 2.0. Un botón "Conectar Perfil de Google" iniciará el proceso para que el usuario otorgue permisos a la aplicación para gestionar sus reseñas (`business.reviews`).
+- **🤖 Tarea (Backend - Autorización):** Implementar el flujo de conexión con OAuth 2.0. Un botón "Conectar Perfil de Google" iniciará el proceso para que el usuario, usando la cuenta de Google con la que gestiona su negocio, otorgue permisos a la aplicación para gestionar sus reseñas (`business.reviews`).
 - **🤖 Tarea (Backend - Infraestructura):** Crear un servicio para almacenar de forma segura los tokens de acceso y de refresco de OAuth, asociándolos al `businessId`.
+- **🤖 Tarea (Backend - Revocación):** Implementar la lógica para manejar tokens revocados. Si la API de Google devuelve un error de autenticación, marcar el negocio como "Requiere reconexión" y notificar al usuario.
+
+### Hito 2.2: Gestión de Reseñas con IA
+
 - **🤖 Tarea (Backend - Sincronización):** Crear un servicio (ej. un cron job o un trigger de Firestore) que use los tokens para sincronizarse periódicamente con la Google Business Profile API y obtener las nuevas reseñas.
 - **🤖 Tarea (Backend - IA):** Desarrollar un flujo de Genkit avanzado (adaptador de infraestructura) que:
     1.  Analice la reseña (sentimiento, temas clave).
     2.  Genere una respuesta sugerida, tomando en cuenta el tono y la información específica del negocio.
 - **🤖 Tarea (Frontend - UI):** Diseñar e implementar la interfaz en el dashboard donde el usuario pueda ver las reseñas pendientes, las respuestas sugeridas por la IA, y aprobarlas o editarlas.
 - **🤖 Tarea (Integración API):** Integrar la funcionalidad para publicar la respuesta aprobada directamente en Google a través de la API.
-- **🤖 Tarea (Backend - Revocación):** Implementar la lógica para manejar tokens revocados. Si la API de Google devuelve un error de autenticación, marcar el negocio como "Requiere reconexión" y notificar al usuario.
+
 
 ---
 
