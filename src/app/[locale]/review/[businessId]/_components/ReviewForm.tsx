@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input';
-import { Star } from "lucide-react";
+import { Input } from '@/components/ui/input';
+import { Star, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Business } from '@/backend/business/domain/business.entity';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { submitNegativeFeedback } from '@/actions/feedback.actions';
+import { useToast } from "@/hooks/use-toast";
+
 
 interface ReviewFormProps {
     business: Business;
@@ -20,14 +23,26 @@ const reviewSchema = z.object({
     rating: z.number().min(1, "Por favor, selecciona una calificación.").max(5),
     comment: z.string().optional(),
     name: z.string().optional(),
-    email: z.string().email("Por favor, introduce un email válido.").optional(),
+    email: z.string().optional(), // Making email optional for now
+}).refine(data => {
+    // If rating is < 5, comment must be provided.
+    if (data.rating < 5) {
+        return data.comment && data.comment.length > 10;
+    }
+    return true;
+}, {
+    message: "Por favor, déjanos un comentario de al menos 10 caracteres.",
+    path: ["comment"],
 });
 
 type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 
 export function ReviewForm({ business }: ReviewFormProps) {
+    const { toast } = useToast();
     const [hoveredRating, setHoveredRating] = useState<number | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submissionCompleted, setSubmissionCompleted] = useState(false);
 
     const form = useForm<ReviewFormValues>({
         resolver: zodResolver(reviewSchema),
@@ -41,15 +56,53 @@ export function ReviewForm({ business }: ReviewFormProps) {
 
     const selectedRating = form.watch('rating');
 
-    const handleSubmit = (data: ReviewFormValues) => {
+    const handleSubmit = async (data: ReviewFormValues) => {
         if (data.rating === 5) {
             window.location.href = business.reviewLink;
-        } else {
-            // Logic to submit negative feedback will be implemented in the next step.
-            console.log("Submitting negative feedback:", data);
-            alert("Gracias por tu feedback. Lo hemos recibido y nos pondremos en contacto pronto.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await submitNegativeFeedback({
+                businessId: business.id,
+                businessName: business.name,
+                rating: data.rating,
+                comment: data.comment || '',
+                userName: data.name,
+                userEmail: data.email,
+            });
+
+            if (response.success) {
+                setSubmissionCompleted(true);
+            } else {
+                toast({
+                    title: "Error al enviar",
+                    description: response.message,
+                    variant: "destructive",
+                });
+            }
+
+        } catch (error) {
+            toast({
+                title: "Error inesperado",
+                description: "Ocurrió un error al enviar tus comentarios. Por favor, inténtalo de nuevo.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
         }
     };
+    
+    if (submissionCompleted) {
+        return (
+            <div className="text-center p-8 flex flex-col items-center gap-4">
+                <CheckCircle className="w-16 h-16 text-green-500"/>
+                <h3 className="text-xl font-bold text-foreground">¡Gracias por tu feedback!</h3>
+                <p className="text-muted-foreground">Hemos recibido tus comentarios y los usaremos para mejorar nuestro servicio. Apreciamos mucho tu tiempo.</p>
+            </div>
+        );
+    }
 
     return (
         <Form {...form}>
@@ -117,7 +170,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Tu Email</FormLabel>
+                                    <FormLabel>Tu Email (Opcional)</FormLabel>
                                     <FormControl>
                                         <Input placeholder="tu@email.com" {...field} />
                                     </FormControl>
@@ -125,7 +178,10 @@ export function ReviewForm({ business }: ReviewFormProps) {
                                 </FormItem>
                             )}
                         />
-                         <Button type="submit" className="w-full">Enviar Comentarios</Button>
+                         <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Enviar Comentarios
+                         </Button>
                     </div>
                 )}
 

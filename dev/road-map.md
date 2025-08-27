@@ -71,7 +71,7 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 - **✅ 🤖 Tarea (Frontend - UI):** Crear la página pública y dinámica `[locale]/review/[businessId]/page.tsx`. Esta página mostrará el nombre y logo del negocio.
 - **✅ 🤖 Tarea (Frontend - UI):** Implementar el formulario de "pre-reseña" en esa página, con el selector de estrellas y el campo de texto.
-- **🤖 Tarea (Frontend - UI):** Desarrollar la lógica condicional en el cliente:
+- **✅ 🤖 Tarea (Frontend - UI):** Desarrollar la lógica condicional en el cliente:
     - Si la calificación es 5 estrellas, redirigir al usuario a `https://search.google.com/local/writereview?placeid=<place_id>`.
     - Si la calificación es 1-4 estrellas, mostrar campos adicionales para capturar nombre y email/teléfono.
 - **🤖 Tarea (Backend - Server Action):** Crear un Server Action que actúe como adaptador primario.
@@ -86,7 +86,7 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 ### Hito 2.1: Validación de Propiedad del Negocio (OAuth 2.0)
 
-- **✅ 👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud para leer y responder reseñas.
+- **👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud para leer y responder reseñas.
 - **🤖 Tarea (Backend - Autorización):** Implementar el flujo de conexión con OAuth 2.0. Un botón "Conectar Perfil de Google" iniciará el proceso para que el usuario, usando la cuenta de Google con la que gestiona su negocio, otorgue permisos a la aplicación para gestionar sus reseñas (`business.reviews`).
 - **🤖 Tarea (Backend - Infraestructura):** Crear un servicio para almacenar de forma segura los tokens de acceso y de refresco de OAuth, asociándolos al `businessId`.
 - **🤖 Tarea (Backend - Revocación):** Implementar la lógica para manejar tokens revocados. Si la API de Google devuelve un error de autenticación, marcar el negocio como "Requiere reconexión" y notificar al usuario.
@@ -128,3 +128,4 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 - **🤖 Tarea:** Creación de perfiles de competidores para análisis comparativo.
 - **🤖 Tarea:** Panel de analíticas avanzado con filtros por fecha y comparativas.
 - **🤖 Tarea:** Sistema de notificaciones mejorado dentro de la aplicación.
+
