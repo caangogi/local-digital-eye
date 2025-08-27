@@ -4,15 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link as LinkIcon, ExternalLink, Trash2, QrCode } from "lucide-react";
+import { PlusCircle, Search, ArrowUpDown, Filter } from "lucide-react";
 import { Link } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
-import { ConnectGoogleProfile } from "./_components/ConnectGoogleProfile";
 import { ToastHandler } from "./_components/ToastHandler";
-import { GenerateQrCode } from "./_components/GenerateQrCode";
-import { CopyReviewLink } from "./_components/CopyReviewLink";
+import { BusinessActions } from "./_components/BusinessActions";
 
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
@@ -79,33 +76,7 @@ export default async function BusinessesPage() {
                     </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Acciones del Perfil</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                       <DropdownMenuItem asChild>
-                           <Link href={`/negocio/${business.id}`} target="_blank">
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Ir al perfil del negocio
-                           </Link>
-                        </DropdownMenuItem>
-                       <CopyReviewLink businessProfileLink={`${baseUrl}/negocio/${business.id}`} />
-                       <GenerateQrCode profileLink={`${baseUrl}/negocio/${business.id}`} businessName={business.name} />
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel>Integraciones</DropdownMenuLabel>
-                      <ConnectGoogleProfile businessId={business.id} />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Desconectar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <BusinessActions business={business} baseUrl={baseUrl} />
                 </TableCell>
               </TableRow>
             )) : (
