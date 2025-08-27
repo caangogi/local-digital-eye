@@ -25,7 +25,6 @@ const GmbDataExtractionOutputSchema = z.object({
   rating: z.number().min(0).max(5).optional().describe('Average customer rating (e.g., 4.5).'),
   reviewCount: z.number().int().optional().describe('Total number of reviews.'),
   category: z.string().optional().describe('Primary business category (e.g., Restaurant, Hair Salon).'),
-  openingHours: z.array(z.string()).optional().describe('List of opening hours for each day (e.g., "Monday: 9:00 AM - 5:00 PM").'),
   briefReviewSummary: z.string().optional().describe('A very brief AI-generated summary of the business perception based on available data like rating and category. Max 150 characters.'),
   gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
   businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
@@ -59,7 +58,6 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
     rating: placeData.rating,
     reviewCount: placeData.userRatingCount,
     category: placeData.types?.[0], // Get the first category
-    openingHours: placeData.openingHours?.weekdayDescriptions,
     businessStatus: placeData.businessStatus,
     gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeData.id}`,
     briefReviewSummary: summary,
