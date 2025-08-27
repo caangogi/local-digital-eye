@@ -1,6 +1,5 @@
 // src/lib/firebase/firebase-admin-config.ts
 import admin from 'firebase-admin';
-import type { ServiceAccount } from 'firebase-admin';
 
 // This is a singleton pattern to ensure we only initialize Firebase Admin once.
 let app: admin.app.App;
