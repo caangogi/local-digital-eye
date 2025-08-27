@@ -37,9 +37,10 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
  * @returns A normalized Place object for our application.
  */
 function normalizePlace(place: any): Place {
+  // The 'name' field in the response is nested under 'displayName.text'.
   return {
     id: place.id,
-    name: place.displayName?.text || 'Unknown Name',
+    name: place.displayName?.text,
     formattedAddress: place.formattedAddress,
     internationalPhoneNumber: place.internationalPhoneNumber,
     websiteUri: place.websiteUri,
@@ -69,11 +70,11 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Fields to be returned by the API, according to the FieldMask syntax.
+  // Corrected: The field mask should not contain the 'places.' prefix.
   const fieldMask = [
-    "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
-    "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
-    "places.openingHours", "places.businessStatus"
+    "id", "displayName", "formattedAddress", "internationalPhoneNumber",
+    "websiteUri", "rating", "userRatingCount", "types", 
+    "openingHours", "businessStatus"
   ].join(",");
 
   const requestBody = {
@@ -94,7 +95,7 @@ export async function searchGooglePlace(
     });
 
     if (!response.ok) {
-        const errorBody = await response.json();
+        const errorBody = await response.json().catch(() => ({})); // Catch if error body is not valid JSON
         console.error(`[GoogleMapsService] API Error: ${response.status} - ${JSON.stringify(errorBody, null, 2)}`);
         
         if (response.status === 403) {
