@@ -70,11 +70,11 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Corrected: The field mask should not contain the 'places.' prefix.
+  // Corrected: The field mask requires the 'places.' prefix for each field.
   const fieldMask = [
-    "id", "displayName", "formattedAddress", "internationalPhoneNumber",
-    "websiteUri", "rating", "userRatingCount", "types", 
-    "openingHours", "businessStatus"
+    "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
+    "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
+    "places.openingHours", "places.businessStatus"
   ].join(",");
 
   const requestBody = {
