@@ -9,6 +9,7 @@ import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
 import { CopyReviewLink } from "./_components/CopyReviewLink";
 import { GenerateQrCode } from "./_components/GenerateQrCode";
+import { ConnectGoogleProfile } from "./_components/ConnectGoogleProfile";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('BusinessesPage'); 
@@ -66,7 +67,9 @@ export default async function BusinessesPage() {
                 <TableCell>
                     <div className="flex flex-col gap-1">
                         <Badge variant="secondary">Enlace Generado</Badge>
-                        <Badge variant="outline">GMB no verificado</Badge>
+                        <Badge variant={business.gmbStatus === 'linked' ? 'default' : 'outline'}>
+                            {business.gmbStatus === 'linked' ? 'GMB Verificado' : 'GMB no verificado'}
+                        </Badge>
                     </div>
                 </TableCell>
                 <TableCell className="text-right">
@@ -85,10 +88,7 @@ export default async function BusinessesPage() {
                        <CopyReviewLink reviewLink={business.reviewLink} />
                        <GenerateQrCode reviewLink={business.reviewLink} businessName={business.name} />
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <Share2 className="mr-2 h-4 w-4" />
-                        <span>Conectar Perfil de Google</span>
-                      </DropdownMenuItem>
+                      <ConnectGoogleProfile businessId={business.id} />
                       <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
                         <LinkIcon className="mr-2 h-4 w-4" />
                         Desconectar
