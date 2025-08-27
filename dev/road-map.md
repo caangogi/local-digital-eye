@@ -86,8 +86,8 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 ### Hito 2.1: Validación de Propiedad del Negocio (OAuth 2.0)
 
-- **👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud para leer y responder reseñas.
-- **🤖 Tarea (Backend - Autorización):** Implementar el flujo de conexión con OAuth 2.0. Un botón "Conectar Perfil de Google" iniciará el proceso para que el usuario, usando la cuenta de Google con la que gestiona su negocio, otorgue permisos a la aplicación para gestionar sus reseñas (`business.reviews`).
+- **✅ 👨‍🦲 Tarea:** Habilitar la **Google Business Profile API** en la Consola de Google Cloud para leer y responder reseñas.
+- **✅ 🤖 Tarea (Backend - Autorización):** Implementar el flujo de conexión con OAuth 2.0. Un botón "Conectar Perfil de Google" iniciará el proceso para que el usuario, usando la cuenta de Google con la que gestiona su negocio, otorgue permisos a la aplicación para gestionar sus reseñas (`business.reviews`).
 - **🤖 Tarea (Backend - Infraestructura):** Crear un servicio para almacenar de forma segura los tokens de acceso y de refresco de OAuth, asociándolos al `businessId`.
 - **🤖 Tarea (Backend - Revocación):** Implementar la lógica para manejar tokens revocados. Si la API de Google devuelve un error de autenticación, marcar el negocio como "Requiere reconexión" y notificar al usuario.
 
