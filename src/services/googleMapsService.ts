@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Service for interacting with Google Maps Places API.
  * This file uses the recommended "Places API (New)".
@@ -73,6 +74,19 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
  */
 function normalizePlace(place: any): Place {
   if (!place) return place;
+  
+  // The API returns reviews as an array of objects. We need to handle this.
+  const normalizedReviews = place.reviews?.map((review: any) => {
+    return {
+      name: review.name,
+      relativePublishTimeDescription: review.relativePublishTimeDescription,
+      rating: review.rating,
+      text: review.text,
+      originalText: review.originalText,
+      authorAttribution: review.authorAttribution
+    };
+  }) || [];
+
   return {
     id: place.id,
     name: place.displayName?.text,
@@ -86,7 +100,7 @@ function normalizePlace(place: any): Place {
     location: place.location,
     editorialSummary: place.editorialSummary,
     photos: place.photos,
-    reviews: place.reviews,
+    reviews: normalizedReviews,
     openingHours: {
         openNow: place.openingHours?.openNow,
         weekdayDescriptions: place.openingHours?.weekdayDescriptions,
@@ -174,7 +188,8 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    const url = `https://places.googleapis.com/v1/places/${placeId}`;
+    // Add languageCode to the URL as a query parameter
+    const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
     
     // Rich field mask for detailed data. More expensive.
     const fieldMask = [
