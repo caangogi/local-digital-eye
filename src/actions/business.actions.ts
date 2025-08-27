@@ -8,10 +8,13 @@ import { auth } from '@/lib/firebase/firebase-admin-config';
 import { cookies } from 'next/headers';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
 import { ConnectBusinessUseCase } from '@/backend/business/application/connect-business.use-case';
+import { ListUserBusinessesUseCase } from '@/backend/business/application/list-user-businesses.use-case';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
+import type { Business } from '@/backend/business/domain/business.entity';
 
 const businessRepository = new FirebaseBusinessRepository();
 const connectBusinessUseCase = new ConnectBusinessUseCase(businessRepository);
+const listUserBusinessesUseCase = new ListUserBusinessesUseCase(businessRepository);
 
 /**
  * Connects a business to the currently logged-in user.
@@ -55,4 +58,33 @@ export async function connectBusiness(businessData: GmbDataExtractionOutput): Pr
     // Avoid exposing detailed internal errors to the client
     return { success: false, message: error.message || 'An unexpected error occurred while connecting the business.' };
   }
+}
+
+
+/**
+ * Lists all businesses connected to the currently authenticated user.
+ * @returns A promise that resolves to an array of Business objects.
+ */
+export async function listUserBusinesses(): Promise<Business[]> {
+    try {
+        const sessionCookie = cookies().get('session')?.value;
+        if (!sessionCookie) {
+            console.log('[BusinessAction] No session cookie found. Returning empty list.');
+            return [];
+        }
+        const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+        const userId = decodedToken.uid;
+
+        console.log(`[BusinessAction] Fetching businesses for user ${userId}`);
+        const businesses = await listUserBusinessesUseCase.execute(userId);
+        return businesses;
+
+    } catch (error: any) {
+        if (error.code === 'auth/session-cookie-expired' || error.code === 'auth/session-cookie-revoked') {
+            console.log('[BusinessAction] Session cookie invalid. Returning empty list.');
+            return [];
+        }
+        console.error('Error listing user businesses:', error);
+        return []; // Return empty array on error to prevent page crashes
+    }
 }
