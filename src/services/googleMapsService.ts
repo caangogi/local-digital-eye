@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview Service for interacting with Google Maps Places API.
  */
