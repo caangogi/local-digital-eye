@@ -44,7 +44,7 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
     
     // Use picsum for placeholder logo if no photo exists
     const logoUrl = business.photos && business.photos.length > 0 
-        ? `https://places.googleapis.com/v1/${business.photos[0].name}/media?maxHeightPx=200&key=${process.env.GOOGLE_MAPS_API_KEY}`
+        ? `https://places.googleapis.com/v1/${business.photos[0].name}/media?maxHeightPx=200&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
         : `https://picsum.photos/seed/${business.id}/100`;
 
     return (
@@ -57,7 +57,7 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                         <Card className="overflow-hidden shadow-lg">
                             <div className="h-48 bg-gray-200 relative">
                                 <Image 
-                                    src={business.photos && business.photos.length > 1 ? `https://places.googleapis.com/v1/${business.photos[1].name}/media?maxHeightPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}` : "https://picsum.photos/seed/cover/1200/400"}
+                                    src={business.photos && business.photos.length > 1 ? `https://places.googleapis.com/v1/${business.photos[1].name}/media?maxHeightPx=400&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}` : "https://picsum.photos/seed/cover/1200/400"}
                                     alt={`${business.name} cover image`}
                                     layout="fill"
                                     objectFit="cover"
@@ -115,7 +115,7 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                                 {business.phone && (
                                      <div className="flex items-start gap-3">
                                         <Phone className="h-5 w-5 text-muted-foreground mt-1"/>
-                                        <span>{business.phone}</span>
+                                        <a href={`tel:${business.phone}`} className="hover:underline">{business.phone}</a>
                                     </div>
                                 )}
                                 {business.website && (

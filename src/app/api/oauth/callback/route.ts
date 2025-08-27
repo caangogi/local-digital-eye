@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getGoogleOAuthClient } from '@/lib/google-oauth-client';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
 import { SaveGmbTokensUseCase } from '@/backend/business/application/save-gmb-tokens.use-case';
+import { FirebaseUserRepository } from '@/backend/user/infrastructure/firebase-user.repository';
+import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
 
 /**
  * Handles the OAuth 2.0 callback from Google.
@@ -18,6 +20,7 @@ export async function GET(request: NextRequest) {
 
   const businessRepository = new FirebaseBusinessRepository();
   const saveGmbTokensUseCase = new SaveGmbTokensUseCase(businessRepository);
+  const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
   
   // The base URL of your application, needed for the final redirect.
   const baseUrl = request.nextUrl.origin;
@@ -31,6 +34,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  let businessName = '';
   try {
     // Decode the state to get the businessId
     const { businessId } = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
@@ -38,6 +42,12 @@ export async function GET(request: NextRequest) {
       throw new Error('Invalid state: businessId is missing.');
     }
     console.log(`[OAuth Callback] Processing callback for businessId: ${businessId}`);
+    
+    const business = await getBusinessDetailsUseCase.execute(businessId);
+    if(business) {
+        businessName = business.name;
+    }
+
 
     // Exchange the authorization code for tokens
     const oauth2Client = getGoogleOAuthClient();
@@ -60,7 +70,7 @@ export async function GET(request: NextRequest) {
     // Redirect the user back to the businesses page with a success message
     const redirectUrl = new URL('/businesses', baseUrl);
     redirectUrl.searchParams.set('success', 'oauth_completed');
-    redirectUrl.searchParams.set('business_name', businessId); // Pass some identifier
+    redirectUrl.searchParams.set('business_name', businessName); // Pass some identifier
     return NextResponse.redirect(redirectUrl);
 
   } catch (e: any) {
