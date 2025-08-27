@@ -5,11 +5,6 @@
 import {z} from 'genkit';
 
 // Schema definitions based on the "Places API (New)" response format.
-const PlaceOpeningHoursSchema = z.object({
-  openNow: z.boolean().optional(),
-  weekdayDescriptions: z.array(z.string()).optional(),
-});
-
 const PlaceSchema = z.object({
   id: z.string().describe("The unique identifier of the place."),
   formattedAddress: z.string().optional(),
@@ -20,7 +15,6 @@ const PlaceSchema = z.object({
   types: z.array(z.string()).optional(),
   websiteUri: z.string().url().optional(),
   businessStatus: z.string().optional(),
-  openingHours: PlaceOpeningHoursSchema.optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
@@ -47,7 +41,6 @@ function normalizePlace(place: any): Place {
     rating: place.rating,
     userRatingCount: place.userRatingCount,
     types: place.types,
-    openingHours: place.openingHours,
     businessStatus: place.businessStatus,
   };
 }
@@ -65,16 +58,18 @@ export async function searchGooglePlace(
 ): Promise<Place | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
-    throw new Error("CRITICAL: GOOGLE_MAPS_API_KEY environment variable is not set. Please check your hosting environment variables.");
+    console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY environment variable is not set. Please check your hosting environment variables.");
+    throw new Error("Server configuration error: Google API Key is missing.");
   }
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
   // Corrected: The field mask requires the 'places.' prefix for each field.
+  // 'openingHours' is removed as it's not supported by searchText.
   const fieldMask = [
     "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
     "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
-    "places.openingHours", "places.businessStatus"
+    "places.businessStatus"
   ].join(",");
 
   const requestBody = {
@@ -101,7 +96,7 @@ export async function searchGooglePlace(
         
         if (response.status === 403) {
              console.error("[GoogleMapsService] This PERMISSION_DENIED error usually means the Places API (New) is not enabled on your Google Cloud project, or the API key is invalid/restricted. Please check your Google Cloud Console.");
-             throw new Error(`Google Places API Request Denied. Please ensure the 'Places API (New)' is enabled and your API key is correct and unrestricted.`);
+             throw new Error(`Google Places API Request Denied. Please ensure the 'Places API' is enabled and your API key is correct and unrestricted.`);
         }
         
         throw new Error(`Google Places API request failed with status ${response.status}. Details: ${detailedError}`);
@@ -120,8 +115,8 @@ export async function searchGooglePlace(
     const firstPlace = validatedData.data.places[0];
     return normalizePlace(firstPlace);
 
-  } catch (error) {
-    console.error("[GoogleMapsService] A critical error occurred while calling Google Places API (New):", error);
+  } catch (error: any) {
+    console.error("[GoogleMapsService] A critical error occurred while calling Google Places API (New):", error.message);
     throw error;
   }
 }
