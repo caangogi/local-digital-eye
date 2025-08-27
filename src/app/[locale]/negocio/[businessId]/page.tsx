@@ -47,6 +47,10 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
         ? `https://places.googleapis.com/v1/${business.photos[0].name}/media?maxHeightPx=200&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
         : `https://picsum.photos/seed/${business.id}/100`;
 
+    const coverPhotoUrl = business.photos && business.photos.length > 1
+        ? `https://places.googleapis.com/v1/${business.photos[1].name}/media?maxHeightPx=400&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        : "https://picsum.photos/seed/cover/1200/400"
+
     return (
         <div className="min-h-screen bg-muted/40">
             <div className="container mx-auto p-4 sm:p-8">
@@ -57,9 +61,9 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                         <Card className="overflow-hidden shadow-lg">
                             <div className="h-48 bg-gray-200 relative">
                                 <Image 
-                                    src={business.photos && business.photos.length > 1 ? `https://places.googleapis.com/v1/${business.photos[1].name}/media?maxHeightPx=400&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}` : "https://picsum.photos/seed/cover/1200/400"}
+                                    src={coverPhotoUrl}
                                     alt={`${business.name} cover image`}
-                                    layout="fill"
+                                    fill
                                     objectFit="cover"
                                     data-ai-hint="business cover"
                                 />
@@ -157,3 +161,5 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
         </div>
     );
 }
+
+    
