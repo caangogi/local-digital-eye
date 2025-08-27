@@ -23,7 +23,7 @@ function getFirebaseAdminApp(): App {
   };
 
   if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
-    throw new Error('Firebase Admin environment variables are not set. Check your .env file.');
+    throw new Error('Firebase Admin environment variables are not set. Check your .env.local file and your hosting provider\'s environment variable settings.');
   }
 
   app = admin.initializeApp({
