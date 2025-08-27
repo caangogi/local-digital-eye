@@ -41,17 +41,14 @@ export function GenerateQrCode({ profileLink, businessName }: GenerateQrCodeProp
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            generateQRCode();
-          }}
-        >
-          <QrCode className="mr-2 h-4 w-4" />
-          <span>Generar QR del Perfil</span>
-        </DropdownMenuItem>
-      </DialogTrigger>
+      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <DialogTrigger asChild>
+              <button className="flex items-center w-full" onClick={generateQRCode}>
+                  <QrCode className="mr-2 h-4 w-4" />
+                  <span>Generar QR del Perfil</span>
+              </button>
+          </DialogTrigger>
+      </DropdownMenuItem>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-headline">Código QR para Perfil de Negocio</DialogTitle>
