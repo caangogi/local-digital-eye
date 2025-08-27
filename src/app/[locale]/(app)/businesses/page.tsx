@@ -99,7 +99,6 @@ export default async function BusinessesPage() {
                        <GenerateQrCode profileLink={`${baseUrl}/negocio/${business.id}`} businessName={business.name} />
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel>Integraciones</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
                       <ConnectGoogleProfile businessId={business.id} />
                       <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
                         <Trash2 className="mr-2 h-4 w-4" />
