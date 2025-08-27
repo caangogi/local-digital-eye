@@ -59,15 +59,34 @@
     "title": "Local Digital Eye",
     "footer": "&copy; {year} Local Digital Eye. Your partner in digital growth."
   },
-  "LoginForm": {
-    "welcome": "Welcome Back!",
-    "signInToAccess": "Sign in to access your Local Digital Eye dashboard.",
+  "AuthPage": {
+    "loginTitle": "Welcome Back!",
+    "loginSubtitle": "Sign in to access your Local Digital Eye dashboard.",
+    "loginButton": "Sign In",
+    "signupTitle": "Create an Account",
+    "signupSubtitle": "Get started with your AI-powered local business analysis.",
+    "signupButton": "Create Account",
     "emailLabel": "Email",
     "emailPlaceholder": "you@example.com",
     "passwordLabel": "Password",
-    "signInButton": "Sign In",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "John Doe",
     "noAccount": "Don't have an account?",
-    "signUpLink": "Sign up"
+    "signUpLink": "Sign up",
+    "alreadyAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "forgotPasswordLink": "Forgot password?",
+    "orContinueWith": "Or continue with",
+    "googleSignInButton": "Sign in with Google",
+    "passwordReset": {
+      "title": "Reset Your Password",
+      "description": "Enter your email and we'll send you a link to reset your password.",
+      "successDescription": "Check your email for the password reset link. If you don't see it, check your spam folder.",
+      "button": "Send Reset Link",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "backToLogin": "Back to login"
+    }
   },
   "BusinessesPage": {
     "title": "Analyzed Businesses",
