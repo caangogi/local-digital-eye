@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link as LinkIcon, Share2 } from "lucide-react";
 import { Link } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
@@ -56,7 +56,7 @@ export default async function BusinessesPage() {
             <TableRow>
               <TableHead>{t('table.name')}</TableHead>
               <TableHead>{t('table.status')}</TableHead>
-              <TableHead>{t('table.actions')}</TableHead>
+              <TableHead className="text-right">{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -64,7 +64,10 @@ export default async function BusinessesPage() {
               <TableRow key={business.id} className="hover:bg-muted/50">
                 <TableCell className="font-medium">{business.name}</TableCell>
                 <TableCell>
-                  <Badge variant="default">Conectado</Badge>
+                    <div className="flex flex-col gap-1">
+                        <Badge variant="secondary">Enlace Generado</Badge>
+                        <Badge variant="outline">GMB no verificado</Badge>
+                    </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -77,10 +80,19 @@ export default async function BusinessesPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                       <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                       <DropdownMenuSeparator />
+                       <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Activos de Reseña</DropdownMenuLabel>
                        <CopyReviewLink reviewLink={business.reviewLink} />
                        <GenerateQrCode reviewLink={business.reviewLink} businessName={business.name} />
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">Desconectar</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        <span>Conectar Perfil de Google</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
+                        <LinkIcon className="mr-2 h-4 w-4" />
+                        Desconectar
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
