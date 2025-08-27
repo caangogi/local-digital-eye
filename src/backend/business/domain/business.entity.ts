@@ -18,15 +18,6 @@ const PhotoSchema = z.object({
   authorAttributions: z.array(z.any()).optional(), // Keeping it simple
 });
 
-const ReviewSchema = z.object({
-  name: z.string(),
-  relativePublishTimeDescription: z.string(),
-  rating: z.number(),
-  text: z.any().optional(), // text can be null
-  originalText: z.any().optional(),
-  authorAttribution: z.any().optional(),
-});
-
 const OpeningHoursSchema = z.object({
   openNow: z.boolean().optional(),
   weekdayDescriptions: z.array(z.string()).optional(),
@@ -56,9 +47,7 @@ export const BusinessSchema = z.object({
   businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
   location: LocationSchema.optional().describe('Geographic coordinates of the business.'),
   photos: z.array(PhotoSchema).optional().describe('List of photos of the business.'),
-  reviews: z.array(ReviewSchema).optional().describe('List of customer reviews.'),
   openingHours: OpeningHoursSchema.optional().describe('Opening hours information.'),
-  editorialSummary: z.string().optional().describe('An AI-generated summary from Google.'),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
