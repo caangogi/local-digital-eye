@@ -14,7 +14,7 @@ const PhotoSchema = z.object({
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
-// Schema for opening hours
+// Schema for opening hours, matching the new API structure
 const OpeningHoursSchema = z.object({
     openNow: z.boolean().optional(),
     weekdayDescriptions: z.array(z.string()).optional(),
@@ -37,7 +37,8 @@ const PlaceSchema = z.object({
     longitude: z.number(),
   }).optional(),
   photos: z.array(PhotoSchema).optional(),
-  openingHours: OpeningHoursSchema.optional(),
+  currentOpeningHours: OpeningHoursSchema.optional(),
+  regularOpeningHours: OpeningHoursSchema.optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
@@ -56,6 +57,11 @@ function normalizePlace(place: any): Place {
 
   const displayName = place.displayName?.text ?? place.name;
   
+  // Combine opening hours data into a single object for our entity.
+  // The API returns current and regular hours separately. We can decide which to prioritize.
+  // For simplicity, we'll use regular hours if available, otherwise current.
+  const openingHoursData = place.regularOpeningHours || place.currentOpeningHours;
+
   return {
     id: place.id,
     name: displayName,
@@ -68,10 +74,9 @@ function normalizePlace(place: any): Place {
     businessStatus: place.businessStatus,
     location: place.location,
     photos: place.photos,
-    openingHours: {
-        openNow: place.opening_hours?.openNow,
-        weekdayDescriptions: place.opening_hours?.weekdayDescriptions,
-    },
+    // Assign the combined opening hours data
+    currentOpeningHours: place.currentOpeningHours,
+    regularOpeningHours: place.regularOpeningHours,
   };
 }
 
@@ -151,11 +156,12 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,opening_hours";
+    // Correct fieldMask for the details endpoint. Note the camelCase and corrected opening hours fields.
+    const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,currentOpeningHours,regularOpeningHours";
     const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
-      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
+      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}" with fieldMask: "${fieldMask}"`);
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -167,7 +173,7 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
   
       if (!response.ok) {
           const errorBody = await response.json().catch(() => ({}));
-          const detailedError = errorBody.error ? JSON.stringify(errorBody.error.details || errorBody.error) : `Status: ${response.status}`;
+          const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : `Status: ${response.status}`;
           console.error(`[GoogleMapsService] Details API Error: ${detailedError}`);
           throw new Error(`Google Places Details API request failed with status ${response.status}. Details: ${detailedError}`);
       }
