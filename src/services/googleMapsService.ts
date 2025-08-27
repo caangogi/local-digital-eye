@@ -10,7 +10,7 @@ const PhotoSchema = z.object({
     name: z.string(),
     widthPx: z.number(),
     heightPx: z.number(),
-    authorAttributions: z.array(z.any()).optional(), // Keeping it simple
+    authorAttributions: z.array(z.any()).optional(),
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
@@ -20,7 +20,6 @@ const OpeningHoursSchema = z.object({
     weekdayDescriptions: z.array(z.string()).optional(),
 });
 export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
-
 
 // Main schema for a Place, expanded with more details
 const PlaceSchema = z.object({
@@ -55,9 +54,11 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
 function normalizePlace(place: any): Place {
   if (!place) return place;
 
+  const displayName = place.displayName?.text ?? place.name;
+  
   return {
     id: place.id,
-    name: place.displayName?.text || place.name,
+    name: displayName,
     formattedAddress: place.formattedAddress,
     internationalPhoneNumber: place.internationalPhoneNumber,
     websiteUri: place.websiteUri,
@@ -77,7 +78,6 @@ function normalizePlace(place: any): Place {
 
 /**
  * Searches for a place using Google Places API (New - searchText).
- * This function is for discovery and gets basic details for a preview.
  * @param textQuery The search query (e.g., "Restaurant in New York").
  * @returns A promise that resolves to the first Place object found, or null.
  */
@@ -119,7 +119,7 @@ export async function searchGooglePlace(
         const errorBody = await response.json().catch(() => ({}));
         const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No details';
         console.error(`[GoogleMapsService] Search API Error: ${response.status} - ${detailedError}`);
-        throw new Error(`Google Places Search API request failed with status ${response.status}.`);
+        throw new Error(`Google Places Search API request failed with status ${response.status}. Details: ${detailedError}`);
     }
 
     const data = await response.json();
@@ -142,7 +142,6 @@ export async function searchGooglePlace(
 
 /**
  * Gets detailed information for a specific place ID using Places API (New).
- * Use this to fetch rich data like photos, opening hours, etc.
  * @param placeId The place ID to get details for.
  * @returns A promise that resolves to a detailed Place object, or null.
  */
@@ -153,18 +152,16 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    // Field mask for detailed data. NOTE: NO 'places.' prefix here.
     const fieldMask = [
       "id", "displayName", "formattedAddress", "internationalPhoneNumber",
       "websiteUri", "rating", "userRatingCount", "types", 
-      "businessStatus", "location", "photos", 
-      "openingHours"
+      "businessStatus", "location", "photos", "openingHours"
     ].join(",");
   
     const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
-      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
+      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}" with fieldMask: ${fieldMask}`);
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -178,7 +175,8 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
           const errorBody = await response.json().catch(() => ({}));
           const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : `Status: ${response.status}`;
           console.error(`[GoogleMapsService] Details API Error: ${detailedError}`);
-          throw new Error(`Google Places Details API request failed with status ${response.status}.`);
+          // Throw a more informative error message
+          throw new Error(`Google Places Details API request failed with status ${response.status}. Details: ${detailedError}`);
       }
   
       const data = await response.json();
@@ -187,6 +185,7 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
   
     } catch (error: any) {
       console.error(`[GoogleMapsService] Critical error during getGooglePlaceDetails for placeId ${placeId}:`, error.message);
+      // Re-throw the error so it can be caught by the calling function
       throw error;
     }
 }
