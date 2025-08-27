@@ -15,6 +15,8 @@ export class ListUserBusinessesUseCase {
    */
   async execute(userId: string): Promise<Business[]> {
     console.log(`[ListUserBusinessesUseCase] Fetching businesses for user ${userId}`);
-    return this.businessRepository.findByUserId(userId);
+    const businesses = await this.businessRepository.findByUserId(userId);
+    console.log(`[ListUserBusinessesUseCase] Found ${businesses.length} businesses for user ${userId}`);
+    return businesses;
   }
 }

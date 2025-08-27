@@ -4,8 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter } from "lucide-react";
-import { Link } from "@/navigation"; // Use next-intl's Link
-import {getTranslations} from 'next-intl/server';
+import { Link } from "@/navigation";
+import { getTranslations } from 'next-intl/server';
+import { listUserBusinesses } from "@/actions/business.actions";
+import { CopyReviewLink } from "./_components/CopyReviewLink";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('BusinessesPage'); 
@@ -14,27 +16,9 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
   };
 }
 
-// Mock data for businesses
-const businesses = [
-  { id: "1", name: "The Cozy Cafe", status: "Analyzed", score: 85, dateAdded: "2023-10-15", tags: ["Restaurant", "Local Favorite"] },
-  { id: "2", name: "Sunnydale Bakery", status: "Pending Analysis", score: null, dateAdded: "2023-10-20", tags: ["Bakery", "New"] },
-  { id: "3", name: "Tech Solutions Inc.", status: "Analyzed", score: 72, dateAdded: "2023-09-01", tags: ["Tech", "B2B"] },
-  { id: "4", name: "Green Thumb Nursery", status: "Error", score: null, dateAdded: "2023-10-22", tags: ["Gardening", "Seasonal"] },
-  { id: "5", name: "Vintage Threads Boutique", status: "Re-analyzing", score: 78, dateAdded: "2023-08-15", tags: ["Retail", "Fashion"] },
-];
-
-function getStatusBadgeVariant(status: string | null) {
-  switch (status) {
-    case "Analyzed": return "default";
-    case "Pending Analysis": return "secondary";
-    case "Error": return "destructive";
-    case "Re-analyzing": return "outline"; 
-    default: return "secondary";
-  }
-}
-
 export default async function BusinessesPage() {
   const t = await getTranslations('BusinessesPage');
+  const businesses = await listUserBusinesses();
 
   return (
     <div className="flex flex-col gap-6">
@@ -71,27 +55,15 @@ export default async function BusinessesPage() {
             <TableRow>
               <TableHead>{t('table.name')}</TableHead>
               <TableHead>{t('table.status')}</TableHead>
-              <TableHead className="text-center">{t('table.score')}</TableHead>
-              <TableHead>{t('table.dateAdded')}</TableHead>
-              <TableHead>{t('table.tags')}</TableHead>
-              <TableHead className="text-right">{t('table.actions')}</TableHead>
+              <TableHead>{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {businesses.map((business) => (
+            {businesses.length > 0 ? businesses.map((business) => (
               <TableRow key={business.id} className="hover:bg-muted/50">
                 <TableCell className="font-medium">{business.name}</TableCell>
                 <TableCell>
-                  <Badge variant={getStatusBadgeVariant(business.status)}>{business.status}</Badge>
-                </TableCell>
-                <TableCell className="text-center">
-                  {business.score !== null ? `${business.score}/100` : "N/A"}
-                </TableCell>
-                <TableCell>{business.dateAdded}</TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {business.tags.map(tag => <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>)}
-                  </div>
+                  <Badge variant="default">Conectado</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -102,17 +74,26 @@ export default async function BusinessesPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Generate Report</DropdownMenuItem>
-                      <DropdownMenuItem>Re-analyze</DropdownMenuItem>
+                      <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                      <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                       <CopyReviewLink reviewLink={business.reviewLink} />
+                      <DropdownMenuItem>Generar QR</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">Delete</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">Desconectar</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            )) : (
+                <TableRow>
+                    <TableCell colSpan={3} className="text-center h-24">
+                        No hay negocios conectados.{" "}
+                        <Link href="/businesses/add" className="text-primary hover:underline">
+                            ¡Añade uno para empezar!
+                        </Link>
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

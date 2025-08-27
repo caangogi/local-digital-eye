@@ -49,9 +49,9 @@ export default function AddBusinessPage() {
       } else {
         setSearchResult(result);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error searching for business:", err);
-      setError(t('add.searchError'));
+      setError(err.message || t('add.searchError'));
     } finally {
       setIsLoading(false);
     }
@@ -70,6 +70,7 @@ export default function AddBusinessPage() {
                 variant: 'default',
             });
             router.push('/businesses');
+            router.refresh(); // Force a refresh to fetch new data on the server component
         } else {
             toast({
                 title: t('add.connectErrorTitle'),
