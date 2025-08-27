@@ -46,7 +46,7 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     cookies().set(SESSION_COOKIE_NAME, sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002').protocol === 'https:',
       path: '/',
       sameSite: 'lax',
     });
