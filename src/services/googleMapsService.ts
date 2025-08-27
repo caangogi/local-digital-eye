@@ -9,33 +9,25 @@ const PhotoSchema = z.object({
     name: z.string(),
     widthPx: z.number(),
     heightPx: z.number(),
-    authorAttributions: z.array(z.object({
-        displayName: z.string(),
-        uri: z.string().url(),
-        photoUri: z.string().url(),
-    })).optional(),
+    authorAttributions: z.array(z.any()).optional(), // Keeping it simple
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
 
 // Schema for a single review from the Places API
 const ReviewSchema = z.object({
-    name: z.string(),
-    relativePublishTimeDescription: z.string(),
-    rating: z.number().min(0).max(5),
+    name: z.string().optional(),
+    relativePublishTimeDescription: z.string().optional(),
+    rating: z.number().min(0).max(5).optional(),
     text: z.object({
         text: z.string(),
         languageCode: z.string(),
-    }).optional(),
+    }).nullable().optional(),
     originalText: z.object({
         text: z.string(),
         languageCode: z.string(),
-    }).optional(),
-    authorAttribution: z.object({
-        displayName: z.string(),
-        uri: z.string().url(),
-        photoUri: z.string().url(),
-    }).optional(),
+    }).nullable().optional(),
+    authorAttribution: z.any().optional(),
 });
 export type Review = z.infer<typeof ReviewSchema>;
 
@@ -65,7 +57,7 @@ const PlaceSchema = z.object({
   photos: z.array(PhotoSchema).optional(),
   reviews: z.array(ReviewSchema).optional(),
   openingHours: OpeningHoursSchema.optional(),
-  editorialSummary: z.object({ text: z.string(), languageCode: z.string() }).optional(),
+  editorialSummary: z.object({ text: z.string(), languageCode: z.string() }).nullable().optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
@@ -74,8 +66,13 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
   places: z.array(z.any()).optional(),
 });
 
-
+/**
+ * Normalizes the raw place data from Google API to our Place schema.
+ * @param place The raw place data.
+ * @returns A normalized Place object.
+ */
 function normalizePlace(place: any): Place {
+  if (!place) return place;
   return {
     id: place.id,
     name: place.displayName?.text,
@@ -88,10 +85,9 @@ function normalizePlace(place: any): Place {
     businessStatus: place.businessStatus,
     location: place.location,
     editorialSummary: place.editorialSummary,
-    // Map complex nested objects
-    photos: place.photos, // Assuming structure matches PhotoSchema
-    reviews: place.reviews, // Assuming structure matches ReviewSchema
-    openingHours: { // Normalize opening hours
+    photos: place.photos,
+    reviews: place.reviews,
+    openingHours: {
         openNow: place.openingHours?.openNow,
         weekdayDescriptions: place.openingHours?.weekdayDescriptions,
     },
@@ -101,8 +97,8 @@ function normalizePlace(place: any): Place {
 
 /**
  * Searches for a place using Google Places API (New - searchText).
- * @param businessName The name of the business.
- * @param location The location hint (e.g., city, address).
+ * This function should be used for discovery and fetching basic details.
+ * @param textQuery The search query (e.g., "Restaurant in New York").
  * @returns A promise that resolves to the first Place object found, or null.
  */
 export async function searchGooglePlace(
@@ -111,27 +107,25 @@ export async function searchGooglePlace(
 ): Promise<Place | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
-    console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY environment variable is not set. Please check your hosting environment variables.");
+    console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY is not set.");
     throw new Error("Server configuration error: Google API Key is missing.");
   }
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Expanded field mask to get all desired data
+  // Basic field mask for search results. Cost-effective.
   const fieldMask = [
-    "places.id", "places.displayName", "places.formattedAddress", "places.internationalPhoneNumber",
-    "places.websiteUri", "places.rating", "places.userRatingCount", "places.types", 
-    "places.businessStatus", "places.location", "places.photos", "places.reviews", 
-    "places.openingHours", "places.editorialSummary"
+    "places.id", "places.displayName", "places.formattedAddress",
+    "places.rating", "places.userRatingCount", "places.types"
   ].join(",");
 
   const requestBody = {
     textQuery: `${businessName} in ${location}`,
-    languageCode: "es", // Or make it dynamic based on locale
+    languageCode: "es", 
   };
 
   try {
-    console.log(`[GoogleMapsService] Searching (New API) for: "${requestBody.textQuery}"`);
+    console.log(`[GoogleMapsService] Searching for: "${requestBody.textQuery}"`);
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -143,32 +137,77 @@ export async function searchGooglePlace(
     });
 
     if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({})); // Catch if error body is not valid JSON
-        const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No additional error details available.';
-        console.error(`[GoogleMapsService] API Error: ${response.status} - ${detailedError}`);
-        
-        if (response.status === 403) {
-             console.error("[GoogleMapsService] This PERMISSION_DENIED error usually means the Places API (New) is not enabled on your Google Cloud project, or the API key is invalid/restricted. Please check your Google Cloud Console.");
-             throw new Error(`Google Places API Request Denied. Please ensure the 'Places API' is enabled and your API key is correct and unrestricted.`);
-        }
-        
-        throw new Error(`Google Places API request failed with status ${response.status}. Details: ${detailedError}`);
+        const errorBody = await response.json().catch(() => ({}));
+        const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No details';
+        console.error(`[GoogleMapsService] Search API Error: ${response.status} - ${detailedError}`);
+        throw new Error(`Google Places Search API request failed with status ${response.status}.`);
     }
 
     const data = await response.json();
     const validatedData = GooglePlacesNewTextSearchResponseSchema.safeParse(data);
     
     if (!validatedData.success || !validatedData.data.places || validatedData.data.places.length === 0) {
-      console.log(`[GoogleMapsService] No results found or validation failed for "${requestBody.textQuery}".`);
+      console.log(`[GoogleMapsService] No results found for "${requestBody.textQuery}".`);
       return null;
     }
     
-    console.log(`[GoogleMapsService] Found ${validatedData.data.places.length} result(s). Returning the first one.`);
     const firstPlace = validatedData.data.places[0];
+    console.log(`[GoogleMapsService] Found placeId: ${firstPlace.id}.`);
     return normalizePlace(firstPlace);
 
   } catch (error: any) {
-    console.error("[GoogleMapsService] A critical error occurred while calling Google Places API (New):", error.message);
+    console.error("[GoogleMapsService] Critical error during searchGooglePlace:", error.message);
     throw error;
   }
+}
+
+/**
+ * Gets detailed information for a specific place ID.
+ * Use this to fetch rich data like reviews, photos, opening hours, etc.
+ * @param placeId The place ID to get details for.
+ * @returns A promise that resolves to a detailed Place object, or null.
+ */
+export async function getGooglePlaceDetails(placeId: string): Promise<Place | null> {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY is not set.");
+      throw new Error("Server configuration error: Google API Key is missing.");
+    }
+  
+    const url = `https://places.googleapis.com/v1/places/${placeId}`;
+    
+    // Rich field mask for detailed data. More expensive.
+    const fieldMask = [
+      "id", "displayName", "formattedAddress", "internationalPhoneNumber",
+      "websiteUri", "rating", "userRatingCount", "types", 
+      "businessStatus", "location", "photos", "reviews", 
+      "openingHours", "editorialSummary"
+    ].join(",");
+  
+    try {
+      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': fieldMask,
+        },
+      });
+  
+      if (!response.ok) {
+          const errorBody = await response.json().catch(() => ({}));
+          const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No details';
+          console.error(`[GoogleMapsService] Details API Error: ${response.status} - ${detailedError}`);
+          throw new Error(`Google Places Details API request failed with status ${response.status}.`);
+      }
+  
+      const data = await response.json();
+      console.log(`[GoogleMapsService] Successfully fetched details for ${data.id}.`);
+      return normalizePlace(data);
+  
+    } catch (error: any) {
+      console.error(`[GoogleMapsService] Critical error during getGooglePlaceDetails for placeId ${placeId}:`, error.message);
+      throw error;
+    }
 }

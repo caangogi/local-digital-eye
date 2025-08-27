@@ -1,6 +1,9 @@
 'use server';
 /**
  * @fileOverview Extracts and synthesizes data for a business using Google Places API.
+ * This flow now performs a two-step process:
+ * 1. Search for the business to get a placeId.
+ * 2. Get detailed information for that placeId.
  *
  * - extractGmbData - A function that fetches data from Google Places API and synthesizes it.
  * - GmbDataExtractionInput - The input type for the extractGmbData function.
@@ -9,7 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchGooglePlace, type Place, Photo, Review, OpeningHours } from '@/services/googleMapsService';
+import { searchGooglePlace, getGooglePlaceDetails, type Place } from '@/services/googleMapsService';
 
 
 const GmbDataExtractionInputSchema = z.object({
@@ -31,21 +34,20 @@ const GmbDataExtractionOutputSchema = z.object({
   businessStatus: z.string().optional().describe('Operational status of the business (e.g., OPERATIONAL).'),
   gmbPageUrl: z.string().url().optional().describe('The URL of the Google Maps page for the business.'),
   
-  // New detailed fields
   location: z.object({
     latitude: z.number(),
     longitude: z.number(),
   }).optional().describe('Geographic coordinates of the business.'),
   
-  photos: z.array(z.any()).optional().describe('List of photos of the business.'), // Using z.any() for simplicity in the flow
-  reviews: z.array(z.any()).optional().describe('List of customer reviews.'), // Using z.any() for simplicity in the flow
+  photos: z.array(z.any()).optional().describe('List of photos of the business.'),
+  reviews: z.array(z.any()).optional().describe('List of customer reviews.'),
   
   openingHours: z.object({
     openNow: z.boolean().optional(),
     weekdayDescriptions: z.array(z.string()).optional(),
   }).optional().describe('Opening hours information.'),
   
-  editorialSummary: z.string().optional().describe('An AI-generated summary from Google.'),
+  editorialSummary: z.string().nullable().optional().describe('An AI-generated summary from Google.'),
   briefReviewSummary: z.string().optional().describe('A very brief AI-generated summary of the business perception based on available data like rating and category. Max 150 characters.'),
 
 });
@@ -53,7 +55,7 @@ export type GmbDataExtractionOutput = z.infer<typeof GmbDataExtractionOutputSche
 
 
 function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
-  if (!placeData || !placeData.id) {
+  if (!placeData || !placeData.id || !placeData.name) {
     return null;
   }
 
@@ -64,7 +66,7 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
 
   return {
     placeId: placeData.id,
-    extractedName: placeData.name || 'Unknown Name',
+    extractedName: placeData.name,
     address: placeData.formattedAddress,
     phone: placeData.internationalPhoneNumber,
     website: placeData.websiteUri,
@@ -92,28 +94,40 @@ const extractGmbDataFlow = ai.defineFlow(
     outputSchema: GmbDataExtractionOutputSchema.nullable(),
   },
   async (input) => {
+    // Step 1: Search for the business to get the place ID and basic info
     console.log(`Flow: Searching Google Place for ${input.businessName} in ${input.location}`);
-    const placeApiData = await searchGooglePlace(input.businessName, input.location);
+    const searchResult = await searchGooglePlace(input.businessName, input.location);
 
-    if (!placeApiData) {
+    if (!searchResult || !searchResult.id) {
       console.log("Flow: No data returned from searchGooglePlace service.");
       return null;
     }
     
-    const mappedData = mapPlaceToOutput(placeApiData);
+    // Step 2: Use the place ID to get the full, rich details
+    console.log(`Flow: Found placeId ${searchResult.id}. Now fetching full details.`);
+    const detailedPlaceData = await getGooglePlaceDetails(searchResult.id);
+
+    if (!detailedPlaceData) {
+        console.log(`Flow: Failed to get detailed data for placeId: ${searchResult.id}`);
+        // Fallback to search result if details fail
+        return mapPlaceToOutput(searchResult);
+    }
+    
+    // Step 3: Map the final, detailed data to the output format
+    const mappedData = mapPlaceToOutput(detailedPlaceData);
 
     if (!mappedData) {
-        console.log("Flow: Mapping from Place API data to output failed. Place ID might be missing.");
+        console.log("Flow: Mapping from detailed Place API data to output failed.");
         return null;
     }
 
-    console.log(`Flow: Successfully mapped data for placeId: ${mappedData.placeId}`);
+    console.log(`Flow: Successfully mapped detailed data for placeId: ${mappedData.placeId}`);
     return mappedData;
   }
 );
 
 export async function extractGmbData(input: GmbDataExtractionInput): Promise<GmbDataExtractionOutput | null> {
-  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (New)");
+  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (Two-Step)");
   console.log("This feature uses the Google Places API. Usage is subject to Google's terms and pricing.");
   console.log("--------------------------------------------------------------------");
   return extractGmbDataFlow(input);
