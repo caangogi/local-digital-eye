@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Extracts and synthesizes data for a business using Google Places API.
@@ -98,36 +99,27 @@ const extractGmbDataFlow = ai.defineFlow(
     console.log(`Flow: Searching Google Place for ${input.businessName} in ${input.location}`);
     const searchResult = await searchGooglePlace(input.businessName, input.location);
 
-    if (!searchResult || !searchResult.id) {
+    if (!searchResult) {
       console.log("Flow: No data returned from searchGooglePlace service.");
       return null;
     }
     
-    // Step 2: Use the place ID to get the full, rich details
-    console.log(`Flow: Found placeId ${searchResult.id}. Now fetching full details.`);
-    const detailedPlaceData = await getGooglePlaceDetails(searchResult.id);
-
-    if (!detailedPlaceData) {
-        console.log(`Flow: Failed to get detailed data for placeId: ${searchResult.id}`);
-        // Fallback to search result if details fail
-        return mapPlaceToOutput(searchResult);
-    }
-    
-    // Step 3: Map the final, detailed data to the output format
-    const mappedData = mapPlaceToOutput(detailedPlaceData);
+    // Step 2: Map the search result data to the output format.
+    // We are no longer calling getGooglePlaceDetails here.
+    const mappedData = mapPlaceToOutput(searchResult);
 
     if (!mappedData) {
-        console.log("Flow: Mapping from detailed Place API data to output failed.");
+        console.log("Flow: Mapping from basic Place API data to output failed.");
         return null;
     }
 
-    console.log(`Flow: Successfully mapped detailed data for placeId: ${mappedData.placeId}`);
+    console.log(`Flow: Successfully mapped basic data for placeId: ${mappedData.placeId}`);
     return mappedData;
   }
 );
 
 export async function extractGmbData(input: GmbDataExtractionInput): Promise<GmbDataExtractionOutput | null> {
-  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (Two-Step)");
+  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (Search Only)");
   console.log("This feature uses the Google Places API. Usage is subject to Google's terms and pricing.");
   console.log("--------------------------------------------------------------------");
   return extractGmbDataFlow(input);
