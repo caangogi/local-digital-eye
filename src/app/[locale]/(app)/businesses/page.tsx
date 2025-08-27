@@ -1,5 +1,5 @@
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { listUserBusinesses } from "@/actions/business.actions";
 import { CopyReviewLink } from "./_components/CopyReviewLink";
 import { GenerateQrCode } from "./_components/GenerateQrCode";
 import { ConnectGoogleProfile } from "./_components/ConnectGoogleProfile";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('BusinessesPage'); 
@@ -86,12 +87,16 @@ export default async function BusinessesPage() {
                       <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Activos del Perfil</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                            <Link href={`/negocio/${business.id}`} target="_blank">
-                               <ExternalLink className="mr-2 h-4 w-4" />
-                               Ir al perfil del negocio
-                            </Link>
-                        </DropdownMenuItem>
+                        <Link 
+                           href={`/negocio/${business.id}`} 
+                           target="_blank"
+                           className={cn(
+                              "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                           )}
+                           >
+                           <ExternalLink className="mr-2 h-4 w-4" />
+                           Ir al perfil del negocio
+                        </Link>
                        <CopyReviewLink businessProfileLink={`${baseUrl}/negocio/${business.id}`} />
                        <GenerateQrCode profileLink={`${baseUrl}/negocio/${business.id}`} businessName={business.name} />
                       <DropdownMenuSeparator />
