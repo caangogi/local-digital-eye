@@ -111,7 +111,7 @@ function normalizePlace(place: any): Place {
 
 /**
  * Searches for a place using Google Places API (New - searchText).
- * This function should be used for discovery and fetching basic details.
+ * This function is for discovery and gets basic details for a preview.
  * @param textQuery The search query (e.g., "Restaurant in New York").
  * @returns A promise that resolves to the first Place object found, or null.
  */
@@ -127,7 +127,7 @@ export async function searchGooglePlace(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Basic field mask for search results. Cost-effective.
+  // Basic, cost-effective field mask for search results.
   const fieldMask = [
     "places.id", "places.displayName", "places.formattedAddress",
     "places.rating", "places.userRatingCount", "places.types"
@@ -176,7 +176,7 @@ export async function searchGooglePlace(
 }
 
 /**
- * Gets detailed information for a specific place ID.
+ * Gets detailed information for a specific place ID using Places API (New).
  * Use this to fetch rich data like reviews, photos, opening hours, etc.
  * @param placeId The place ID to get details for.
  * @returns A promise that resolves to a detailed Place object, or null.
@@ -188,8 +188,7 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    // Rich field mask for detailed data. More expensive.
-    // Corrected the field mask to use valid fields for the details endpoint.
+    // Field mask for detailed data. Note the absence of the 'places.' prefix.
     const fieldMask = [
       "id", "name", "displayName", "formattedAddress", "internationalPhoneNumber",
       "websiteUri", "rating", "userRatingCount", "types", 
@@ -197,7 +196,7 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
       "openingHours", "editorialSummary"
     ].join(",");
   
-    const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
+    const url = `https://places.googleapis.com/v1/places/${placeId}`;
   
     try {
       console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
@@ -212,8 +211,8 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
   
       if (!response.ok) {
           const errorBody = await response.json().catch(() => ({}));
-          const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No details';
-          console.error(`[GoogleMapsService] Details API Error: ${response.status} - ${detailedError}`);
+          const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : `Status: ${response.status}`;
+          console.error(`[GoogleMapsService] Details API Error: ${detailedError}`);
           throw new Error(`Google Places Details API request failed with status ${response.status}.`);
       }
   
