@@ -1,11 +1,11 @@
 // src/lib/firebase/firebase-admin-config.ts
-import admin, { App } from 'firebase-admin';
+import admin from 'firebase-admin';
 import type { ServiceAccount } from 'firebase-admin';
 
 // This is a singleton pattern to ensure we only initialize Firebase Admin once.
-let app: App;
+let app: admin.app.App;
 
-function getFirebaseAdminApp(): App {
+function getFirebaseAdminApp(): admin.app.App {
   if (app) {
     return app;
   }
@@ -16,19 +16,22 @@ function getFirebaseAdminApp(): App {
     return app;
   }
 
-  const serviceAccount: ServiceAccount = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Important: Replace escaped newlines
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  };
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
-  if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
-    throw new Error('Firebase Admin environment variables are not set. Check your .env file.');
+  if (!serviceAccountJson) {
+      throw new Error('Firebase Admin environment variable "FIREBASE_SERVICE_ACCOUNT_KEY" is not set. This should contain the entire service account JSON object. Check your .env.local file and your hosting provider\'s environment variable settings.');
   }
 
-  app = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+  try {
+    const serviceAccount = JSON.parse(serviceAccountJson);
+    app = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } catch (error: any) {
+    console.error('Failed to parse or use FIREBASE_SERVICE_ACCOUNT_KEY:', error.message);
+    throw new Error('Could not initialize Firebase Admin SDK. Ensure FIREBASE_SERVICE_ACCOUNT_KEY is a valid JSON string.');
+  }
+
 
   console.log('Firebase Admin SDK initialized successfully.');
   return app;
