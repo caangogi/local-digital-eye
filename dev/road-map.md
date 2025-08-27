@@ -23,11 +23,11 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 
 ---
 
-## Fase 1: El Embudo Inteligente de Reseñas (MVP)
+## Fase 1: El Embudo Inteligente de Reseñas (MVP) - ✅ COMPLETADA
 
 *Objetivo: Implementar el flujo principal para capturar y filtrar reseñas de clientes, maximizando las valoraciones positivas en Google y gestionando las negativas de forma interna.*
 
-### Hito 1.1: Autenticación y Perfil de Usuario (Arquitectura Hexagonal)
+### Hito 1.1: Autenticación y Perfil de Usuario (Arquitectura Hexagonal) - ✅
 
 - **✅ 🤖 Tarea (Backend - Configuración):** Instalar las dependencias de Firebase: `firebase` (SDK de cliente para el frontend) y `firebase-admin` (SDK de Admin para el backend).
 - **✅ 👨‍🦲 Tarea:** Ir a la [Consola de Firebase](https://console.firebase.google.com/) -> Configuración del proyecto -> Cuentas de servicio. Generar una nueva clave privada (archivo JSON) para el SDK de Admin y guardarla de forma segura en el proyecto (por ejemplo, en variables de entorno).
@@ -47,7 +47,7 @@ Este documento describe el plan de acción para implementar las funcionalidades 
     1.  Modificar/Crear el hook `useAuth` para que actúe como adaptador primario en el cliente, invocando los mecanismos de autenticación de Firebase.
     2.  Crear un nuevo layout y página de login/registro que utilice exclusivamente la autenticación de Google manejada por `useAuth`.
 
-### Hito 1.2: Conectar Negocio y Generar Activos de Reseña
+### Hito 1.2: Conectar Negocio y Generar Activos de Reseña - ✅
 
 - **✅ 👨‍🦲 Tarea:** Habilitar la **Places API** en la Consola de Google Cloud para poder buscar y validar negocios.
 - **✅ 🤖 Tarea (Backend - Dominio):**
@@ -67,16 +67,16 @@ Este documento describe el plan de acción para implementar las funcionalidades 
     2. Mostrar los resultados y permitirle "conectar" el correcto.
     3. En el dashboard, listar los negocios conectados y mostrar para cada uno su enlace único de reseña y un botón para generar/descargar el código QR.
 
-### Hito 1.3: Página de Captura de Reseñas y Lógica de Filtrado
+### Hito 1.3: Página de Captura de Reseñas y Lógica de Filtrado - ✅
 
 - **✅ 🤖 Tarea (Frontend - UI):** Crear la página pública y dinámica `[locale]/review/[businessId]/page.tsx`. Esta página mostrará el nombre y logo del negocio.
 - **✅ 🤖 Tarea (Frontend - UI):** Implementar el formulario de "pre-reseña" en esa página, con el selector de estrellas y el campo de texto.
 - **✅ 🤖 Tarea (Frontend - UI):** Desarrollar la lógica condicional en el cliente:
     - Si la calificación es 5 estrellas, redirigir al usuario a `https://search.google.com/local/writereview?placeid=<place_id>`.
     - Si la calificación es 1-4 estrellas, mostrar campos adicionales para capturar nombre y email/teléfono.
-- **🤖 Tarea (Backend - Server Action):** Crear un Server Action que actúe como adaptador primario.
-- **🤖 Tarea (Backend - Aplicación):** Crear el caso de uso `SubmitNegativeFeedbackUseCase`.
-- **🤖 Tarea (Backend - Infraestructura):** Crear adaptadores para guardar el feedback en Firestore y para enviar una notificación por email al dueño del negocio.
+- **✅ 🤖 Tarea (Backend - Server Action):** Crear un Server Action que actúe como adaptador primario.
+- **✅ 🤖 Tarea (Backend - Aplicación):** Crear el caso de uso `SubmitNegativeFeedbackUseCase`.
+- **✅ 🤖 Tarea (Backend - Infraestructura):** Crear adaptadores para guardar el feedback en Firestore y para enviar una notificación por email al dueño del negocio.
 
 ---
 
@@ -128,4 +128,3 @@ Este documento describe el plan de acción para implementar las funcionalidades 
 - **🤖 Tarea:** Creación de perfiles de competidores para análisis comparativo.
 - **🤖 Tarea:** Panel de analíticas avanzado con filtros por fecha y comparativas.
 - **🤖 Tarea:** Sistema de notificaciones mejorado dentro de la aplicación.
-
