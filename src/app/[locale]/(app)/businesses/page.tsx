@@ -1,10 +1,11 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link as LinkIcon, Share2 } from "lucide-react";
-import { Link } from "@/navigation";
+import { MoreHorizontal, PlusCircle, Search, ArrowUpDown, Filter, Link as LinkIcon, Share2, Eye } from "lucide-react";
+import { Link, usePathname } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
 import { CopyReviewLink } from "./_components/CopyReviewLink";
@@ -66,7 +67,7 @@ export default async function BusinessesPage() {
                 <TableCell className="font-medium">{business.name}</TableCell>
                 <TableCell>
                     <div className="flex flex-col gap-1">
-                        <Badge variant="secondary">Enlace Generado</Badge>
+                        <Badge variant="secondary">Perfil Creado</Badge>
                         <Badge variant={business.gmbStatus === 'linked' ? 'default' : 'outline'}>
                             {business.gmbStatus === 'linked' ? 'GMB Verificado' : 'GMB no verificado'}
                         </Badge>
@@ -82,11 +83,16 @@ export default async function BusinessesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                      <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/negocio/${business.id}`}>
+                           <Eye className="mr-2 h-4 w-4" />
+                           Ver Perfil Público
+                        </Link>
+                      </DropdownMenuItem>
                        <DropdownMenuSeparator />
-                       <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Activos de Reseña</DropdownMenuLabel>
-                       <CopyReviewLink reviewLink={business.reviewLink} />
-                       <GenerateQrCode reviewLink={business.reviewLink} businessName={business.name} />
+                       <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Activos del Perfil</DropdownMenuLabel>
+                       <CopyReviewLink businessProfileLink={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/negocio/${business.id}`} />
+                       <GenerateQrCode profileLink={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/negocio/${business.id}`} businessName={business.name} />
                       <DropdownMenuSeparator />
                       <ConnectGoogleProfile businessId={business.id} />
                       <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">

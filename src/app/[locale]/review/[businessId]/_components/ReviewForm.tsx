@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -57,7 +58,8 @@ export function ReviewForm({ business }: ReviewFormProps) {
     const selectedRating = form.watch('rating');
 
     const handleSubmit = async (data: ReviewFormValues) => {
-        if (data.rating === 5) {
+        // The reviewLink for GMB is now constructed on the server and is always available.
+        if (data.rating === 5 && business.reviewLink) {
             window.location.href = business.reviewLink;
             return;
         }
@@ -112,7 +114,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
                     control={form.control}
                     render={({ field }) => (
                         <FormItem className="flex flex-col items-center">
-                            <FormLabel className="text-base mb-4">¿Cómo calificarías tu experiencia?</FormLabel>
+                            <FormLabel className="text-lg font-semibold mb-4">¿Cómo calificarías tu experiencia?</FormLabel>
                             <FormControl>
                                 <div 
                                     className="flex items-center gap-2"

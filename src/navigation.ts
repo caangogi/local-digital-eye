@@ -1,3 +1,4 @@
+
 import {
   createLocalizedPathnamesNavigation,
   Pathnames
@@ -56,6 +57,11 @@ export const pathnames = {
     en: '/road-map',
     es: '/hoja-de-ruta'
   },
+  // This is a dynamic route, we need to specify the slug part
+  '/negocio/[businessId]': {
+    en: '/business/[businessId]',
+    es: '/negocio/[businessId]'
+  }
 } satisfies Pathnames<typeof locales>;
 
 
