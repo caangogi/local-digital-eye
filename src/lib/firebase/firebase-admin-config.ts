@@ -1,5 +1,9 @@
 // src/lib/firebase/firebase-admin-config.ts
 import admin from 'firebase-admin';
+import { config } from 'dotenv';
+
+// Load environment variables from .env.local RIGHT before they are needed.
+config({ path: '.env.local' });
 
 // This is a singleton pattern to ensure we only initialize Firebase Admin once.
 let app: admin.app.App;
