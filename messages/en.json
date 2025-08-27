@@ -68,5 +68,42 @@
     "signInButton": "Sign In",
     "noAccount": "Don't have an account?",
     "signUpLink": "Sign up"
+  },
+  "BusinessesPage": {
+    "title": "Analyzed Businesses",
+    "description": "Manage and review your analyzed businesses.",
+    "addButton": "Add New Business",
+    "searchPlaceholder": "Search businesses...",
+    "filterButton": "Filter",
+    "sortButton": "Sort",
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "score": "Overall Score",
+      "dateAdded": "Date Added",
+      "tags": "Tags",
+      "actions": "Actions"
+    },
+    "add": {
+      "title": "Connect a New Business",
+      "subtitle": "Find your business on Google to start the analysis.",
+      "findTitle": "Find your business",
+      "findDescription": "Enter the official name and location of your business to find it on Google Maps.",
+      "nameLabel": "Business Name",
+      "namePlaceholder": "e.g., The Cozy Cafe",
+      "locationLabel": "Location",
+      "locationPlaceholder": "e.g., New York, NY",
+      "searchButton": "Search on Google",
+      "resultTitle": "Search Result",
+      "connectButton": "Connect this Business",
+      "notFound": "No business found with that name and location. Please check for typos or try a more specific location.",
+      "searchError": "An error occurred while searching. Please try again.",
+      "ratingLabel": "Rating",
+      "reviewsLabel": "reviews",
+      "connectSuccessTitle": "Business Connected!",
+      "connectSuccessDescription": "The business has been successfully linked to your account.",
+      "connectErrorTitle": "Connection Failed",
+      "connectErrorDescription": "An unexpected error occurred. Please try again."
+    }
   }
 }
