@@ -31,8 +31,8 @@ export function GenerateQrCode({ profileLink, businessName }: GenerateQrCodeProp
   };
 
   const handleOpen = () => {
-    setIsOpen(true);
     generateQRCode();
+    setIsOpen(true);
   };
 
   const handleDownload = () => {
@@ -46,7 +46,11 @@ export function GenerateQrCode({ profileLink, businessName }: GenerateQrCodeProp
 
   return (
     <>
-      <DropdownMenuItem onSelect={handleOpen}>
+      <DropdownMenuItem onSelect={(e) => {
+          e.preventDefault();
+          handleOpen();
+        }}
+      >
         <QrCode className="mr-2 h-4 w-4" />
         <span>Generar QR del Perfil</span>
       </DropdownMenuItem>
