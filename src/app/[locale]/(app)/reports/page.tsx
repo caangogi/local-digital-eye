@@ -40,7 +40,7 @@ export default function ReportsPage() {
           
           <div className="border rounded-lg p-6 text-center space-y-4 bg-muted/50">
             <Image 
-              src="https://placehold.co/800x400.png" 
+              src="https://picsum.photos/800/400" 
               alt="Reports Section Placeholder" 
               width={800} 
               height={400}

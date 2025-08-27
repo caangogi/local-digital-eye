@@ -111,7 +111,7 @@ export default function LandingPage() {
                 <Card className="bg-card/80 backdrop-blur-sm p-4 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.2)]">
                     <CardHeader className="p-2">
                         <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-2 ring-1 ring-accent/30">
-                            <Image src="https://placehold.co/40x40.png" alt="User Avatar" width={40} height={40} className="rounded-full" data-ai-hint="avatar abstract"/>
+                            <Image src="https://picsum.photos/40/40" alt="User Avatar" width={40} height={40} className="rounded-full" data-ai-hint="avatar abstract"/>
                         </div>
                         <CardTitle className="text-md font-semibold">Data-Driven Insights</CardTitle>
                     </CardHeader>
@@ -144,7 +144,7 @@ export default function LandingPage() {
                  <Card className="bg-card/80 backdrop-blur-sm p-4 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 mt-8 hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.2)]">
                     <CardHeader className="p-2">
                         <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-2 ring-1 ring-accent/30">
-                             <Image src="https://placehold.co/40x40.png" alt="Abstract Icon" width={40} height={40} className="rounded-full" data-ai-hint="technology icon"/>
+                             <Image src="https://picsum.photos/40/40" alt="Abstract Icon" width={40} height={40} className="rounded-full" data-ai-hint="technology icon"/>
                         </div>
                         <CardTitle className="text-md font-semibold">Growth Strategies</CardTitle>
                     </CardHeader>
@@ -186,7 +186,7 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent className="mt-8 p-0">
                     <Image 
-                        src="https://placehold.co/800x400.png" 
+                        src="https://picsum.photos/800/400" 
                         alt="Dashboard Preview" 
                         width={800} 
                         height={400}
