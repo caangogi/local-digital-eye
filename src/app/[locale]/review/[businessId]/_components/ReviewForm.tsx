@@ -59,11 +59,21 @@ export function ReviewForm({ business }: ReviewFormProps) {
 
     const handleSubmit = async (data: ReviewFormValues) => {
         // The reviewLink for GMB is now constructed on the server and is always available.
-        if (data.rating === 5 && business.reviewLink) {
-            window.location.href = business.reviewLink;
+        if (data.rating === 5) {
+             if (business.reviewLink) {
+                window.location.href = business.reviewLink;
+            } else {
+                // Fallback in case the link is missing, though it shouldn't be
+                toast({
+                    title: "Error",
+                    description: "No se pudo encontrar el enlace de reseña de Google.",
+                    variant: "destructive",
+                });
+            }
             return;
         }
 
+        // Handle negative feedback submission for ratings 1-4
         setIsSubmitting(true);
         try {
             const response = await submitNegativeFeedback({
