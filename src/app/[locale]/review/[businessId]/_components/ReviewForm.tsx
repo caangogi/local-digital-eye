@@ -57,23 +57,26 @@ export function ReviewForm({ business }: ReviewFormProps) {
 
     const selectedRating = form.watch('rating');
 
-    const handleSubmit = async (data: ReviewFormValues) => {
-        // The reviewLink for GMB is now constructed on the server and is always available.
-        if (data.rating === 5) {
-             if (business.reviewLink) {
+    const handleRatingClick = (rating: number) => {
+        if (rating === 5) {
+            if (business.reviewLink) {
                 window.location.href = business.reviewLink;
             } else {
-                // Fallback in case the link is missing, though it shouldn't be
                 toast({
                     title: "Error",
                     description: "No se pudo encontrar el enlace de reseña de Google.",
                     variant: "destructive",
                 });
             }
-            return;
+        } else {
+            form.setValue('rating', rating, { shouldValidate: true });
         }
+    };
 
-        // Handle negative feedback submission for ratings 1-4
+    const handleSubmit = async (data: ReviewFormValues) => {
+        // This function will now only be called for ratings 1-4
+        if (data.rating === 5) return; 
+
         setIsSubmitting(true);
         try {
             const response = await submitNegativeFeedback({
@@ -119,34 +122,27 @@ export function ReviewForm({ business }: ReviewFormProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                 <Controller
-                    name="rating"
-                    control={form.control}
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col items-center">
-                            <FormLabel className="text-lg font-semibold mb-4">¿Cómo calificarías tu experiencia?</FormLabel>
-                            <FormControl>
-                                <div 
-                                    className="flex items-center gap-2"
-                                    onMouseLeave={() => setHoveredRating(null)}
-                                >
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                            key={star}
-                                            className={cn(
-                                                "w-10 h-10 cursor-pointer transition-all duration-200",
-                                                (hoveredRating ?? selectedRating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-                                            )}
-                                            onMouseEnter={() => setHoveredRating(star)}
-                                            onClick={() => field.onChange(star)}
-                                        />
-                                    ))}
-                                </div>
-                            </FormControl>
-                            <FormMessage className="mt-2" />
-                        </FormItem>
-                    )}
-                />
+                <div className="flex flex-col items-center">
+                    <FormLabel className="text-lg font-semibold mb-4">¿Cómo calificarías tu experiencia?</FormLabel>
+                    <div 
+                        className="flex items-center gap-2"
+                        onMouseLeave={() => setHoveredRating(null)}
+                    >
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                                key={star}
+                                className={cn(
+                                    "w-10 h-10 cursor-pointer transition-all duration-200",
+                                    (hoveredRating ?? selectedRating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                                )}
+                                onMouseEnter={() => setHoveredRating(star)}
+                                onClick={() => handleRatingClick(star)}
+                            />
+                        ))}
+                    </div>
+                    <FormMessage className="mt-2">{form.formState.errors.rating?.message}</FormMessage>
+                </div>
+
 
                 {selectedRating > 0 && selectedRating < 5 && (
                     <div className="space-y-4 p-4 border bg-muted/50 rounded-lg animate-in fade-in-50 duration-500">
@@ -194,14 +190,6 @@ export function ReviewForm({ business }: ReviewFormProps) {
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Enviar Comentarios
                          </Button>
-                    </div>
-                )}
-
-                 {selectedRating === 5 && (
-                    <div className="text-center p-4 border bg-green-500/10 border-green-500/20 rounded-lg animate-in fade-in-50 duration-500">
-                        <p className="text-green-700 dark:text-green-300 font-semibold mb-2">¡Nos alegra que hayas tenido una gran experiencia!</p>
-                        <p className="text-sm text-muted-foreground mb-4">Para ayudarnos a crecer, ¿te importaría dejar esta reseña en Google? Solo te tomará un minuto.</p>
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Continuar a Google</Button>
                     </div>
                 )}
             </form>
