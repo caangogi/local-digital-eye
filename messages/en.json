@@ -2,14 +2,88 @@
   "LandingPage": {
     "title": "Local Digital Eye",
     "login": "Login",
-    "heroTitle": "Unlock Local Business Potential <accent>with AI</accent>",
-    "heroSubtitle": "Local Digital Eye provides powerful AI-driven insights to help businesses thrive in the digital landscape. Analyze, compare, and get tailored recommendations.",
-    "openDashboardButton": "Open your Dashboard",
-    "dashboardButton": "Explore The Dashboard",
-    "whyChooseTitle": "Why Choose <accent>Local Digital Eye</accent>?",
-    "readyToElevateTitle": "Ready to Elevate Local Businesses?",
-    "readyToElevateSubtitle": "Join Local Digital Eye today and transform how you approach digital strategy for local enterprises.",
-    "copyright": "&copy; {year} Local Digital Eye. All rights reserved."
+    "heroTitle": "Stop Being a 'Digital Janitor'. Become a <accent>Digital Sales Director</accent>.",
+    "heroSubtitle": "My service isn't about 'managing your social media'. I act as your Digital Sales Director. My sole objective is to generate a constant and predictable flow of high-quality client requests through Google, so your only worry is doing the work.",
+    "openDashboardButton": "Access Your Dashboard",
+    "ctaTitle": "Ready to Transform Your Business?",
+    "ctaSubtitle": "Stop losing customers and start winning with a professional digital strategy. Let's talk.",
+    "ctaButton": "Become a Digital Sales Director",
+    "copyright": "&copy; {year} Local Digital Eye. All rights reserved.",
+    "services": {
+      "title": "A System Designed for Your Growth",
+      "reviewFunnel": {
+        "title": "Intelligent Review Funnel",
+        "description": "We implement a smart system to capture customer feedback, encouraging 5-star reviews on Google and allowing you to privately manage negative feedback."
+      },
+      "aiResponder": {
+        "title": "AI-Powered Review Responder",
+        "description": "Save time and maintain a professional image by generating intelligent, personalized responses to Google reviews in seconds."
+      },
+      "seoReports": {
+        "title": "Local SEO Monitoring",
+        "description": "We provide you with clear metrics on your local search visibility and performance, helping you make data-driven decisions."
+      }
+    },
+    "pillars": {
+      "title": "What Does the 'Digital Sales Director' Plan Include?",
+      "subtitle": "This is a comprehensive, turnkey service. You pay a fee, and I handle everything.",
+      "p1": {
+        "title": "Digital Foundations & Authority",
+        "description": "Extreme optimization of your Google Profile and creation of a high-conversion landing page to establish a solid online presence."
+      },
+      "p2": {
+        "title": "Active Demand Generation",
+        "description": "Content strategy, multimedia management, and proactive Google Ads campaigns to attract customers who are actively looking for you."
+      },
+      "p3_legacy": {
+        "title": "Capture and Conversion System",
+        "description": "AI Voice Assistant to handle calls 24/7 and WhatsApp automation to ensure no opportunity is lost."
+      },
+      "p4": {
+        "title": "Business Intelligence",
+        "description": "Clear monthly performance reports and strategic calls to review results and plan the next steps."
+      }
+    },
+    "pricing": {
+      "title": "Transparent and Profitable Investment",
+      "subtitle": "You must separate your management fee from the client's advertising investment. This is crucial for transparency.",
+      "setup": {
+        "title": "Setup Fee",
+        "price": "€450",
+        "period": "One-time Payment",
+        "description": "Covers all the initial work of the 'Digital Foundations' pillar. A fair fee for creating the entire system's base."
+      },
+      "management": {
+        "title": "Digital Sales Director Fee",
+        "price": "€499",
+        "period": "/ month",
+        "description": "This is your fee for actively managing Pillars 2, 3, and 4. It includes your time, expertise, and software tools."
+      },
+      "ads": {
+        "title": "Advertising Investment",
+        "price": "€200-€500",
+        "period": "/ month",
+        "description": "This money goes directly to Google for ads. You manage it, but it is not your income. It's the fuel for the system."
+      }
+    },
+    "comparison": {
+      "title": "Don't Hire an Employee. Hire a <accent>System</accent>.",
+      "subtitle": "Here's why my service isn't an expense, but a massive saving compared to the traditional alternative.",
+      "header_concept": "Concept",
+      "header_traditional": "Traditional Salesperson",
+      "header_digital": "Digital Director Plan",
+      "concept_salary": "Minimum Gross Salary (Junior)",
+      "concept_social_security": "Social Security (Company's Share ~32%)",
+      "concept_other": "Other Expenses (Phone, transport, etc.)",
+      "concept_management_fee": "Your Annual Management Fee",
+      "concept_ad_investment": "Annual Advertising Investment",
+      "total_cost": "TOTAL ANNUAL COST FOR THE BUSINESS",
+      "final_argument": "The final argument:",
+      "argument_1": "A salesperson works 8 hours a day. My system works 24/7.",
+      "argument_2": "A salesperson does 'cold calls'. My system attracts clients who are actively searching for you right now.",
+      "argument_3": "A salesperson's performance is subjective. My system's performance is 100% measurable and transparent.",
+      "conclusion": "My proposal is not to be another expense for your business, but to become your most profitable investment."
+    }
   },
   "Features": {
     "businessDiscovery": {
