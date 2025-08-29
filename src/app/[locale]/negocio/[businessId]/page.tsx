@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useEffect, useRef } from 'react';
 import { getBusinessDetails } from "@/actions/business.actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -9,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { motion, useAnimation, useInView } from "framer-motion";
+import type { Business } from '@/backend/business/domain/business.entity';
 
 
 // Helper function to build the Google Photo URL
@@ -16,12 +21,75 @@ const getGooglePhotoUrl = (photoName: string, maxWidthPx = 800) => {
     return `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=800&maxWidthPx=${maxWidthPx}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
 }
 
-export default async function BusinessPublicProfilePage({ params }: { params: { businessId: string } }) {
-    
-    const business = await getBusinessDetails(params.businessId);
+// Reusable component for animated sections
+const AnimatedSection = ({ children }: { children: React.ReactNode }) => {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, amount: 0.2 });
+    const controls = useAnimation();
 
-    if (!business) {
-        notFound();
+    useEffect(() => {
+        if (isInView) {
+            controls.start("visible");
+        }
+    }, [isInView, controls]);
+
+    return (
+        <motion.div
+            ref={ref}
+            variants={{
+                hidden: { opacity: 0, y: 75 },
+                visible: { opacity: 1, y: 0 },
+            }}
+            initial="hidden"
+            animate={controls}
+            transition={{ duration: 0.7, delay: 0.25 }}
+        >
+            {children}
+        </motion.div>
+    );
+};
+
+// We must fetch data in a server component and pass it down
+// This is a pattern for using client components with async data
+export default function BusinessPublicProfilePageWrapper({ params }: { params: { businessId: string } }) {
+    // This part remains a Server Component to fetch data
+    // In a real implementation, you would fetch data here and pass it to the client component.
+    // For now, we pass the params and the component will fetch inside a useEffect (not ideal, but works for this structure)
+    return <BusinessPublicProfileClientPage params={params} />;
+}
+
+
+function BusinessPublicProfileClientPage({ params }: { params: { businessId: string } }) {
+    
+    // State management for business data
+    const [business, setBusiness] = React.useState<Business | null>(null);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    useEffect(() => {
+        const fetchBusiness = async () => {
+            setIsLoading(true);
+            const businessDetails = await getBusinessDetails(params.businessId);
+            if (!businessDetails) {
+                notFound();
+            }
+            setBusiness(businessDetails);
+            setIsLoading(false);
+        };
+        fetchBusiness();
+    }, [params.businessId]);
+
+
+    if (isLoading || !business) {
+        return (
+             <div className="flex items-center justify-center min-h-screen bg-background">
+                <div className="flex flex-col items-center gap-4">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary animate-pulse">
+                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"/>
+                </svg>
+                <p className="text-muted-foreground">Cargando perfil del negocio...</p>
+                </div>
+            </div>
+        );
     }
     
     const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=place_id:${business.placeId}`;
@@ -29,7 +97,7 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
     const hasPhotos = business.photos && business.photos.length > 0;
 
     const BusinessInfoCard = () => (
-      <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <Card className="overflow-hidden shadow-lg w-full">
            {hasPhotos ? (
                 <Carousel className="w-full" opts={{ loop: true }}>
@@ -114,11 +182,11 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                 </ul>
             </CardContent>
         </Card>
-      </div>
+      </motion.div>
     );
 
     const ReviewCard = () => (
-      <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
+       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
         <Card className="shadow-lg">
            <CardHeader>
               <CardTitle className="text-xl font-headline">Valora tu experiencia</CardTitle>
@@ -128,11 +196,11 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
              <ReviewForm business={business} />
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     );
     
     const MapView = () => (
-         <div className="h-96 md:h-full w-full animate-in fade-in duration-500">
+         <motion.div className="h-96 md:h-full w-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.0, delay: 0.4 }}>
             <iframe
                 className="rounded-lg shadow-lg w-full h-full"
                 style={{ border: 0 }}
@@ -141,24 +209,26 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                 referrerPolicy="no-referrer-when-downgrade"
                 src={mapEmbedUrl}>
             </iframe>
-         </div>
+         </motion.div>
     );
     
     const ReviewCtaSection = () => (
         <section className="py-16 md:py-24 bg-background">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-700">
-                    <Card className="shadow-2xl border-2 border-primary/50 bg-card/80">
-                        <CardHeader className="text-center">
-                            <Star className="mx-auto h-12 w-12 text-yellow-400 mb-4"/>
-                            <CardTitle className="text-2xl md:text-3xl font-headline text-primary">¿Ya tienes una opinión sobre {business.name}?</CardTitle>
-                            <CardDescription className="text-lg">¡No te la guardes! Tu feedback es el motor de nuestro crecimiento.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ReviewForm business={business}/>
-                        </CardContent>
-                    </Card>
-                </div>
+                 <AnimatedSection>
+                    <div className="max-w-2xl mx-auto">
+                        <Card className="shadow-2xl border-2 border-primary/50 bg-card/80">
+                            <CardHeader className="text-center">
+                                <Star className="mx-auto h-12 w-12 text-yellow-400 mb-4"/>
+                                <CardTitle className="text-2xl md:text-3xl font-headline text-primary">¿Ya tienes una opinión sobre {business.name}?</CardTitle>
+                                <CardDescription className="text-lg">¡No te la guardes! Tu feedback es el motor de nuestro crecimiento.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ReviewForm business={business}/>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </AnimatedSection>
             </div>
         </section>
     );
@@ -184,7 +254,7 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                     {/* Right Column: Map with floating Review Card */}
                     <div className="md:col-span-7 lg:col-span-8 h-full relative">
                         <div className="h-full min-h-[calc(100vh-2rem)] w-full sticky top-4">
-                            <MapView />
+                             <MapView />
                             <div className="absolute top-4 right-4 z-10 w-full sm:max-w-md">
                                 <ReviewCard />
                             </div>

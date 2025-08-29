@@ -42,6 +42,7 @@
     "embla-carousel-react": "^8.1.9",
     "firebase": "^11.8.1",
     "firebase-admin": "^12.2.0",
+    "framer-motion": "^11.3.11",
     "genkit": "^1.8.0",
     "google-auth-library": "^9.11.0",
     "lucide-react": "^0.475.0",
