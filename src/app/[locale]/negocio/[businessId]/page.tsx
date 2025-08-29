@@ -7,29 +7,6 @@ import { ReviewForm } from "../../review/[businessId]/_components/ReviewForm";
 import { Star, Phone, Globe, Clock, MapPin, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-// Helper component to render stars
-const StarRating = ({ rating, reviewCount }: { rating: number, reviewCount: number }) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-  
-    return (
-      <div className="flex items-center gap-2">
-        <div className="flex items-center">
-          {[...Array(fullStars)].map((_, i) => (
-            <Star key={`full-${i}`} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-          ))}
-          {halfStar && <Star key="half" className="h-5 w-5 fill-yellow-400 text-yellow-400" style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }} />}
-          {[...Array(emptyStars)].map((_, i) => (
-            <Star key={`empty-${i}`} className="h-5 w-5 text-gray-400" />
-          ))}
-        </div>
-        <span className="text-muted-foreground text-sm">({rating.toFixed(1)} de {reviewCount} reseñas)</span>
-      </div>
-    );
-};
-
-
 export default async function BusinessPublicProfilePage({ params }: { params: { businessId: string } }) {
     
     const business = await getBusinessDetails(params.businessId);
@@ -81,11 +58,6 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                                 <div className="flex-1">
                                     <Badge variant="secondary" className="mb-2">{business.category?.replace(/_/g, ' ')}</Badge>
                                     <CardTitle className="text-4xl font-headline">{business.name}</CardTitle>
-                                    {business.rating && business.reviewCount && (
-                                        <div className="mt-2">
-                                          <StarRating rating={business.rating} reviewCount={business.reviewCount} />
-                                        </div>
-                                    )}
                                 </div>
                             </CardHeader>
                         </Card>
