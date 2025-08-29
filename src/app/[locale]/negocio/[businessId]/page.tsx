@@ -76,11 +76,6 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                                 <CardTitle className="text-2xl font-headline">{business.name}</CardTitle>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <span>{business.rating}</span>
-                                    <div className="flex">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} className={cn("w-4 h-4", i < Math.round(business.rating!) ? "text-yellow-400 fill-yellow-400" : "text-gray-300")} />
-                                        ))}
-                                    </div>
                                     <span>({business.reviewCount})</span>
                                 </div>
                                 <Badge variant="secondary" className="capitalize w-fit">{business.category?.replace(/_/g, ' ') || 'Negocio'}</Badge>
