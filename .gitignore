@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+/dev
 
 # testing
 /coverage
@@ -43,4 +44,4 @@ yarn-error.log*
 
 # Specifically allow .env.development and .env.production if they are used for non-sensitive config
 # But ensure .env.local is always ignored
-.env.local
+.env.local.*
