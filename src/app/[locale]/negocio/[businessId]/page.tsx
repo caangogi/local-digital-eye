@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { ReviewForm } from "../../review/[businessId]/_components/ReviewForm";
 import { Phone, Globe, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -42,7 +41,7 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                                       alt={`${business.name} image ${index + 1}`}
                                       fill
                                       className="object-cover"
-                                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 50vw"
+                                      sizes="(max-width: 768px) 100vw, 50vw"
                                       priority={index === 0}
                                       data-ai-hint="business photo"
                                   />
@@ -73,9 +72,9 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
               </div>
               <Badge variant="secondary" className="capitalize w-fit">{business.category?.replace(/_/g, ' ') || 'Negocio'}</Badge>
           </CardHeader>
-          <CardContent className="p-4 space-y-4">
+          <CardContent className="p-4 pt-0 space-y-4">
               <Separator />
-              <ul className="space-y-4 text-sm">
+              <ul className="space-y-4 text-sm mt-4">
                   {business.address && (
                       <li className="flex items-start gap-4">
                           <MapPin className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0"/>
@@ -126,6 +125,19 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
           </CardContent>
       </Card>
     );
+    
+    const MapView = () => (
+         <div className="h-96 md:h-full w-full">
+            <iframe
+                className="rounded-lg shadow-lg w-full h-full"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src={mapEmbedUrl}>
+            </iframe>
+         </div>
+    );
 
     return (
         <div className="min-h-screen bg-muted/20">
@@ -134,41 +146,25 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                 <div className="md:hidden flex flex-col gap-6">
                     <ReviewCard />
                     <BusinessInfoCard />
-                     <div className="h-96">
-                        <iframe
-                            className="rounded-lg shadow-lg w-full h-full"
-                            style={{ border: 0 }}
-                            loading="lazy"
-                            allowFullScreen
-                            referrerPolicy="no-referrer-when-downgrade"
-                            src={mapEmbedUrl}>
-                        </iframe>
-                     </div>
+                    <MapView />
                 </div>
 
                 {/* Desktop Layout */}
                  <div className="hidden md:grid md:grid-cols-12 md:gap-8 h-full">
-                    {/* Left Column: Business Info & Sticky Review Form */}
+                    {/* Left Column: Business Info */}
                     <div className="md:col-span-5 lg:col-span-4 space-y-6">
-                        <div className="space-y-6 sticky top-4">
-                           <BusinessInfoCard />
-                           <ReviewCard />
-                        </div>
+                        <BusinessInfoCard />
                     </div>
 
-                     {/* Right Column: Map */}
-                     <div className="md:col-span-7 lg:col-span-8 h-full relative">
+                    {/* Right Column: Map with floating Review Card */}
+                    <div className="md:col-span-7 lg:col-span-8 h-full relative">
                         <div className="h-full min-h-[calc(100vh-2rem)] w-full sticky top-4">
-                            <iframe
-                                className="rounded-lg shadow-lg w-full h-full"
-                                style={{ border: 0 }}
-                                loading="lazy"
-                                allowFullScreen
-                                referrerPolicy="no-referrer-when-downgrade"
-                                src={mapEmbedUrl}>
-                            </iframe>
+                            <MapView />
+                            <div className="absolute top-4 right-4 z-10 w-full sm:max-w-md">
+                                <ReviewCard />
+                            </div>
                         </div>
-                     </div>
+                    </div>
                 </div>
             </main>
              <footer className="text-center text-xs text-muted-foreground py-4">
