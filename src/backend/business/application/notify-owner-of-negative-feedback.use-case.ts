@@ -1,3 +1,4 @@
+
 import type { Feedback } from '@/backend/feedback/domain/feedback.entity';
 import type { UserRepositoryPort } from '@/backend/user/domain/user.repository.port';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
@@ -36,12 +37,12 @@ export class NotifyOwnerOfNegativeFeedbackUseCase {
 
     // 3. Create the email document in the 'mail' collection
     // The "Trigger Email" extension will be listening to this collection.
-    // The `to` field must be INSIDE the `message` object.
+    // The `to` field must be an array of strings inside the `message` object.
     const mailCollection = firestore.collection('mail');
     
     const emailDocument = {
       message: {
-        to: [user.email],
+        to: [user.email], // Ensure 'to' is an array of strings
         subject: `Nueva opinión de ${feedback.rating} estrellas para ${feedback.businessName}`,
         html: this.createEmailHtml(feedback),
       },
