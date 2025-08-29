@@ -147,18 +147,17 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                 </div>
 
                 {/* Desktop Layout */}
-                <div className="hidden md:grid md:grid-cols-12 md:gap-8 h-full">
-                    
-                    {/* Left Column: Business Info */}
+                 <div className="hidden md:grid md:grid-cols-12 md:gap-8 h-full">
+                    {/* Left Column: Business Info & Sticky Review Form */}
                     <div className="md:col-span-5 lg:col-span-4 space-y-6">
-                        <BusinessInfoCard />
+                        <div className="space-y-6 sticky top-4">
+                           <BusinessInfoCard />
+                           <ReviewCard />
+                        </div>
                     </div>
 
-                     {/* Right Column: Map and Review Form */}
+                     {/* Right Column: Map */}
                      <div className="md:col-span-7 lg:col-span-8 h-full relative">
-                        <div className="absolute top-4 right-4 z-10 w-full sm:max-w-md">
-                            <ReviewCard />
-                        </div>
                         <div className="h-full min-h-[calc(100vh-2rem)] w-full sticky top-4">
                             <iframe
                                 className="rounded-lg shadow-lg w-full h-full"
