@@ -36,11 +36,12 @@ export class NotifyOwnerOfNegativeFeedbackUseCase {
 
     // 3. Create the email document in the 'mail' collection
     // The "Trigger Email" extension will be listening to this collection.
+    // The `to` field must be INSIDE the `message` object.
     const mailCollection = firestore.collection('mail');
     
     const emailDocument = {
-      to: [user.email],
       message: {
+        to: [user.email],
         subject: `Nueva opinión de ${feedback.rating} estrellas para ${feedback.businessName}`,
         html: this.createEmailHtml(feedback),
       },
