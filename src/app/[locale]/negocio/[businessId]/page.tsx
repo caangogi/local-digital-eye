@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { getBusinessDetails } from "@/actions/business.actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewForm } from "../../review/[businessId]/_components/ReviewForm";
 import { Phone, Globe, Clock, MapPin, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,12 @@ import type { Business } from '@/backend/business/domain/business.entity';
 
 // Helper function to build the Google Photo URL
 const getGooglePhotoUrl = (photoName: string, maxWidthPx = 800) => {
-    return `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=800&maxWidthPx=${maxWidthPx}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        console.warn("Google Maps API key is not configured for photo URLs.");
+        return `https://picsum.photos/${maxWidthPx}/400`; // Fallback placeholder
+    }
+    return `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=800&maxWidthPx=${maxWidthPx}&key=${apiKey}`;
 }
 
 // Reusable component for animated sections
@@ -271,3 +276,4 @@ function BusinessPublicProfileClientPage({ params }: { params: { businessId: str
         </div>
     );
 }
+
