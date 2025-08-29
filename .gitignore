@@ -36,6 +36,8 @@ yarn-error.log*
 # Local Environment Variables
 # Exclude all .env files but not the example ones
 .env.*
+.env.backup
+.env.local.example
 !.env.example
 !.env.template
 
