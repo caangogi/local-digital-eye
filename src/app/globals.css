@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 220 20% 7%; /* Darker, very desaturated blue-black */
-    --foreground: 0 0% 98%; 
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 220 20% 11%; /* Slightly lighter dark blue for cards */
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 220 15% 9%; 
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 217 90% 60%; /* Saturated blue */
-    --primary-foreground: 0 0% 98%; 
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 220 15% 20%; /* Darker secondary */
-    --secondary-foreground: 0 0% 85%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 215.4 16.3% 46.9%;
 
-    --muted: 220 15% 25%; 
-    --muted-foreground: 220 10% 55%; /* Lighter muted for better readability */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 220 80% 65%; /* Bright vibrant blue for accents and glows */
-    --accent-foreground: 0 0% 98%;
+    --accent: 262 83.3% 57.8%; /* Vivid purple */
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 60% 50%; /* Darker red */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 20% 18%; /* Subtle dark borders */
-    --input: 220 20% 14%;  /* Input background */
-    --ring: 220 80% 70%; /* Ring color, related to accent */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
     
     --chart-1: 220 70% 55%; 
     --chart-2: 262 62% 55%; /* Vivid purple */
@@ -50,6 +50,41 @@
     --sidebar-ring: hsl(var(--ring));
   }
 
+  .dark {
+    --background: 220 20% 7%; /* Darker, very desaturated blue-black */
+    --foreground: 0 0% 98%; 
+
+    --card: 220 20% 11%; /* Slightly lighter dark blue for cards */
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 15% 9%; 
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 217 90% 60%; /* Saturated blue */
+    --primary-foreground: 0 0% 98%; 
+
+    --secondary: 220 15% 20%; /* Darker secondary */
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 220 15% 25%; 
+    --muted-foreground: 220 10% 55%; /* Lighter muted for better readability */
+
+    --accent: 262 83.3% 57.8%; /* Vivid purple */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 60% 50%; /* Darker red */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 20% 18%; /* Subtle dark borders */
+    --input: 220 20% 14%;  /* Input background */
+    --ring: 220 80% 70%; /* Ring color, related to accent */
+    
+    --chart-1: 220 70% 55%; 
+    --chart-2: 262 62% 55%; /* Vivid purple */
+    --chart-3: 173 58% 50%; 
+    --chart-4: 43 74% 70%; 
+    --chart-5: 27 87% 70%;
+  }
 }
 
 @layer base {
