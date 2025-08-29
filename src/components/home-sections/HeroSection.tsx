@@ -19,7 +19,7 @@ export function HeroSection() {
                 <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
                     {t('heroSubtitle')}
                 </p>
-                <Link href="/dashboard">
+                <Link href="/login">
                     <Button 
                         size="lg" 
                         className="bg-primary hover:bg-primary/90 rounded-lg text-base font-semibold px-8 py-3 shadow-lg hover:shadow-[0_0_25px_10px_hsl(var(--primary)/0.4)] transition-all duration-300"

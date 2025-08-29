@@ -1,13 +1,14 @@
+
 {
   "LandingPage": {
     "title": "Local Digital Eye",
     "login": "Iniciar Sesión",
-    "heroTitle": "Deja de ser un 'Conserje Digital'. Conviértete en un <accent>Director Comercial Digital</accent>.",
-    "heroSubtitle": "Mi servicio no consiste en 'llevarte las redes'. Actúo como tu Director Comercial Digital. Mi único objetivo es generar un flujo constante y predecible de solicitudes de clientes de alta calidad a través de Google, para que tu única preocupación sea realizar el trabajo.",
+    "heroTitle": "Deja de hacer malabares digitales. Contrata un <accent>Director Digital con IA</accent>.",
+    "heroSubtitle": "Nuestro servicio no consiste en 'llevarte las redes'. Actuamos como tu Director Comercial Digital. Nuestro único objetivo es generar un flujo constante y predecible de solicitudes de clientes de alta calidad a través de Google, para que tu única preocupación sea realizar el trabajo.",
     "openDashboardButton": "Accede a tu Panel",
     "ctaTitle": "¿Listo para Transformar tu Negocio?",
     "ctaSubtitle": "Deja de perder clientes y empieza a ganar con una estrategia digital profesional. Hablemos.",
-    "ctaButton": "Conviértete en Director Comercial",
+    "ctaButton": "Empezar a Ganar Clientes",
     "copyright": "&copy; {year} Local Digital Eye. Todos los derechos reservados.",
     "services": {
       "title": "Un Sistema Diseñado para tu Crecimiento",
@@ -26,7 +27,7 @@
     },
     "pillars": {
       "title": "¿Qué Incluye el Plan 'Director Comercial Digital'?",
-      "subtitle": "Este es un servicio integral 'llave en mano'. El cliente te paga y tú te encargas de todo.",
+      "subtitle": "Este es un servicio integral 'llave en mano'. Nos pagas una cuota y nos encargamos de todo.",
       "p1": {
         "title": "Cimientos Digitales y Autoridad",
         "description": "Optimización extrema de tu Perfil de Google y creación de una landing page de alta conversión para asentar una base online sólida."
@@ -46,7 +47,7 @@
     },
     "pricing": {
       "title": "Inversión Transparente y Rentable",
-      "subtitle": "Debes separar tu cuota de gestión de la inversión en publicidad del cliente. Esto es crucial para la transparencia.",
+      "subtitle": "Separamos nuestra cuota de gestión de tu inversión en publicidad. Esto es crucial para la transparencia.",
       "setup": {
         "title": "Cuota de Puesta en Marcha",
         "price": "450 €",
@@ -57,32 +58,32 @@
         "title": "Gestión 'Director Comercial Digital'",
         "price": "499 €",
         "period": "/ mes",
-        "description": "Son tus honorarios por gestionar activamente los Pilares 2, 3 y 4. Incluye tu tiempo, experiencia y herramientas de software."
+        "description": "Nuestros honorarios por gestionar activamente los Pilares 2, 3 y 4. Incluye nuestro tiempo, experiencia y herramientas de software."
       },
       "ads": {
         "title": "Inversión en Publicidad",
         "price": "200-500 €",
         "period": "/ mes",
-        "description": "Este dinero va directamente a Google para los anuncios. Tú lo gestionas, pero no es tu ingreso. Es la gasolina del sistema."
+        "description": "Este dinero va directamente a Google para los anuncios. Nosotros lo gestionamos, pero no es nuestro ingreso. Es la gasolina del sistema."
       }
     },
     "comparison": {
       "title": "No Contrates un Empleado. Contrata un <accent>Sistema</accent>.",
-      "subtitle": "Aquí es donde demuestras que contratarte no es un gasto, es un ahorro masivo en comparación con la alternativa tradicional.",
+      "subtitle": "Aquí es donde te demostramos que nuestro servicio no es un gasto, es un ahorro masivo en comparación con la alternativa tradicional.",
       "header_concept": "Concepto",
       "header_traditional": "Comercial Tradicional",
       "header_digital": "Plan Director Digital",
       "concept_salary": "Salario Bruto Mínimo (Junior)",
       "concept_social_security": "Seguridad Social (Cuota Empresa ~32%)",
       "concept_other": "Otros Gastos (Teléfono, transporte, etc.)",
-      "concept_management_fee": "Tu Cuota de Gestión Anual",
+      "concept_management_fee": "Nuestra Cuota de Gestión Anual",
       "concept_ad_investment": "Inversión en Publicidad Anual",
       "total_cost": "COSTE TOTAL ANUAL PARA EL NEGOCIO",
       "final_argument": "El argumento final:",
-      "argument_1": "Un comercial trabaja 8 horas al día. Mi sistema trabaja 24/7.",
-      "argument_2": "Un comercial busca clientes a 'puerta fría'. Mi sistema atrae a clientes que te están buscando activamente.",
-      "argument_3": "El rendimiento de un comercial es subjetivo. El de mi sistema es 100% medible y transparente.",
-      "conclusion": "Mi propuesta no es ser un gasto más, sino convertirme en tu inversión más rentable."
+      "argument_1": "Un comercial trabaja 8 horas al día. Nuestro sistema trabaja 24/7.",
+      "argument_2": "Un comercial busca clientes a 'puerta fría'. Nuestro sistema atrae a clientes que te están buscando activamente.",
+      "argument_3": "El rendimiento de un comercial es subjetivo. El de nuestro sistema es 100% medible y transparente.",
+      "conclusion": "Nuestra propuesta no es ser un gasto más para tu negocio, sino convertirnos en tu inversión más rentable."
     }
   },
   "Features": {
