@@ -37,17 +37,17 @@ export const BusinessSchema = z.object({
   gmbTokenExpiryDate: z.date().optional().describe("Expiry date of the access token."),
   
   // Enriched public business data from Google Places API
-  address: z.string().optional(),
-  phone: z.string().optional(),
-  website: z.string().url().optional(),
-  rating: z.number().min(0).max(5).optional(),
-  reviewCount: z.number().int().optional(),
-  category: z.string().optional(),
-  gmbPageUrl: z.string().url().optional(),
-  businessStatus: z.string().optional(),
-  location: LocationSchema.optional(),
+  address: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  website: z.string().url().nullable().optional(),
+  rating: z.number().min(0).max(5).nullable().optional(),
+  reviewCount: z.number().int().nullable().optional(),
+  category: z.string().nullable().optional(),
+  gmbPageUrl: z.string().url().nullable().optional(),
+  businessStatus: z.string().nullable().optional(),
+  location: LocationSchema.nullable().optional(),
   photos: z.array(PhotoSchema).optional().default([]), // Default to empty array
-  openingHours: OpeningHoursSchema.optional(),
+  openingHours: OpeningHoursSchema.nullable().optional(),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
