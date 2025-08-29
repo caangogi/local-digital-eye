@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ReviewForm } from "../../review/[businessId]/_components/ReviewForm";
-import { Phone, Globe, Clock, MapPin } from "lucide-react";
+import { Phone, Globe, Clock, MapPin, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
@@ -138,6 +138,26 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
             </iframe>
          </div>
     );
+    
+    const ReviewCtaSection = () => (
+        <section className="py-16 md:py-24 bg-background">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="max-w-2xl mx-auto">
+                    <Card className="shadow-2xl border-2 border-primary/50 bg-card/80">
+                        <CardHeader className="text-center">
+                            <Star className="mx-auto h-12 w-12 text-yellow-400 mb-4"/>
+                            <CardTitle className="text-2xl md:text-3xl font-headline text-primary">¿Ya tienes una opinión sobre {business.name}?</CardTitle>
+                            <CardDescription className="text-lg">¡No te la guardes! Tu feedback es el motor de nuestro crecimiento.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ReviewForm business={business}/>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </section>
+    );
+
 
     return (
         <div className="min-h-screen bg-muted/20">
@@ -167,9 +187,13 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                     </div>
                 </div>
             </main>
-             <footer className="text-center text-xs text-muted-foreground py-4">
+            
+            <ReviewCtaSection />
+            
+            <footer className="text-center text-xs text-muted-foreground py-4">
                 Potenciado por Local Digital Eye
             </footer>
         </div>
     );
 }
+
