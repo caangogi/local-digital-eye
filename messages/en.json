@@ -1,13 +1,14 @@
+
 {
   "LandingPage": {
     "title": "Local Digital Eye",
     "login": "Login",
-    "heroTitle": "Stop Being a 'Digital Janitor'. Become a <accent>Digital Sales Director</accent>.",
-    "heroSubtitle": "My service isn't about 'managing your social media'. I act as your Digital Sales Director. My sole objective is to generate a constant and predictable flow of high-quality client requests through Google, so your only worry is doing the work.",
+    "heroTitle": "Stop Juggling Digital Tasks. Hire an <accent>AI-Powered Digital Director</accent>.",
+    "heroSubtitle": "Our service isn't about 'managing your social media'. We act as your Digital Sales Director. Our sole objective is to generate a constant and predictable flow of high-quality client requests through Google, so your only worry is doing the work.",
     "openDashboardButton": "Access Your Dashboard",
     "ctaTitle": "Ready to Transform Your Business?",
     "ctaSubtitle": "Stop losing customers and start winning with a professional digital strategy. Let's talk.",
-    "ctaButton": "Become a Digital Sales Director",
+    "ctaButton": "Start Winning Customers",
     "copyright": "&copy; {year} Local Digital Eye. All rights reserved.",
     "services": {
       "title": "A System Designed for Your Growth",
@@ -26,7 +27,7 @@
     },
     "pillars": {
       "title": "What Does the 'Digital Sales Director' Plan Include?",
-      "subtitle": "This is a comprehensive, turnkey service. You pay a fee, and I handle everything.",
+      "subtitle": "This is a comprehensive, turnkey service. You pay a fee, and we handle everything.",
       "p1": {
         "title": "Digital Foundations & Authority",
         "description": "Extreme optimization of your Google Profile and creation of a high-conversion landing page to establish a solid online presence."
@@ -46,7 +47,7 @@
     },
     "pricing": {
       "title": "Transparent and Profitable Investment",
-      "subtitle": "You must separate your management fee from the client's advertising investment. This is crucial for transparency.",
+      "subtitle": "We separate our management fee from your advertising investment. This is crucial for transparency.",
       "setup": {
         "title": "Setup Fee",
         "price": "€450",
@@ -57,32 +58,32 @@
         "title": "Digital Sales Director Fee",
         "price": "€499",
         "period": "/ month",
-        "description": "This is your fee for actively managing Pillars 2, 3, and 4. It includes your time, expertise, and software tools."
+        "description": "Our fee for actively managing Pillars 2, 3, and 4. It includes our time, expertise, and software tools."
       },
       "ads": {
         "title": "Advertising Investment",
         "price": "€200-€500",
         "period": "/ month",
-        "description": "This money goes directly to Google for ads. You manage it, but it is not your income. It's the fuel for the system."
+        "description": "This money goes directly to Google for ads. We manage it, but it is not our income. It's the fuel for the system."
       }
     },
     "comparison": {
       "title": "Don't Hire an Employee. Hire a <accent>System</accent>.",
-      "subtitle": "Here's why my service isn't an expense, but a massive saving compared to the traditional alternative.",
+      "subtitle": "Here's why our service isn't an expense, but a massive saving compared to the traditional alternative.",
       "header_concept": "Concept",
       "header_traditional": "Traditional Salesperson",
       "header_digital": "Digital Director Plan",
       "concept_salary": "Minimum Gross Salary (Junior)",
       "concept_social_security": "Social Security (Company's Share ~32%)",
       "concept_other": "Other Expenses (Phone, transport, etc.)",
-      "concept_management_fee": "Your Annual Management Fee",
+      "concept_management_fee": "Our Annual Management Fee",
       "concept_ad_investment": "Annual Advertising Investment",
       "total_cost": "TOTAL ANNUAL COST FOR THE BUSINESS",
       "final_argument": "The final argument:",
-      "argument_1": "A salesperson works 8 hours a day. My system works 24/7.",
-      "argument_2": "A salesperson does 'cold calls'. My system attracts clients who are actively searching for you right now.",
-      "argument_3": "A salesperson's performance is subjective. My system's performance is 100% measurable and transparent.",
-      "conclusion": "My proposal is not to be another expense for your business, but to become your most profitable investment."
+      "argument_1": "A salesperson works 8 hours a day. Our system works 24/7.",
+      "argument_2": "A salesperson does 'cold calls'. Our system attracts clients who are actively searching for you right now.",
+      "argument_3": "A salesperson's performance is subjective. Our system's performance is 100% measurable and transparent.",
+      "conclusion": "Our proposal is not to be another expense for your business, but to become your most profitable investment."
     }
   },
   "Features": {
