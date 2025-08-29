@@ -16,6 +16,7 @@ import { LogOut, Settings, UserCircle, PanelLeft } from "lucide-react";
 import { Link } from "@/navigation"; // Use next-intl's Link
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 export function AppHeader() {
   const { user, signOut, isLoading } = useAuth();
@@ -47,6 +48,7 @@ export function AppHeader() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
+        <ThemeSwitcher />
         <LanguageSwitcher />
         {user && !isLoading ? (
           <DropdownMenu>
