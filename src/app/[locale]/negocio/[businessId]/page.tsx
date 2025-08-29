@@ -150,13 +150,13 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
                 <div className="hidden md:grid md:grid-cols-12 md:gap-8 h-full">
                     
                     {/* Left Column: Business Info */}
-                    <div className="md:col-span-6 lg:col-span-5 space-y-6">
+                    <div className="md:col-span-5 lg:col-span-4 space-y-6">
                         <BusinessInfoCard />
                     </div>
 
                      {/* Right Column: Map and Review Form */}
-                     <div className="md:col-span-6 lg:col-span-7 h-full relative">
-                        <div className="absolute top-4 right-4 left-4 z-10">
+                     <div className="md:col-span-7 lg:col-span-8 h-full relative">
+                        <div className="absolute top-4 right-4 z-10 w-full sm:max-w-md">
                             <ReviewCard />
                         </div>
                         <div className="h-full min-h-[calc(100vh-2rem)] w-full sticky top-4">
