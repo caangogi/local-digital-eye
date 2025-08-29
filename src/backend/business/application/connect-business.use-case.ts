@@ -50,6 +50,7 @@ export class ConnectBusinessUseCase {
     }
     
     // Create a new Business entity from the enriched data
+    // Ensure all optional fields are replaced with null if undefined to prevent Firestore errors.
     const businessToSave: Business = {
       id: placeId,
       userId: userId,
@@ -57,18 +58,18 @@ export class ConnectBusinessUseCase {
       name: gmbData.name,
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
       
-      // Add all the enriched public data from the details call
-      address: gmbData.formattedAddress,
-      phone: gmbData.internationalPhoneNumber,
-      website: gmbData.websiteUri,
-      rating: gmbData.rating,
-      reviewCount: gmbData.userRatingCount,
-      category: gmbData.types?.[0],
+      // Add all the enriched public data, ensuring no undefined values
+      address: gmbData.formattedAddress || null,
+      phone: gmbData.internationalPhoneNumber || null,
+      website: gmbData.websiteUri || null,
+      rating: gmbData.rating || null,
+      reviewCount: gmbData.userRatingCount || null,
+      category: gmbData.types?.[0] || null,
       gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeId}`,
-      businessStatus: gmbData.businessStatus,
-      location: gmbData.location,
-      photos: gmbData.photos || [], // Provide default empty array
-      openingHours: gmbData.regularOpeningHours || gmbData.currentOpeningHours, // Keep this logic
+      businessStatus: gmbData.businessStatus || null,
+      location: gmbData.location || null,
+      photos: gmbData.photos || [],
+      openingHours: gmbData.regularOpeningHours || gmbData.currentOpeningHours || null,
     };
 
     // Save the business to our database
