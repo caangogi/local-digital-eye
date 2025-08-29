@@ -34,11 +34,12 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     // The user might sign up with email and password and not have a name or picture yet
     // on the token. The client-side logic should have updated the Firebase Auth profile
     // before calling this.
+    // Ensure no 'undefined' values are passed to Firestore.
     const userToSave: User = {
       id: decodedIdToken.uid,
       email: decodedIdToken.email || '',
-      name: decodedIdToken.name,
-      avatarUrl: decodedIdToken.picture,
+      name: decodedIdToken.name || '', // Use empty string if name is undefined
+      avatarUrl: decodedIdToken.picture || undefined, // Zod schema handles optional here, but good practice.
     };
     await createOrUpdateUserUseCase.execute(userToSave);
 
