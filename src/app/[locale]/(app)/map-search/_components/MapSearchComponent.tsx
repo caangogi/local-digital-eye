@@ -56,7 +56,9 @@ function MapSearchContent({ businesses }: { businesses: Business[] }) {
                 className="rounded-b-lg h-full w-full"
                 gestureHandling="cooperative"
             >
-                {businesses.map(business => business.location && (
+                {businesses.map(business => {
+                  if (!business.location) return null; // Safeguard: Do not render marker if no location
+                  return (
                     <AdvancedMarker 
                         key={business.id} 
                         position={business.location}
@@ -68,7 +70,8 @@ function MapSearchContent({ businesses }: { businesses: Business[] }) {
                             glyphColor={'#fff'}
                         />
                     </AdvancedMarker>
-                ))}
+                  );
+                })}
                 
                 {selectedBusiness && selectedBusiness.location && (
                     <InfoWindow
