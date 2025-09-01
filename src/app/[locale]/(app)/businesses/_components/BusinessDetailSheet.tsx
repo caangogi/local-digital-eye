@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,7 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, Phone, Globe, Star, Tags, Loader2, Save } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, setHours, setMinutes, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
@@ -100,14 +100,16 @@ export function BusinessDetailSheet({ isOpen, onOpenChange, business }: Business
   };
   
   // Reset form when business changes
-  useState(() => {
+  useEffect(() => {
     form.reset({
       salesStatus: business.salesStatus || 'new',
       notes: business.notes || '',
       customTags: business.customTags?.join(', ') || '',
       nextContactDate: business.nextContactDate ? new Date(business.nextContactDate) : null,
     });
-  });
+  }, [business, form]);
+  
+  const nextContactDateValue = form.watch('nextContactDate');
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -163,19 +165,20 @@ export function BusinessDetailSheet({ isOpen, onOpenChange, business }: Business
                 </div>
             </div>
 
-            {/* Next Contact Date */}
+            {/* Next Contact Date & Time */}
              <div className="grid gap-2">
-                <Label htmlFor="nextContactDate">Fecha Próximo Contacto</Label>
-                <Controller
+                <Label>Fecha y Hora Próximo Contacto</Label>
+                 <Controller
                     control={form.control}
                     name="nextContactDate"
                     render={({ field }) => (
+                      <div className="flex gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                        "w-full justify-start text-left font-normal",
+                                        "flex-grow justify-start text-left font-normal",
                                         !field.value && "text-muted-foreground"
                                     )}
                                 >
@@ -187,14 +190,52 @@ export function BusinessDetailSheet({ isOpen, onOpenChange, business }: Business
                                 <Calendar
                                     mode="single"
                                     selected={field.value ?? undefined}
-                                    onSelect={(date) => field.onChange(date)}
+                                    onSelect={(date) => {
+                                        const originalDate = field.value || new Date();
+                                        const newDate = date || originalDate;
+                                        const updatedDate = setMinutes(setHours(newDate, originalDate.getHours()), originalDate.getMinutes());
+                                        field.onChange(updatedDate);
+                                    }}
                                     initialFocus
                                 />
                             </PopoverContent>
                         </Popover>
+                        <Select
+                            value={field.value ? format(field.value, 'HH') : ''}
+                            onValueChange={(hour) => {
+                                const newDate = setHours(field.value || new Date(), parseInt(hour));
+                                field.onChange(newDate);
+                            }}
+                             disabled={!field.value}
+                        >
+                            <SelectTrigger className="w-[80px]"><SelectValue placeholder="Hora" /></SelectTrigger>
+                            <SelectContent>
+                                {Array.from({length: 24}, (_, i) => String(i).padStart(2, '0')).map(hour => <SelectItem key={hour} value={hour}>{hour}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select
+                             value={field.value ? format(field.value, 'mm') : ''}
+                             onValueChange={(minute) => {
+                                 const newDate = setMinutes(field.value || new Date(), parseInt(minute));
+                                 field.onChange(newDate);
+                             }}
+                             disabled={!field.value}
+                        >
+                             <SelectTrigger className="w-[80px]"><SelectValue placeholder="Min" /></SelectTrigger>
+                             <SelectContent>
+                                 {['00', '15', '30', '45'].map(min => <SelectItem key={min} value={min}>{min}</SelectItem>)}
+                             </SelectContent>
+                        </Select>
+                      </div>
                     )}
                 />
+                 {nextContactDateValue && (
+                    <p className="text-sm text-muted-foreground">
+                        Contacto programado para el: {format(nextContactDateValue, "PPP 'a las' HH:mm", { locale: es })}
+                    </p>
+                 )}
             </div>
+
 
             <SheetFooter className="mt-auto pt-4">
               <Button type="submit" className="w-full" disabled={isSaving}>
