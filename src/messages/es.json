@@ -125,7 +125,7 @@
     "dashboard": "Panel",
     "businesses": "Negocios",
     "reports": "Informes",
-    "mapSearch": "Búsqueda en Mapa",
+    "mapSearch": "Mapa de Cartera",
     "aiServices": "Servicios IA",
     "settings": "Configuración",
     "logOut": "Cerrar Sesión"
@@ -167,16 +167,36 @@
     "title": "Pipeline de Negocios",
     "description": "Gestiona y revisa tus prospectos de venta.",
     "addButton": "Añadir Nuevo Prospecto",
-    "searchPlaceholder": "Buscar negocios...",
+    "searchPlaceholder": "Buscar por nombre o etiqueta...",
     "filterButton": "Filtrar",
     "sortButton": "Ordenar",
     "table": {
       "name": "Nombre",
-      "status": "Estado",
-      "score": "Puntuación General",
-      "dateAdded": "Fecha de Alta",
+      "status": "Estado GMB",
+      "salesStatus": "Estado de Venta",
       "tags": "Etiquetas",
       "actions": "Acciones"
+    },
+    "add": {
+      "title": "Conectar un Nuevo Negocio",
+      "subtitle": "Encuentra un negocio en Google para iniciar el análisis.",
+      "findTitle": "Encuentra tu negocio",
+      "findDescription": "Introduce el nombre oficial y la ubicación del negocio para encontrarlo en Google Maps.",
+      "nameLabel": "Nombre del Negocio",
+      "namePlaceholder": "Ej: El Café Acogedor",
+      "locationLabel": "Ubicación (opcional, para refinar)",
+      "locationPlaceholder": "Ej: Madrid, España",
+      "searchButton": "Buscar en Google",
+      "resultTitle": "Resultado de la Búsqueda",
+      "connectButton": "Conectar este Negocio",
+      "notFound": "No se encontró ningún negocio con ese nombre. Revisa si hay errores o intenta una búsqueda más específica.",
+      "searchError": "Ocurrió un error durante la búsqueda. Por favor, inténtalo de nuevo.",
+      "ratingLabel": "Valoración",
+      "reviewsLabel": "reseñas",
+      "connectSuccessTitle": "¡Negocio Conectado!",
+      "connectSuccessDescription": "El negocio ha sido vinculado a tu cuenta correctamente.",
+      "connectErrorTitle": "Fallo en la Conexión",
+      "connectErrorDescription": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
     }
   }
 }

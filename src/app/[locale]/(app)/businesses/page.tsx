@@ -1,7 +1,7 @@
 
 import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
-import { PlusCircle, List, LayoutGrid } from "lucide-react";
+import { UserPlus, List, LayoutGrid } from "lucide-react";
 import { Link } from "@/navigation";
 import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
@@ -30,9 +30,9 @@ export default async function BusinessesPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        <Link href="/map-search">
+        <Link href="/businesses/add">
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            <PlusCircle className="mr-2 h-4 w-4" /> {t('addButton')}
+            <UserPlus className="mr-2 h-4 w-4" /> {t('addButton')}
           </Button>
         </Link>
       </div>
