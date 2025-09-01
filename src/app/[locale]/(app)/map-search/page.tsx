@@ -32,12 +32,7 @@ export default function MapSearchPage() {
 
   return (
     <div className="flex flex-col gap-6 h-full">
-      <div className="flex justify-between items-center">
-         <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Geographic Business Search</h1>
-          <p className="text-muted-foreground">Discover businesses by category within specific geographic zones.</p>
-        </div>
-      </div>
+       {/* This component will now handle its own titles and descriptions */}
       <MapSearchComponent apiKey={apiKey} />
     </div>
   );
