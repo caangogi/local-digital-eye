@@ -61,10 +61,10 @@ const phases = [
         {
             title: "Hito 2.1: Búsqueda Geográfica para Prospección Masiva",
             tasks: [
-                { who: "bot", text: "En la página `map-search/page.tsx`, implementar la búsqueda real por categoría de negocio en un área del mapa." },
+                { who: "bot", text: "En la página `map-search/page.tsx`, implementar la búsqueda real por categoría de negocio en un área del mapa, manteniendo la búsqueda siempre dinámica." },
                 { who: "bot", text: "Mostrar los resultados como pines en el mapa y en una lista lateral, mostrando el nombre, rating y si tiene web." },
-                { who: "bot", text: "Permitir la selección múltiple (checkboxes) de los negocios en la lista." },
-                { who: "bot", text: "Crear un botón 'Añadir a Pipeline' que conecte todos los negocios seleccionados en lote, ejecutando el `leadQualificationFlow` para cada uno." },
+                { who: "bot", text: "Permitir al comercial la selección múltiple (checkboxes) de los negocios en la lista." },
+                { who: "bot", text: "Crear un botón 'Añadir a Pipeline'. Al pulsarlo, se conectarán todos los negocios seleccionados, y se ejecutará el `leadQualificationFlow` para cada uno con el fin de enriquecerlos con una puntuación inicial, pero sin impedir que se añadan." },
             ]
         },
         {
