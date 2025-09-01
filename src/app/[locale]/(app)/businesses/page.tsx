@@ -20,7 +20,7 @@ export default async function BusinessesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 h-full">
       <Suspense fallback={null}>
         <ToastHandler />
       </Suspense>
@@ -37,16 +37,16 @@ export default async function BusinessesPage() {
         </Link>
       </div>
 
-      <Tabs defaultValue="pipeline" className="w-full">
+      <Tabs defaultValue="pipeline" className="w-full flex-grow flex flex-col">
         <TabsList className="grid w-full grid-cols-2 max-w-sm">
           <TabsTrigger value="pipeline"><LayoutGrid className="mr-2 h-4 w-4" />Pipeline</TabsTrigger>
           <TabsTrigger value="list"><List className="mr-2 h-4 w-4" />Lista</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="pipeline" className="mt-4">
+        <TabsContent value="pipeline" className="mt-4 flex-grow">
             <PipelineLoader initialBusinesses={businesses} />
         </TabsContent>
-        <TabsContent value="list" className="mt-4">
+        <TabsContent value="list" className="mt-4 flex-grow">
             <BusinessList businesses={businesses} baseUrl={baseUrl} />
         </TabsContent>
       </Tabs>

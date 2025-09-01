@@ -72,11 +72,6 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
           <Button variant="outline">
             <ArrowUpDown className="mr-2 h-4 w-4" /> {t('sortButton')}
           </Button>
-           <Link href="/businesses/add">
-                <Button>
-                    <UserPlus className="mr-2 h-4 w-4" /> {t('addButton')}
-                </Button>
-            </Link>
         </div>
       </div>
 
