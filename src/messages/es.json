@@ -125,7 +125,6 @@
     "dashboard": "Panel",
     "businesses": "Negocios",
     "reports": "Informes",
-    "mapSearch": "Búsqueda en Mapa",
     "aiServices": "Servicios IA",
     "settings": "Configuración",
     "logOut": "Cerrar Sesión"
@@ -201,3 +200,5 @@
     }
   }
 }
+
+    
