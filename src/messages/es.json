@@ -187,7 +187,6 @@
       "namePlaceholder": "Ej: Electricistas en Valencia",
       "searchButton": "Buscar",
       "resultTitle": "Lista de Prospectos",
-      "prospectListDescription": "Estos son los resultados de tus búsquedas. Conéctalos para añadirlos al pipeline.",
       "connectButton": "Conectar",
       "notFound": "No se encontró ningún negocio con esa consulta. Revisa si hay errores o intenta una búsqueda más específica.",
       "searchError": "Ocurrió un error durante la búsqueda. Por favor, inténtalo de nuevo.",
@@ -197,6 +196,7 @@
       "connectSuccessDescription": "El negocio ha sido añadido a tu pipeline.",
       "connectErrorTitle": "Fallo en la Conexión",
       "connectErrorDescription": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.",
+      "prospectListDescription": "Estos son los resultados de tus búsquedas. Conéctalos para añadirlos al pipeline.",
       "ratingFilterLabel": "Filtro por Calificación",
       "clearListButton": "Limpiar Lista"
     }
