@@ -70,6 +70,13 @@ export class ConnectBusinessUseCase {
       location: gmbData.location || null,
       photos: gmbData.photos || [],
       openingHours: gmbData.regularOpeningHours || gmbData.currentOpeningHours || null,
+
+      // Initialize CRM fields with default values
+      salesStatus: 'new',
+      leadScore: null,
+      customTags: [],
+      nextContactDate: null,
+      notes: null,
     };
 
     // Save the business to our database
