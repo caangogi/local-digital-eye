@@ -3,8 +3,8 @@
 /**
  * @fileOverview Extracts and synthesizes data for a business using Google Places API.
  * This flow now performs a two-step process:
- * 1. Search for the business to get a placeId.
- * 2. Get detailed information for that placeId.
+ * 1. Search for businesses based on a query.
+ * 2. Return a list of detailed information for each found place.
  *
  * - extractGmbData - A function that fetches data from Google Places API and synthesizes it.
  * - GmbDataExtractionInput - The input type for the extractGmbData function.
@@ -13,12 +13,11 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchGooglePlace } from '@/services/googleMapsService';
+import { searchGooglePlaces } from '@/services/googleMapsService'; // Updated import
 
-
+// Updated input schema to be a single query string
 const GmbDataExtractionInputSchema = z.object({
-  businessName: z.string().describe('The name of the business to search on Google Maps.'),
-  location: z.string().describe('The location of the business (e.g., city, address).'),
+  query: z.string().describe('The search query to find businesses on Google Maps (e.g., "Electricistas en Inca, Mallorca").'),
 });
 export type GmbDataExtractionInput = z.infer<typeof GmbDataExtractionInputSchema>;
 
@@ -88,33 +87,36 @@ const extractGmbDataFlow = ai.defineFlow(
   {
     name: 'extractGmbDataFlow',
     inputSchema: GmbDataExtractionInputSchema,
-    outputSchema: GmbDataExtractionOutputSchema.nullable(),
+    // Output is now an array of results
+    outputSchema: z.array(GmbDataExtractionOutputSchema).nullable(),
   },
   async (input) => {
     // Step 1: Search for the business to get the place ID and basic info
-    console.log(`Flow: Searching Google Place for ${input.businessName} in ${input.location}`);
-    const searchResult = await searchGooglePlace(input.businessName, input.location);
+    console.log(`Flow: Searching Google Place for "${input.query}"`);
+    const searchResults = await searchGooglePlaces(input.query); // Use the new plural function
 
-    if (!searchResult) {
-      console.log("Flow: No data returned from searchGooglePlace service.");
+    if (!searchResults || searchResults.length === 0) {
+      console.log("Flow: No data returned from searchGooglePlaces service.");
       return null;
     }
     
     // Step 2: Map the search result data to the output format.
-    const mappedData = mapPlaceToOutput(searchResult);
+    const mappedData = searchResults
+        .map(place => mapPlaceToOutput(place))
+        .filter((p): p is GmbDataExtractionOutput => p !== null);
 
-    if (!mappedData) {
-        console.log("Flow: Mapping from basic Place API data to output failed.");
+    if (mappedData.length === 0) {
+        console.log("Flow: Mapping from basic Place API data to output failed for all results.");
         return null;
     }
 
-    console.log(`Flow: Successfully mapped basic data for placeId: ${mappedData.placeId}`);
+    console.log(`Flow: Successfully mapped ${mappedData.length} businesses.`);
     return mappedData;
   }
 );
 
-export async function extractGmbData(input: GmbDataExtractionInput): Promise<GmbDataExtractionOutput | null> {
-  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (Search Only)");
+export async function extractGmbData(input: GmbDataExtractionInput): Promise<GmbDataExtractionOutput[] | null> {
+  console.log("Local Digital Eye - GMB Data Extraction from Google Places API (Search & List)");
   console.log("This feature uses the Google Places API. Usage is subject to Google's terms and pricing.");
   console.log("--------------------------------------------------------------------");
   return extractGmbDataFlow(input);
