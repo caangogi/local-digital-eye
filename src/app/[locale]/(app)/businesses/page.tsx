@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Loader2, List, LayoutGrid } from "lucide-react";
 import { Link } from "@/navigation";
@@ -11,8 +12,20 @@ import { ToastHandler } from "./_components/ToastHandler";
 import type { Business } from '@/backend/business/domain/business.entity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusinessList } from './_components/BusinessList';
-import { PipelineView } from './_components/PipelineView';
 import { resetServerContext } from 'react-beautiful-dnd';
+
+// Dynamically import PipelineView with SSR turned off
+const PipelineView = dynamic(
+  () => import('./_components/PipelineView').then(mod => mod.PipelineView),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex justify-center items-center p-8 h-64">
+        <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+);
 
 
 export default function BusinessesPage() {
