@@ -70,7 +70,7 @@ function MapSearchContent({ businesses }: { businesses: Business[] }) {
                     </AdvancedMarker>
                 ))}
                 
-                {selectedBusiness && (
+                {selectedBusiness && selectedBusiness.location && (
                     <InfoWindow
                         position={selectedBusiness.location}
                         onCloseClick={() => setSelectedBusiness(null)}
