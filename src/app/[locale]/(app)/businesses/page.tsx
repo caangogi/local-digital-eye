@@ -43,7 +43,7 @@ export default async function BusinessesPage() {
           <TabsTrigger value="list"><List className="mr-2 h-4 w-4" />Lista</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="pipeline" className="mt-4 flex-grow">
+        <TabsContent value="pipeline" className="mt-4 flex-grow flex flex-col">
             <PipelineLoader initialBusinesses={businesses} />
         </TabsContent>
         <TabsContent value="list" className="mt-4 flex-grow flex flex-col">
