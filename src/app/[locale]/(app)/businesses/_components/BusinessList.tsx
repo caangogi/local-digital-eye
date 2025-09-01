@@ -75,7 +75,7 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
         </div>
       </div>
 
-      <div className="rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300 overflow-x-auto">
+      <div className="overflow-x-auto flex-grow rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
         <Table>
           <TableHeader>
             <TableRow>

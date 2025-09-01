@@ -46,7 +46,7 @@ export default async function BusinessesPage() {
         <TabsContent value="pipeline" className="mt-4 flex-grow">
             <PipelineLoader initialBusinesses={businesses} />
         </TabsContent>
-        <TabsContent value="list" className="mt-4 flex-grow">
+        <TabsContent value="list" className="mt-4 flex-grow flex flex-col">
             <BusinessList businesses={businesses} baseUrl={baseUrl} />
         </TabsContent>
       </Tabs>

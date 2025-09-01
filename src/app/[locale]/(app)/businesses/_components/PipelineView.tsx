@@ -165,7 +165,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                                         {business.customTags?.slice(0,2).map(tag => <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>)}
                                     </div>
                                     </CardContent>
-                                </Card>
+                                 </Card>
                             </div>
                             )}
                         </Draggable>
