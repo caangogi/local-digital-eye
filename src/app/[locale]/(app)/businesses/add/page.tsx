@@ -10,11 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Loader2, Search, Star, Link as LinkIcon, Building, Trash2, Filter, Globe } from 'lucide-react';
+import { Loader2, Search, Star, Link as LinkIcon, Building, Trash2, Globe } from 'lucide-react';
 import { extractGmbData, type GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import { connectBusiness } from '@/actions/business.actions';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from '@/navigation';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
@@ -31,18 +30,16 @@ type WebsiteFilter = 'all' | 'with_website' | 'without_website';
 const CACHE_KEY = 'prospecting_search_results';
 
 export default function AddBusinessPage() {
-  const t = useTranslations('BusinessesPage.add');
+  const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<GmbDataExtractionOutput[]>([]);
   
-  // State for filters
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
   const [websiteFilter, setWebsiteFilter] = useState<WebsiteFilter>('all');
   
   const { toast } = useToast();
 
-  // Load results from localStorage on initial render
   useEffect(() => {
     try {
       const cachedResults = localStorage.getItem(CACHE_KEY);
@@ -55,7 +52,6 @@ export default function AddBusinessPage() {
     }
   }, []);
   
-  // Memoized filtered results
   const filteredResults = useMemo(() => {
       return searchResults.filter(business => {
           const rating = business.rating ?? 0;
@@ -84,7 +80,11 @@ export default function AddBusinessPage() {
             const newUniqueResults = results.filter(r => !existingPlaceIds.has(r.placeId));
             const updatedResults = [...prevResults, ...newUniqueResults];
             localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
-            toast({ title: `${newUniqueResults.length} ${t('newProspectsToast')}`});
+            if(newUniqueResults.length > 0) {
+              toast({ title: `${newUniqueResults.length} ${t('newProspectsToast')}`});
+            } else {
+              toast({ title: t('noNewProspectsToast')});
+            }
             return updatedResults;
         });
       } else {
@@ -171,7 +171,7 @@ export default function AddBusinessPage() {
           <CardHeader>
             <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>{t('resultTitle')} ({filteredResults.length} / {searchResults.length})</CardTitle>
+                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {searchResults.length})</CardTitle>
                     <CardDescription>{t('prospectsFoundDescription')}</CardDescription>
                 </div>
                 <Button onClick={clearCache} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
