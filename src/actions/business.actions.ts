@@ -10,13 +10,17 @@ import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/fi
 import { ConnectBusinessUseCase } from '@/backend/business/application/connect-business.use-case';
 import { ListUserBusinessesUseCase } from '@/backend/business/application/list-user-businesses.use-case';
 import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
+import { UpdateBusinessStatusUseCase } from '@/backend/business/application/update-business-status.use-case';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
-import type { Business } from '@/backend/business/domain/business.entity';
+import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
+import { revalidatePath } from 'next/cache';
 
 const businessRepository = new FirebaseBusinessRepository();
 const connectBusinessUseCase = new ConnectBusinessUseCase(businessRepository);
 const listUserBusinessesUseCase = new ListUserBusinessesUseCase(businessRepository);
 const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
+const updateBusinessStatusUseCase = new UpdateBusinessStatusUseCase(businessRepository);
+
 
 /**
  * Connects a business to the currently logged-in user.
@@ -48,6 +52,8 @@ export async function connectBusiness(searchResult: GmbDataExtractionOutput): Pr
     if (!business) {
       return { success: false, message: 'Failed to connect business.' };
     }
+    
+    revalidatePath('/businesses');
 
     console.log(`[BusinessAction] Successfully connected business ${business.id} to user ${userId}`);
     return { success: true, message: 'Business connected successfully!', businessId: business.id };
@@ -108,4 +114,36 @@ export async function getBusinessDetails(businessId: string): Promise<Business |
         console.error(`Error fetching business details for ${businessId}:`, error);
         return null; // Return null on error to prevent page crashes.
     }
+}
+
+
+/**
+ * Updates the sales status of a business.
+ * @param businessId The ID of the business to update.
+ * @param newStatus The new sales status.
+ * @returns An object indicating success or failure.
+ */
+export async function updateBusinessStatus(businessId: string, newStatus: SalesStatus): Promise<{ success: boolean; message: string }> {
+  try {
+    const sessionCookie = cookies().get('session')?.value;
+    if (!sessionCookie) {
+      return { success: false, message: 'Authentication required.' };
+    }
+    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+    const userId = decodedToken.uid;
+
+    await updateBusinessStatusUseCase.execute({
+        businessId,
+        userId,
+        newStatus,
+    });
+    
+    // Revalidate the path to ensure the UI updates with the new status
+    revalidatePath('/businesses');
+
+    return { success: true, message: 'Status updated successfully.' };
+  } catch (error: any) {
+    console.error('Error updating business status:', error);
+    return { success: false, message: error.message || 'An unexpected error occurred.' };
+  }
 }
