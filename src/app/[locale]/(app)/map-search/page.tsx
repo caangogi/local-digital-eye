@@ -1,9 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MapPin, Search } from "lucide-react"; 
-import {getTranslations} from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { MapSearchComponent } from './_components/MapSearchComponent';
+import { listUserBusinesses } from '@/actions/business.actions';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AppSidebar'); 
@@ -12,8 +11,9 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
   };
 }
 
-export default function MapSearchPage() {
+export default async function MapSearchPage() {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const businesses = await listUserBusinesses();
 
   if (!apiKey) {
     return (
@@ -32,8 +32,7 @@ export default function MapSearchPage() {
 
   return (
     <div className="flex flex-col gap-6 h-full">
-       {/* This component will now handle its own titles and descriptions */}
-      <MapSearchComponent apiKey={apiKey} />
+      <MapSearchComponent apiKey={apiKey} businesses={businesses} />
     </div>
   );
 }

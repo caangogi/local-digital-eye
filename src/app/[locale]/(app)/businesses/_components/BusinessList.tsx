@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, ArrowUpDown, Filter } from "lucide-react";
+import { Search, ArrowUpDown, Filter, UserPlus } from "lucide-react";
 import { Link } from "@/navigation";
 import { useTranslations } from 'next-intl';
 import { BusinessActions } from "./BusinessActions";
 import type { Business } from '@/backend/business/domain/business.entity';
+import { BusinessDetailSheet } from './BusinessDetailSheet';
 
 interface BusinessListProps {
   businesses: Business[];
@@ -21,10 +22,13 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
   const t = useTranslations('BusinessesPage');
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>(businesses);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
     const results = businesses.filter(business =>
-      business.name.toLowerCase().includes(searchTerm.toLowerCase())
+      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.customTags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredBusinesses(results);
   }, [searchTerm, businesses]);
@@ -37,8 +41,20 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
     'closed_lost': { label: 'Perdido', variant: 'destructive' },
   };
 
+  const handleRowClick = (business: Business) => {
+    setSelectedBusiness(business);
+    setIsSheetOpen(true);
+  };
+  
+  const handleSheetOpenChange = (open: boolean) => {
+    setIsSheetOpen(open);
+    if (!open) {
+        setSelectedBusiness(null);
+    }
+  };
+
   return (
-    <div>
+    <>
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
         <div className="relative flex-grow w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -56,6 +72,11 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
           <Button variant="outline">
             <ArrowUpDown className="mr-2 h-4 w-4" /> {t('sortButton')}
           </Button>
+           <Link href="/businesses/add">
+                <Button>
+                    <UserPlus className="mr-2 h-4 w-4" /> {t('addButton')}
+                </Button>
+            </Link>
         </div>
       </div>
 
@@ -72,7 +93,7 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
           </TableHeader>
           <TableBody>
             {filteredBusinesses.length > 0 ? filteredBusinesses.map((business) => (
-              <TableRow key={business.id} className="hover:bg-muted/50">
+              <TableRow key={business.id} className="hover:bg-muted/50 cursor-pointer" onClick={() => handleRowClick(business)}>
                 <TableCell className="font-medium">{business.name}</TableCell>
                 <TableCell>
                   <Badge variant={business.gmbStatus === 'linked' ? 'default' : 'outline'}>
@@ -89,7 +110,7 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
                     {business.customTags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                   <BusinessActions business={business} baseUrl={baseUrl} />
                 </TableCell>
               </TableRow>
@@ -111,6 +132,14 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
           </TableBody>
         </Table>
       </div>
-    </div>
+
+    {selectedBusiness && (
+        <BusinessDetailSheet
+            isOpen={isSheetOpen}
+            onOpenChange={handleSheetOpenChange}
+            business={selectedBusiness}
+        />
+    )}
+    </>
   );
 }
