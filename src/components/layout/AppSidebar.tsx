@@ -12,7 +12,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth.tsx";
-import { LayoutDashboard, Briefcase, FileText, Map, Settings, LogOut, Search, Eye } from "lucide-react";
+import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
 export function AppSidebar() {
@@ -27,7 +27,6 @@ export function AppSidebar() {
     { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
     { href: "/businesses", label: t('businesses'), icon: <Briefcase /> },
     { href: "/reports", label: t('reports'), icon: <FileText /> },
-    { href: "/map-search", label: t('mapSearch'), icon: <Map /> },
     { href: "/service-recommendations", label: t('aiServices'), icon: <Search /> },
   ];
   
