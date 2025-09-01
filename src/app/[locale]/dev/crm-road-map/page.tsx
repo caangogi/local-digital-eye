@@ -36,9 +36,9 @@ const phases = [
       {
         title: "Hito 1.1: Evolución de la Entidad 'Business' para CRM",
         tasks: [
-          { who: "bot", text: "Modificar la entidad `Business` en `business.entity.ts` para añadir los nuevos campos: `leadScore` (número), `salesStatus` (enum: 'new', 'contacted', 'follow_up', 'closed_won', 'closed_lost'), `customTags` (array de strings), `nextContactDate` (fecha) y `notes` (string largo)." },
-          { who: "bot", text: "Actualizar el `FirebaseBusinessRepository` para manejar los nuevos campos correctamente al guardar y leer datos." },
-          { who: "bot", text: "Ajustar el `ConnectBusinessUseCase` para que los nuevos negocios se creen con valores por defecto para los campos del CRM (ej. `salesStatus: 'new'`)." },
+          { who: "bot", text: "Modificar la entidad `Business` en `business.entity.ts` para añadir los nuevos campos: `leadScore` (número), `salesStatus` (enum: 'new', 'contacted', 'follow_up', 'closed_won', 'closed_lost'), `customTags` (array de strings), `nextContactDate` (fecha) y `notes` (string largo).", completed: true },
+          { who: "bot", text: "Actualizar el `FirebaseBusinessRepository` para manejar los nuevos campos correctamente al guardar y leer datos.", completed: true },
+          { who: "bot", text: "Ajustar el `ConnectBusinessUseCase` para que los nuevos negocios se creen con valores por defecto para los campos del CRM (ej. `salesStatus: 'new'`).", completed: true },
         ]
       },
       {
@@ -95,7 +95,10 @@ const phases = [
   }
 ];
 
-const TaskIcon = ({ who }: { who: string }) => {
+const TaskIcon = ({ who, completed }: { who: string; completed?: boolean }) => {
+    if (completed) {
+        return <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" aria-label="Task Completed" />;
+    }
     if (who === 'bot') {
         return <Bot className="h-5 w-5 text-primary flex-shrink-0" aria-label="Bot Task" />;
     }
@@ -111,6 +114,7 @@ export default function CrmRoadMapPage() {
         <div className="flex flex-col sm:flex-row gap-4 mt-4 text-sm">
             <div className="flex items-center gap-2"><Bot className="h-4 w-4 text-primary" /><span>Tareas de Desarrollo (Gemini)</span></div>
             <div className="flex items-center gap-2"><UserCog className="h-4 w-4 text-amber-400" /><span>Tareas de Configuración (Usuario)</span></div>
+            <div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /><span>Tareas Completadas</span></div>
         </div>
       </div>
       
@@ -142,7 +146,6 @@ export default function CrmRoadMapPage() {
             <div className="space-y-6 border-l-2 border-border ml-4 pl-8 relative">
                  <div className="absolute -left-[1.3rem] top-0 h-full">
                      <div className="h-6 w-6 bg-background border-2 border-primary rounded-full ring-4 ring-background"></div>
-                     <div className="h-full w-px bg-border mx-auto mt-2"></div>
                  </div>
 
                 {phase.milestones.map((milestone, milestoneIndex) => (
@@ -154,9 +157,8 @@ export default function CrmRoadMapPage() {
                             <ul className="space-y-3">
                                 {milestone.tasks.map((task, taskIndex) => (
                                     <li key={taskIndex} className="flex items-start gap-3">
-                                        <TaskIcon who={task.who} />
+                                        <TaskIcon who={task.who} completed={task.completed} />
                                         <span className={`flex-1 text-sm text-foreground/90 ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                                          {task.completed && <CheckCircle className="inline h-4 w-4 mr-1 text-green-500" />}
                                           {task.text}
                                         </span>
                                     </li>
