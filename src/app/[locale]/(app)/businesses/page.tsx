@@ -1,57 +1,30 @@
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Loader2, List, LayoutGrid } from "lucide-react";
+import { PlusCircle, List, LayoutGrid } from "lucide-react";
 import { Link } from "@/navigation";
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { listUserBusinesses } from "@/actions/business.actions";
 import { ToastHandler } from "./_components/ToastHandler";
-import type { Business } from '@/backend/business/domain/business.entity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusinessList } from './_components/BusinessList';
+import { PipelineLoader } from './_components/PipelineLoader'; // Import the new loader component
 
-// Dynamically import PipelineView with SSR turned off
-const PipelineView = dynamic(
-  () => import('./_components/PipelineView').then(mod => mod.PipelineView),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="flex justify-center items-center p-8 h-64">
-        <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-);
-
-
-export default function BusinessesPage() {
-  const t = useTranslations('BusinessesPage');
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+// This is a SERVER COMPONENT
+export default async function BusinessesPage() {
+  const t = await getTranslations('BusinessesPage');
+  
+  // Fetch data on the server before rendering the page
+  const businesses = await listUserBusinesses();
+  
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
-
-  useEffect(() => {
-    async function loadBusinesses() {
-      setIsLoading(true);
-      try {
-        const userBusinesses = await listUserBusinesses();
-        setBusinesses(userBusinesses);
-      } catch (error) {
-        console.error("Failed to load businesses:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadBusinesses();
-  }, []);
 
   return (
     <div className="flex flex-col gap-6">
-      <ToastHandler />
+      <Suspense fallback={null}>
+        <ToastHandler />
+      </Suspense>
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-headline">{t('title')}</h1>
@@ -71,22 +44,11 @@ export default function BusinessesPage() {
         </TabsList>
         
         <TabsContent value="pipeline" className="mt-4">
-          {isLoading ? (
-             <div className="flex justify-center items-center p-8 h-64">
-                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-             </div>
-          ) : (
-            <PipelineView initialBusinesses={businesses} />
-          )}
+            {/* Use the new loader component */}
+            <PipelineLoader initialBusinesses={businesses} />
         </TabsContent>
         <TabsContent value="list" className="mt-4">
-           {isLoading ? (
-             <div className="flex justify-center items-center p-8 h-64">
-                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-             </div>
-          ) : (
             <BusinessList businesses={businesses} baseUrl={baseUrl} />
-          )}
         </TabsContent>
       </Tabs>
     </div>
