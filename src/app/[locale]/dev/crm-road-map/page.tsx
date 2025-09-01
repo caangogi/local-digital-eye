@@ -10,8 +10,8 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 
 const developmentPrinciples = [
   { 
-    title: "Lead Scoring Automatizado",
-    description: "Cada negocio añadido será analizado y puntuado automáticamente. Un 'Lead Score' alto (ej. 9/10) indicará un cliente con bajo rendimiento digital (pocas reseñas, sin web, mala puntuación) y, por tanto, alto potencial para nuestros servicios."
+    title: "Lead Scoring Manual y Filtros Potentes",
+    description: "Cada negocio añadido podrá ser puntuado y etiquetado por el equipo comercial. Un 'Lead Score' alto indicará un cliente con alto potencial. La clave es dar al comercial filtros potentes para segmentar su lista de prospectos."
   },
   { 
     title: "Panel de Oportunidades (Pipeline)",
@@ -19,7 +19,7 @@ const developmentPrinciples = [
   },
   {
     title: "Prospección Geográfica Inteligente",
-    description: "La búsqueda en mapa permitirá añadir prospectos en lote al pipeline, precualificados con su Lead Score inicial para optimizar la prospección en zonas geográficas específicas."
+    description: "La búsqueda en mapa permitirá añadir prospectos en lote al pipeline, listos para ser cualificados y gestionados por el equipo comercial en zonas geográficas específicas."
   },
   {
     title: "Flujo de Verificación GMB Correcto",
@@ -30,16 +30,15 @@ const developmentPrinciples = [
 const phases = [
   {
     phase: "Fase 1",
-    title: "Fundamentos del CRM y Lead Scoring",
-    description: "Establecer la base del sistema, enriqueciendo la entidad de negocio y creando la lógica de puntuación automática para cualificar los leads.",
+    title: "Fundamentos del CRM y Gestión de Leads",
+    description: "Establecer la base del sistema, enriqueciendo la entidad de negocio y creando las herramientas para que el equipo comercial pueda cualificar y gestionar los leads.",
     milestones: [
       {
-        title: "Hito 1.1: Evolución de la Entidad 'Business'",
+        title: "Hito 1.1: Evolución de la Entidad 'Business' para CRM",
         tasks: [
           { who: "bot", text: "Modificar la entidad `Business` en `business.entity.ts` para añadir los nuevos campos: `leadScore` (número), `salesStatus` (enum: 'new', 'contacted', 'follow_up', 'closed_won', 'closed_lost'), `customTags` (array de strings), `nextContactDate` (fecha) y `notes` (string largo)." },
-          { who: "bot", text: "Actualizar el `FirebaseBusinessRepository` para manejar los nuevos campos correctamente." },
-          { who: "bot", text: "Crear un nuevo flujo de Genkit `leadQualificationFlow` que reciba los datos de un negocio (rating, reviewCount, website) y devuelva un `leadScore` y unas `suggestedTags` ('sin-web', 'malas-reseñas')." },
-           { who: "bot", text: "Integrar la llamada a este flujo en el `ConnectBusinessUseCase` para que cada nuevo negocio se guarde con su puntuación inicial." },
+          { who: "bot", text: "Actualizar el `FirebaseBusinessRepository` para manejar los nuevos campos correctamente al guardar y leer datos." },
+          { who: "bot", text: "Ajustar el `ConnectBusinessUseCase` para que los nuevos negocios se creen con valores por defecto para los campos del CRM (ej. `salesStatus: 'new'`)." },
         ]
       },
       {
@@ -64,7 +63,7 @@ const phases = [
                 { who: "bot", text: "En la página `map-search/page.tsx`, implementar la búsqueda real por categoría de negocio en un área del mapa, manteniendo la búsqueda siempre dinámica." },
                 { who: "bot", text: "Mostrar los resultados como pines en el mapa y en una lista lateral, mostrando el nombre, rating y si tiene web." },
                 { who: "bot", text: "Permitir al comercial la selección múltiple (checkboxes) de los negocios en la lista." },
-                { who: "bot", text: "Crear un botón 'Añadir a Pipeline'. Al pulsarlo, se conectarán todos los negocios seleccionados, y se ejecutará el `leadQualificationFlow` para cada uno con el fin de enriquecerlos con una puntuación inicial, pero sin impedir que se añadan." },
+                { who: "bot", text: "Crear un botón 'Añadir a Pipeline'. Al pulsarlo, se conectarán todos los negocios seleccionados y se añadirán al CRM para que el comercial los gestione." },
             ]
         },
         {
