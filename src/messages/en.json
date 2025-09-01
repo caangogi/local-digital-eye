@@ -187,6 +187,7 @@
       "queryPlaceholder": "e.g., Electricians in New York",
       "searchButton": "Search",
       "resultTitle": "Prospecting List",
+      "prospectsFoundDescription": "These are the results from your searches. Filter and connect them to add to the pipeline.",
       "connectButton": "Connect",
       "notFound": "No businesses found for that query. Check for typos or try a more specific search.",
       "searchError": "An error occurred while searching. Please try again.",
@@ -195,7 +196,6 @@
       "connectSuccessDescription": "The business has been added to your pipeline.",
       "connectErrorTitle": "Connection Failed",
       "connectErrorDescription": "An unexpected error occurred. Please try again.",
-      "prospectsFoundDescription": "These are the results from your searches. Filter and connect them to add to the pipeline.",
       "clearListButton": "Clear List",
       "clearListSuccessToast": "Prospecting list has been cleared.",
       "newProspectsToast": "new prospects added to the list.",
@@ -213,3 +213,5 @@
     }
   }
 }
+
+    
