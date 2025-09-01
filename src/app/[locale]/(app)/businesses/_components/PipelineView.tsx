@@ -37,7 +37,12 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     closed_won: [],
     closed_lost: [],
   });
+  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const newBoardData: BoardData = { new: [], contacted: [], follow_up: [], closed_won: [], closed_lost: [] };
@@ -90,6 +95,10 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
         toast({ title: '¡Estado Actualizado!', description: `"${businessToMove.name}" movido a "${statusConfig[newStatus].label}".` });
     }
   };
+
+  if (!isClient) {
+    return null; // Don't render until the component is mounted on the client
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
