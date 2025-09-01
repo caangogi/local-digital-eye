@@ -177,25 +177,27 @@
       "actions": "Acciones"
     },
     "add": {
-      "title": "Conectar un Nuevo Negocio",
-      "subtitle": "Encuentra un negocio en Google para iniciar el análisis.",
-      "findTitle": "Encuentra tu negocio",
-      "findDescription": "Introduce el nombre oficial y la ubicación del negocio para encontrarlo en Google Maps.",
-      "nameLabel": "Nombre del Negocio",
-      "namePlaceholder": "Ej: El Café Acogedor",
-      "locationLabel": "Ubicación (opcional, para refinar)",
-      "locationPlaceholder": "Ej: Madrid, España",
-      "searchButton": "Buscar en Google",
-      "resultTitle": "Resultado de la Búsqueda",
-      "connectButton": "Conectar este Negocio",
-      "notFound": "No se encontró ningún negocio con ese nombre. Revisa si hay errores o intenta una búsqueda más específica.",
+      "title": "Añadir Nuevos Prospectos",
+      "subtitle": "Busca negocios en Google para añadirlos a tu lista de prospección.",
+      "findTitle": "Buscar Negocios",
+      "findDescription": "Introduce una consulta de búsqueda como 'Fontaneros en Madrid' o 'Talleres en Barcelona'.",
+      "nameLabel": "Consulta de Búsqueda",
+      "namePlaceholder": "Ej: Electricistas en Valencia",
+      "searchButton": "Buscar",
+      "resultTitle": "Lista de Prospectos",
+      "prospectListDescription": "Estos son los resultados de tus búsquedas. Conéctalos para añadirlos al pipeline.",
+      "connectButton": "Conectar",
+      "notFound": "No se encontró ningún negocio con esa consulta. Revisa si hay errores o intenta una búsqueda más específica.",
       "searchError": "Ocurrió un error durante la búsqueda. Por favor, inténtalo de nuevo.",
       "ratingLabel": "Valoración",
       "reviewsLabel": "reseñas",
       "connectSuccessTitle": "¡Negocio Conectado!",
-      "connectSuccessDescription": "El negocio ha sido vinculado a tu cuenta correctamente.",
+      "connectSuccessDescription": "El negocio ha sido añadido a tu pipeline.",
       "connectErrorTitle": "Fallo en la Conexión",
-      "connectErrorDescription": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
+      "connectErrorDescription": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.",
+      "ratingFilterLabel": "Filtro por Calificación",
+      "clearListButton": "Limpiar Lista"
     }
   }
 }
+
