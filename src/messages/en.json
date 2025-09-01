@@ -177,25 +177,27 @@
       "actions": "Actions"
     },
     "add": {
-      "title": "Connect a New Business",
-      "subtitle": "Find your business on Google to start the analysis.",
-      "findTitle": "Find your business",
-      "findDescription": "Enter the official name and location of your business to find it on Google Maps.",
-      "nameLabel": "Business Name",
-      "namePlaceholder": "e.g., The Cozy Cafe",
-      "locationLabel": "Location",
-      "locationPlaceholder": "e.g., New York, NY",
-      "searchButton": "Search on Google",
-      "resultTitle": "Search Result",
-      "connectButton": "Connect this Business",
-      "notFound": "No business found with that name and location. Please check for typos or try a more specific location.",
+      "title": "Add New Prospects",
+      "subtitle": "Search for businesses on Google to add to your prospecting list.",
+      "findTitle": "Search Businesses",
+      "findDescription": "Enter a search query like 'Plumbers in London' or 'Garages in Manchester'.",
+      "nameLabel": "Search Query",
+      "namePlaceholder": "e.g., Electricians in New York",
+      "searchButton": "Search",
+      "resultTitle": "Prospecting List",
+      "prospectListDescription": "These are the results from your searches. Connect them to add them to the pipeline.",
+      "connectButton": "Connect",
+      "notFound": "No businesses found for that query. Check for typos or try a more specific search.",
       "searchError": "An error occurred while searching. Please try again.",
       "ratingLabel": "Rating",
       "reviewsLabel": "reviews",
       "connectSuccessTitle": "Business Connected!",
-      "connectSuccessDescription": "The business has been successfully linked to your account.",
+      "connectSuccessDescription": "The business has been added to your pipeline.",
       "connectErrorTitle": "Connection Failed",
-      "connectErrorDescription": "An unexpected error occurred. Please try again."
+      "connectErrorDescription": "An unexpected error occurred. Please try again.",
+      "ratingFilterLabel": "Rating Filter",
+      "clearListButton": "Clear List"
     }
   }
 }
+
