@@ -80,14 +80,14 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
         </div>
       </div>
 
-      <div className="rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
+      <div className="rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t('table.name')}</TableHead>
+              <TableHead className="min-w-[200px]">{t('table.name')}</TableHead>
               <TableHead>Estado GMB</TableHead>
               <TableHead>Estado de Venta</TableHead>
-              <TableHead>{t('table.tags')}</TableHead>
+              <TableHead className="min-w-[150px]">{t('table.tags')}</TableHead>
               <TableHead className="text-right">{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
