@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable, type DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
