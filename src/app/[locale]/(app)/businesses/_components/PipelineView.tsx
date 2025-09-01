@@ -10,6 +10,7 @@ import { Star, Link as LinkIcon } from 'lucide-react';
 import { updateBusinessStatus } from '@/actions/business.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { BusinessDetailSheet } from './BusinessDetailSheet';
 
 interface PipelineViewProps {
   initialBusinesses: Business[];
@@ -37,6 +38,9 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     closed_won: [],
     closed_lost: [],
   });
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -95,7 +99,20 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     }
   };
 
+  const handleCardClick = (business: Business) => {
+    setSelectedBusiness(business);
+    setIsSheetOpen(true);
+  };
+
+  const handleSheetOpenChange = (open: boolean) => {
+    setIsSheetOpen(open);
+    if (!open) {
+        setSelectedBusiness(null);
+    }
+  };
+
   return (
+    <>
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {salesStatuses.map(status => (
@@ -123,9 +140,10 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             className={cn(
-                                "select-none",
+                                "select-none cursor-pointer",
                                 snapshot.isDragging ? "shadow-2xl scale-105" : "shadow-md"
                             )}
+                            onClick={() => handleCardClick(business)}
                         >
                             <Card className="bg-card hover:bg-card/80">
                                 <CardHeader className="p-3">
@@ -159,5 +177,14 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
         ))}
       </div>
     </DragDropContext>
+
+    {selectedBusiness && (
+        <BusinessDetailSheet
+            isOpen={isSheetOpen}
+            onOpenChange={handleSheetOpenChange}
+            business={selectedBusiness}
+        />
+    )}
+    </>
   );
 }

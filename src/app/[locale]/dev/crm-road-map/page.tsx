@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bot, UserCog, CheckCircle } from "lucide-react";
@@ -42,12 +43,12 @@ const phases = [
         ]
       },
       {
-        title: "Hito 1.2: Transformación de la Lista de Negocios en un Pipeline",
+        title: "Hito 1.2: Transformación de la Lista de Negocios en un Pipeline Visual",
         tasks: [
-           { who: "bot", text: "Rediseñar la tabla en la página `businesses/page.tsx` para mostrar las nuevas columnas: 'Lead Score', 'Estado de Venta', y 'Etiquetas'." },
-           { who: "bot", text: "Hacer que la columna 'Estado de Venta' sea un menú desplegable (Select) que permita al comercial cambiar el estado directamente desde la tabla." },
-           { who: "bot", text: "Implementar un Server Action `updateBusinessSalesData` que sea invocado al cambiar el estado para persistir los datos." },
-           { who: "bot", text: "Añadir filtros funcionales en la parte superior de la tabla para buscar por nombre, y filtrar por estado y etiquetas." },
+           { who: "bot", text: "Crear una vista de Pipeline (Kanban/Board) con columnas por estado de venta.", completed: true },
+           { who: "bot", text: "Implementar la funcionalidad de arrastrar y soltar (Drag and Drop) para mover negocios entre estados.", completed: true },
+           { who: "bot", text: "Añadir pestañas para cambiar entre la vista de Pipeline y la vista de Lista tradicional.", completed: true },
+           { who: "bot", text: "Añadir un campo de búsqueda funcional sobre la lista de negocios.", completed: true },
         ]
       },
     ]
@@ -69,9 +70,9 @@ const phases = [
         {
             title: "Hito 2.2: Vista Detallada del Prospecto (Panel CRM)",
             tasks: [
-                 { who: "bot", text: "Al hacer clic en un negocio de la tabla, en lugar de un menú, abrir un panel lateral (Sheet) o una página de detalle." },
-                 { who: "bot", text: "Este panel mostrará toda la información pública del negocio y los campos del CRM (Estado, Etiquetas, Notas, Próximo Contacto)." },
-                 { who: "bot", text: "Hacer que los campos del CRM sean editables y se guarden al modificarlos." },
+                 { who: "bot", text: "Al hacer clic en un negocio del Pipeline, abrir un panel lateral (Sheet).", completed: true },
+                 { who: "bot", text: "Este panel mostrará toda la información pública del negocio y los campos del CRM (Estado, Etiquetas, Notas, Próximo Contacto).", completed: true },
+                 { who: "bot", text: "Hacer que los campos del CRM sean editables y se guarden al modificarlos con un nuevo Server Action.", completed: true },
             ]
         }
     ]
