@@ -75,7 +75,7 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto flex-grow rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
+      <div className="flex-grow overflow-x-auto rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
         <Table>
           <TableHeader>
             <TableRow>
@@ -83,7 +83,7 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
               <TableHead>Estado GMB</TableHead>
               <TableHead>Estado de Venta</TableHead>
               <TableHead className="min-w-[150px]">{t('table.tags')}</TableHead>
-              <TableHead className="text-right">{t('table.actions')}</TableHead>
+              <TableHead className="text-right min-w-[100px]">{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
