@@ -125,6 +125,7 @@
     "dashboard": "Panel",
     "businesses": "Negocios",
     "reports": "Informes",
+    "mapSearch": "Búsqueda en Mapa",
     "aiServices": "Servicios IA",
     "settings": "Configuración",
     "logOut": "Cerrar Sesión"
@@ -163,16 +164,17 @@
     }
   },
   "BusinessesPage": {
-    "title": "Pipeline de Negocios",
-    "description": "Gestiona y revisa tus prospectos de venta.",
-    "addButton": "Añadir Nuevo Prospecto",
-    "searchPlaceholder": "Buscar por nombre o etiqueta...",
+    "title": "Negocios Analizados",
+    "description": "Gestiona y revisa tus negocios analizados.",
+    "addButton": "Añadir Nuevo Negocio",
+    "searchPlaceholder": "Buscar negocios...",
     "filterButton": "Filtrar",
     "sortButton": "Ordenar",
     "table": {
       "name": "Nombre",
-      "status": "Estado GMB",
-      "salesStatus": "Estado de Venta",
+      "status": "Estado",
+      "score": "Puntuación General",
+      "dateAdded": "Fecha de Alta",
       "tags": "Etiquetas",
       "actions": "Acciones"
     },
