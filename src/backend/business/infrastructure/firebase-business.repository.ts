@@ -26,6 +26,10 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     if (businessData.gmbTokenExpiryDate) {
       dataToSave.gmbTokenExpiryDate = Timestamp.fromDate(businessData.gmbTokenExpiryDate);
     }
+    if (businessData.nextContactDate) {
+        dataToSave.nextContactDate = Timestamp.fromDate(businessData.nextContactDate);
+    }
+
 
     await this.collection.doc(id).set(dataToSave, { merge: true });
     return validatedBusiness;
@@ -45,10 +49,14 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     const data = doc.data();
     
     // Convert Firestore Timestamp to JS Date after fetching
-    const rawData = { id: doc.id, ...data };
+    const rawData: any = { id: doc.id, ...data };
     if (data?.gmbTokenExpiryDate && data.gmbTokenExpiryDate instanceof Timestamp) {
         rawData.gmbTokenExpiryDate = data.gmbTokenExpiryDate.toDate();
     }
+    if (data?.nextContactDate && data.nextContactDate instanceof Timestamp) {
+        rawData.nextContactDate = data.nextContactDate.toDate();
+    }
+
 
     try {
       return BusinessSchema.parse(rawData);
@@ -71,9 +79,12 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     }
     return snapshot.docs.map(doc => {
         const data = doc.data();
-        const rawData = { id: doc.id, ...data };
+        const rawData: any = { id: doc.id, ...data };
         if (data?.gmbTokenExpiryDate && data.gmbTokenExpiryDate instanceof Timestamp) {
             rawData.gmbTokenExpiryDate = data.gmbTokenExpiryDate.toDate();
+        }
+        if (data?.nextContactDate && data.nextContactDate instanceof Timestamp) {
+            rawData.nextContactDate = data.nextContactDate.toDate();
         }
 
         try {

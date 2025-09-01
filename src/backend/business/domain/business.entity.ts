@@ -48,6 +48,13 @@ export const BusinessSchema = z.object({
   location: LocationSchema.nullable().optional(),
   photos: z.array(PhotoSchema).optional().default([]), // Default to empty array
   openingHours: OpeningHoursSchema.nullable().optional(),
+
+  // CRM Fields for Sales Pipeline
+  leadScore: z.number().min(0).max(10).optional().nullable().describe("A score from 0-10 indicating lead potential."),
+  salesStatus: z.enum(['new', 'contacted', 'follow_up', 'closed_won', 'closed_lost']).optional().default('new').describe("The current stage of the business in the sales pipeline."),
+  customTags: z.array(z.string()).optional().default([]).describe("Custom tags for filtering and organization."),
+  nextContactDate: z.date().optional().nullable().describe("Scheduled date for the next follow-up."),
+  notes: z.string().optional().nullable().describe("Internal notes from the sales team."),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
