@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, Sparkles, Building, LinkIcon } from 'lucide-react';
+import { Loader2, Sparkles, Building, LinkIcon, Star, Search } from 'lucide-react';
 import { extractGmbData, type GmbDataExtractionInput, type GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import { useToast } from "@/hooks/use-toast";
 import { connectBusiness } from '@/actions/business.actions';
@@ -16,8 +16,7 @@ import { useRouter } from '@/navigation';
 import { useTranslations } from 'next-intl';
 
 const addBusinessSchema = z.object({
-  businessName: z.string().min(3, { message: "Business name must be at least 3 characters." }),
-  location: z.string().min(3, { message: "Location is required to find the correct business." }),
+  query: z.string().min(3, { message: "La búsqueda debe tener al menos 3 caracteres." }),
 });
 
 type AddBusinessFormValues = z.infer<typeof addBusinessSchema>;
@@ -28,26 +27,26 @@ export default function AddBusinessPage() {
   const t = useTranslations('BusinessesPage');
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [searchResult, setSearchResult] = useState<GmbDataExtractionOutput | null>(null);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<GmbDataExtractionOutput[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<AddBusinessFormValues>({
     resolver: zodResolver(addBusinessSchema),
-    defaultValues: { businessName: "", location: "" },
+    defaultValues: { query: "" },
   });
 
   const handleSearchSubmit: SubmitHandler<AddBusinessFormValues> = async (data) => {
     setIsLoading(true);
-    setSearchResult(null);
+    setSearchResults(null);
     setError(null);
     try {
-      const result = await extractGmbData(data);
-       if (!result || !result.placeId) {
+      const results = await extractGmbData(data);
+       if (!results || results.length === 0) {
         setError(t('add.notFound'));
-        setSearchResult(null);
+        setSearchResults(null);
       } else {
-        setSearchResult(result);
+        setSearchResults(results);
       }
     } catch (err: any) {
       console.error("Error searching for business:", err);
@@ -57,20 +56,21 @@ export default function AddBusinessPage() {
     }
   };
 
-  const handleConnectBusiness = async () => {
-    if (!searchResult) return;
+  const handleConnectBusiness = async (businessData: GmbDataExtractionOutput) => {
+    if (!businessData.placeId) return;
     
-    setIsConnecting(true);
+    setConnectingId(businessData.placeId);
     try {
-        const response = await connectBusiness(searchResult);
+        const response = await connectBusiness(businessData);
         if (response.success) {
             toast({
                 title: t('add.connectSuccessTitle'),
-                description: t('add.connectSuccessDescription'),
+                description: `"${businessData.extractedName}" se ha añadido a tus negocios.`,
                 variant: 'default',
             });
-            router.push('/businesses');
-            router.refresh(); // Force a refresh to fetch new data on the server component
+            // Visually remove the connected business from the list
+            setSearchResults(prev => prev?.filter(b => b.placeId !== businessData.placeId) || null);
+            router.refresh(); 
         } else {
             toast({
                 title: t('add.connectErrorTitle'),
@@ -86,7 +86,7 @@ export default function AddBusinessPage() {
         });
         console.error("Error connecting business:", err);
     } finally {
-        setIsConnecting(false);
+        setConnectingId(null);
     }
   };
 
@@ -99,30 +99,19 @@ export default function AddBusinessPage() {
 
       <Card className="shadow-lg hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.15)] transition-all duration-300 max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center"><Building className="mr-2 h-5 w-5 text-primary" />{t('add.findTitle')}</CardTitle>
-          <CardDescription>{t('add.findDescription')}</CardDescription>
+          <CardTitle className="font-headline flex items-center"><Search className="mr-2 h-5 w-5 text-primary" />{t('add.findTitle')}</CardTitle>
+          <CardDescription>Busca por tipo y zona (ej: "fontaneros en Madrid") o por nombre específico.</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSearchSubmit)}>
-            <CardContent className="space-y-4">
+            <CardContent>
               <FormField
                 control={form.control}
-                name="businessName"
+                name="query"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('add.nameLabel')}</FormLabel>
-                    <FormControl><Input placeholder={t('add.namePlaceholder')} {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('add.locationLabel')}</FormLabel>
-                    <FormControl><Input placeholder={t('add.locationPlaceholder')} {...field} /></FormControl>
+                    <FormLabel>Términos de búsqueda</FormLabel>
+                    <FormControl><Input placeholder="ej: Electricistas en Inca, Mallorca" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -130,7 +119,7 @@ export default function AddBusinessPage() {
             </CardContent>
             <CardFooter>
               <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                 {t('add.searchButton')}
               </Button>
             </CardFooter>
@@ -138,33 +127,45 @@ export default function AddBusinessPage() {
         </Form>
       </Card>
       
-      {error && <p className="p-4 text-sm text-destructive bg-destructive/10 rounded-md m-4">{error}</p>}
+      {error && <p className="p-4 text-sm text-destructive bg-destructive/10 rounded-md m-4 text-center">{error}</p>}
       
-      {searchResult && (
-        <div className="p-4 border-t">
-          <h3 className="font-semibold text-lg mb-4 flex items-center">{t('add.resultTitle')}</h3>
-          <Card className="bg-muted/30">
-            <CardHeader>
-                <CardTitle>{searchResult.extractedName}</CardTitle>
-                <CardDescription>{searchResult.address}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground italic">
-                    "{searchResult.briefReviewSummary}"
-                </p>
-                <div className="flex justify-between items-center text-sm mt-4">
-                    <span className="font-semibold">{t('add.ratingLabel')}: {searchResult.rating || 'N/A'} ({searchResult.reviewCount || 0} {t('add.reviewsLabel')})</span>
-                    <span className="font-semibold capitalize">{searchResult.category?.replace(/_/g, ' ').toLowerCase() || 'Business'}</span>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button onClick={handleConnectBusiness} disabled={isConnecting} className="w-full">
-                    {isConnecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    <LinkIcon className="mr-2 h-4 w-4"/>
-                    {t('add.connectButton')}
-                </Button>
-            </CardFooter>
-          </Card>
+      {searchResults && (
+        <div className="border-t pt-8">
+          <h3 className="font-semibold text-lg mb-4 flex items-center">{t('add.resultTitle')} ({searchResults.length})</h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {searchResults.map(result => (
+              <Card key={result.placeId} className="bg-muted/30 flex flex-col">
+                <CardHeader>
+                    <CardTitle className="text-base">{result.extractedName}</CardTitle>
+                    <CardDescription className="text-xs">{result.address}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <div className="flex justify-between items-center text-xs mt-2 text-muted-foreground">
+                        <span className="font-semibold flex items-center gap-1"><Star className="w-3 h-3 text-yellow-500 fill-yellow-500"/> {result.rating || 'N/A'} ({result.reviewCount || 0})</span>
+                        <span className="font-semibold capitalize">{result.category?.replace(/_/g, ' ').toLowerCase() || 'Business'}</span>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button 
+                      onClick={() => handleConnectBusiness(result)} 
+                      disabled={connectingId === result.placeId} 
+                      className="w-full"
+                      size="sm"
+                    >
+                        {connectingId === result.placeId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4"/>}
+                        {t('add.connectButton')}
+                    </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="flex justify-center items-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="ml-4">Buscando negocios...</p>
         </div>
       )}
     </div>

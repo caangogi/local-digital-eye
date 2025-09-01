@@ -82,15 +82,13 @@ function normalizePlace(place: any): Place {
 
 
 /**
- * Searches for a place using Google Places API (New - searchText).
- * This should only be used for the initial search and preview.
+ * Searches for places using Google Places API (New - searchText).
  * @param textQuery The search query (e.g., "Restaurant in New York").
- * @returns A promise that resolves to the first Place object found, or null.
+ * @returns A promise that resolves to an array of Place objects, or null.
  */
-export async function searchGooglePlace(
-  businessName: string,
-  location: string
-): Promise<Place | null> {
+export async function searchGooglePlaces(
+  query: string
+): Promise<Place[] | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY is not set.");
@@ -102,7 +100,7 @@ export async function searchGooglePlace(
   const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types";
 
   const requestBody = {
-    textQuery: `${businessName} in ${location}`,
+    textQuery: query,
     languageCode: "es", 
   };
 
@@ -133,9 +131,9 @@ export async function searchGooglePlace(
       return null;
     }
     
-    const firstPlace = validatedData.data.places[0];
-    console.log(`[GoogleMapsService] Found placeId: ${firstPlace.id}.`);
-    return normalizePlace(firstPlace);
+    const places = validatedData.data.places;
+    console.log(`[GoogleMapsService] Found ${places.length} places.`);
+    return places.map(normalizePlace);
 
   } catch (error: any) {
     console.error("[GoogleMapsService] Critical error during searchGooglePlace:", error.message);
