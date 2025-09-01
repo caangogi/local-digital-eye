@@ -37,12 +37,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     closed_won: [],
     closed_lost: [],
   });
-  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     const newBoardData: BoardData = { new: [], contacted: [], follow_up: [], closed_won: [], closed_lost: [] };
@@ -61,8 +56,11 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     if (!destination) return;
     if (source.droppableId === destination.droppableId) return;
 
-    const startColumn = boardData[source.droppableId as SalesStatus];
-    const endColumn = boardData[destination.droppableId as SalesStatus];
+    const startColumnKey = source.droppableId as SalesStatus;
+    const endColumnKey = destination.droppableId as SalesStatus;
+
+    const startColumn = boardData[startColumnKey];
+    const endColumn = boardData[endColumnKey];
     const businessToMove = startColumn.find(b => b.id === draggableId);
 
     if (!businessToMove) return;
@@ -70,13 +68,14 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     // Optimistic UI Update
     const newStartColumn = Array.from(startColumn);
     newStartColumn.splice(source.index, 1);
+    
     const newEndColumn = Array.from(endColumn);
     newEndColumn.splice(destination.index, 0, businessToMove);
     
     setBoardData(prevData => ({
       ...prevData,
-      [source.droppableId]: newStartColumn,
-      [destination.droppableId]: newEndColumn,
+      [startColumnKey]: newStartColumn,
+      [endColumnKey]: newEndColumn,
     }));
     
     // Server Action
@@ -86,19 +85,15 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     if (!response.success) {
       toast({ title: 'Error', description: response.message, variant: 'destructive' });
       // Revert UI on failure
-      setBoardData(prevData => ({
+       setBoardData(prevData => ({
         ...prevData,
-        [source.droppableId]: startColumn,
-        [destination.droppableId]: endColumn,
+        [startColumnKey]: startColumn,
+        [endColumnKey]: endColumn,
       }));
     } else {
         toast({ title: '¡Estado Actualizado!', description: `"${businessToMove.name}" movido a "${statusConfig[newStatus].label}".` });
     }
   };
-
-  if (!isClient) {
-    return null; // Don't render until the component is mounted on the client
-  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
