@@ -61,6 +61,10 @@ export const pathnames = {
   '/negocio/[businessId]': {
     en: '/business/[businessId]',
     es: '/negocio/[businessId]'
+  },
+  '/dev/crm-road-map': {
+    en: '/dev/crm-road-map',
+    es: '/dev/crm-hoja-de-ruta'
   }
 } satisfies Pathnames<typeof locales>;
 
