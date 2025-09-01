@@ -89,9 +89,9 @@ function normalizePlace(place: any): Place {
 export async function searchGooglePlaces(
   query: string
 ): Promise<Place[] | null> {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
-    console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY is not set.");
+    console.error("[GoogleMapsService] CRITICAL: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set.");
     throw new Error("Server configuration error: Google API Key is missing.");
   }
 
@@ -148,9 +148,9 @@ export async function searchGooglePlaces(
  * @returns A promise that resolves to a detailed Place object, or null.
  */
 export async function getGooglePlaceDetails(placeId: string): Promise<Place | null> {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      console.error("[GoogleMapsService] CRITICAL: GOOGLE_MAPS_API_KEY is not set.");
+      console.error("[GoogleMapsService] CRITICAL: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set.");
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
