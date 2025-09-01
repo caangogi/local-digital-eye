@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -122,7 +123,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                        "bg-muted/40 rounded-lg p-3 flex flex-col min-h-[calc(100vh-20rem)] w-full min-w-[280px]",
+                        "bg-muted/40 rounded-lg p-3 flex flex-col min-h-[calc(100vh-20rem)] w-full min-w-[280px] sm:min-w-[300px]",
                         snapshot.isDraggingOver ? "bg-accent/20" : ""
                     )}
                 >
