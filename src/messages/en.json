@@ -125,6 +125,7 @@
     "dashboard": "Dashboard",
     "businesses": "Businesses",
     "reports": "Reports",
+    "mapSearch": "Map Search",
     "aiServices": "AI Services",
     "settings": "Settings",
     "logOut": "Log Out"
@@ -163,16 +164,17 @@
     }
   },
   "BusinessesPage": {
-    "title": "Businesses Pipeline",
-    "description": "Manage and review your sales prospects.",
-    "addButton": "Add New Prospect",
-    "searchPlaceholder": "Search by name or tag...",
+    "title": "Analyzed Businesses",
+    "description": "Manage and review your analyzed businesses.",
+    "addButton": "Add New Business",
+    "searchPlaceholder": "Search businesses...",
     "filterButton": "Filter",
     "sortButton": "Sort",
     "table": {
       "name": "Name",
-      "status": "GMB Status",
-      "salesStatus": "Sales Status",
+      "status": "Status",
+      "score": "Overall Score",
+      "dateAdded": "Date Added",
       "tags": "Tags",
       "actions": "Actions"
     },
