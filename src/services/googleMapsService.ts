@@ -97,7 +97,8 @@ export async function searchGooglePlaces(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types";
+  // Corrected fieldMask to include location
+  const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location";
 
   const requestBody = {
     textQuery: query,

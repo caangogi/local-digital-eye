@@ -13,11 +13,12 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, Link as LinkIcon, Star } from 'lucide-react';
+import { Loader2, Search, Link as LinkIcon, Star, MapPin } from 'lucide-react';
 import { extractGmbData } from '@/ai/flows/gmb-data-extraction-flow';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import { useToast } from '@/hooks/use-toast';
 import { connectBusiness } from '@/actions/business.actions';
+import { useRouter } from '@/navigation';
 
 interface MapSearchComponentProps {
   apiKey: string;
@@ -34,12 +35,12 @@ export function MapSearchComponent({ apiKey }: MapSearchComponentProps) {
 function MapSearchContent() {
   const map = useMap();
   const placesLibrary = useMapsLibrary('places');
-  const [sessionToken, setSessionToken] = useState<google.maps.places.AutocompleteSessionToken>();
   const [places, setPlaces] = useState<GmbDataExtractionOutput[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<GmbDataExtractionOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const defaultPosition = useMemo(() => ({ lat: 40.416775, lng: -3.703790 }), []); // Default to Madrid
 
@@ -57,11 +58,11 @@ function MapSearchContent() {
         }
       } else {
         setPlaces([]);
-        toast({ title: "No Results", description: "No businesses found for your search query."});
+        toast({ title: "Sin resultados", description: "No se encontraron negocios para tu búsqueda."});
       }
     } catch (e: any) {
         console.error('Search failed', e);
-        toast({ title: "Search Error", description: e.message, variant: "destructive"});
+        toast({ title: "Error en la búsqueda", description: e.message, variant: "destructive"});
     }
     setLoading(false);
   };
@@ -74,24 +75,25 @@ function MapSearchContent() {
         const response = await connectBusiness(businessData);
         if (response.success) {
             toast({
-                title: "Business Connected!",
-                description: `"${businessData.extractedName}" has been added to your businesses.`,
+                title: "¡Negocio Conectado!",
+                description: `"${businessData.extractedName}" se ha añadido a tu pipeline.`,
                 variant: 'default',
             });
-            // Optionally remove from list after connecting
+            // Visually remove from list after connecting
             setPlaces(prev => prev.filter(p => p.placeId !== businessData.placeId));
             setSelectedPlace(null);
+            router.refresh(); // Refresh the businesses page data in the background
         } else {
             toast({
-                title: "Connection Failed",
+                title: "Fallo en la Conexión",
                 description: response.message,
                 variant: 'destructive',
             });
         }
     } catch (err) {
         toast({
-            title: "Connection Error",
-            description: "An unexpected error occurred.",
+            title: "Error de Conexión",
+            description: "Ocurrió un error inesperado.",
             variant: 'destructive',
         });
     } finally {
@@ -104,12 +106,12 @@ function MapSearchContent() {
         {/* Left Panel: Search and Results */}
         <Card className="md:col-span-1 flex flex-col shadow-md h-full">
             <CardHeader>
-                <CardTitle className="font-headline">Prospect Search</CardTitle>
-                <CardDescription>Find businesses by category and location.</CardDescription>
+                <CardTitle className="font-headline flex items-center gap-2"><MapPin/> Búsqueda de Prospectos</CardTitle>
+                <CardDescription>Busca negocios por categoría y ubicación para añadirlos a tu pipeline de ventas.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col gap-4">
                 <form onSubmit={(e) => { e.preventDefault(); handleSearch(e.currentTarget.searchQuery.value); }} className="flex gap-2">
-                    <Input name="searchQuery" placeholder="e.g., Fontaneros en Madrid" disabled={loading} />
+                    <Input name="searchQuery" placeholder="ej: Fontaneros en Madrid" disabled={loading} />
                     <Button type="submit" disabled={loading}>
                         {loading ? <Loader2 className="animate-spin" /> : <Search />}
                     </Button>
@@ -147,6 +149,7 @@ function MapSearchContent() {
                     defaultZoom={12}
                     mapId="localDigitalEyeMap"
                     className="rounded-lg h-full w-full"
+                    gestureHandling="cooperative"
                 >
                     {places.map(place => place.location && (
                         <AdvancedMarker 
@@ -174,7 +177,7 @@ function MapSearchContent() {
                                     disabled={connectingId === selectedPlace.placeId}
                                 >
                                     {connectingId === selectedPlace.placeId ? <Loader2 className="animate-spin"/> : <LinkIcon />}
-                                    Connect Business
+                                    Añadir al Pipeline
                                 </Button>
                             </Card>
                         </div>

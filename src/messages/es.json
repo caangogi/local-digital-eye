@@ -164,9 +164,9 @@
     }
   },
   "BusinessesPage": {
-    "title": "Negocios Analizados",
-    "description": "Gestiona y revisa tus negocios analizados.",
-    "addButton": "Añadir Nuevo Negocio",
+    "title": "Pipeline de Negocios",
+    "description": "Gestiona y revisa tus prospectos de venta.",
+    "addButton": "Añadir Nuevo Prospecto",
     "searchPlaceholder": "Buscar negocios...",
     "filterButton": "Filtrar",
     "sortButton": "Ordenar",
@@ -177,27 +177,6 @@
       "dateAdded": "Fecha de Alta",
       "tags": "Etiquetas",
       "actions": "Acciones"
-    },
-    "add": {
-      "title": "Añadir Nuevos Negocios",
-      "subtitle": "Encuentra negocios en Google para iniciar el análisis.",
-      "findTitle": "Búsqueda de Prospectos",
-      "findDescription": "Introduce un término de búsqueda como 'fontaneros en Madrid' o el nombre de un negocio específico.",
-      "nameLabel": "Nombre del Negocio",
-      "namePlaceholder": "Ej: El Café Acogedor",
-      "locationLabel": "Ubicación",
-      "locationPlaceholder": "Ej: Madrid, España",
-      "searchButton": "Buscar en Google",
-      "resultTitle": "Resultados de la Búsqueda",
-      "connectButton": "Conectar este Negocio",
-      "notFound": "No se encontraron negocios que coincidan con tu búsqueda. Prueba con otros términos.",
-      "searchError": "Ocurrió un error durante la búsqueda. Por favor, inténtalo de nuevo.",
-      "ratingLabel": "Valoración",
-      "reviewsLabel": "reseñas",
-      "connectSuccessTitle": "¡Negocio Conectado!",
-      "connectSuccessDescription": "El negocio ha sido vinculado a tu cuenta correctamente.",
-      "connectErrorTitle": "Fallo en la Conexión",
-      "connectErrorDescription": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
     }
   }
 }

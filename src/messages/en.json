@@ -164,9 +164,9 @@
     }
   },
   "BusinessesPage": {
-    "title": "Analyzed Businesses",
-    "description": "Manage and review your analyzed businesses.",
-    "addButton": "Add New Business",
+    "title": "Businesses Pipeline",
+    "description": "Manage and review your sales prospects.",
+    "addButton": "Add New Prospect",
     "searchPlaceholder": "Search businesses...",
     "filterButton": "Filter",
     "sortButton": "Sort",
@@ -177,27 +177,6 @@
       "dateAdded": "Date Added",
       "tags": "Tags",
       "actions": "Actions"
-    },
-    "add": {
-      "title": "Add New Businesses",
-      "subtitle": "Find businesses on Google to start the analysis.",
-      "findTitle": "Prospect Search",
-      "findDescription": "Enter a search term like 'plumbers in London' or a specific business name.",
-      "nameLabel": "Business Name",
-      "namePlaceholder": "e.g., The Cozy Cafe",
-      "locationLabel": "Location",
-      "locationPlaceholder": "e.g., New York, NY",
-      "searchButton": "Search on Google",
-      "resultTitle": "Search Results",
-      "connectButton": "Connect this Business",
-      "notFound": "No businesses found matching your search. Please try different terms.",
-      "searchError": "An error occurred while searching. Please try again.",
-      "ratingLabel": "Rating",
-      "reviewsLabel": "reviews",
-      "connectSuccessTitle": "Business Connected!",
-      "connectSuccessDescription": "The business has been successfully linked to your account.",
-      "connectErrorTitle": "Connection Failed",
-      "connectErrorDescription": "An unexpected error occurred. Please try again."
     }
   }
 }

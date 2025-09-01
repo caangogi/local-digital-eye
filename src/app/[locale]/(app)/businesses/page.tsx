@@ -8,7 +8,7 @@ import { listUserBusinesses } from "@/actions/business.actions";
 import { ToastHandler } from "./_components/ToastHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusinessList } from './_components/BusinessList';
-import { PipelineLoader } from './_components/PipelineLoader'; // Import the new loader component
+import { PipelineLoader } from './_components/PipelineLoader';
 
 // This is a SERVER COMPONENT
 export default async function BusinessesPage() {
@@ -30,7 +30,7 @@ export default async function BusinessesPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        <Link href="/businesses/add">
+        <Link href="/map-search">
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <PlusCircle className="mr-2 h-4 w-4" /> {t('addButton')}
           </Button>
@@ -44,7 +44,6 @@ export default async function BusinessesPage() {
         </TabsList>
         
         <TabsContent value="pipeline" className="mt-4">
-            {/* Use the new loader component */}
             <PipelineLoader initialBusinesses={businesses} />
         </TabsContent>
         <TabsContent value="list" className="mt-4">
