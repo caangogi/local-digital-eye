@@ -114,7 +114,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
   return (
     <>
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="flex gap-4 overflow-x-auto pb-4">
         {salesStatuses.map(status => (
           <Droppable key={status} droppableId={status}>
             {(provided, snapshot) => (
@@ -122,7 +122,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 className={cn(
-                    "bg-muted/40 rounded-lg p-3 flex flex-col min-h-[calc(100vh-20rem)]",
+                    "bg-muted/40 rounded-lg p-3 flex flex-col min-h-[calc(100vh-20rem)] w-full min-w-[280px]",
                     snapshot.isDraggingOver ? "bg-accent/20" : ""
                 )}
               >
