@@ -18,6 +18,7 @@ import { useRouter } from '@/navigation';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 const searchSchema = z.object({
   query: z.string().min(3, { message: "La consulta debe tener al menos 3 caracteres." }),
@@ -227,4 +228,3 @@ export default function AddBusinessPage() {
     </div>
   );
 }
-
