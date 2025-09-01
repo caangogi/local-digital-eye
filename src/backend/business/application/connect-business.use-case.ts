@@ -77,6 +77,7 @@ export class ConnectBusinessUseCase {
       customTags: [],
       nextContactDate: null,
       notes: null,
+      gmbStatus: 'unlinked',
     };
 
     // Save the business to our database
