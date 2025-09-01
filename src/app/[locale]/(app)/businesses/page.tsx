@@ -12,12 +12,17 @@ import type { Business } from '@/backend/business/domain/business.entity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusinessList } from './_components/BusinessList';
 import { PipelineView } from './_components/PipelineView';
+import { resetServerContext } from 'react-beautiful-dnd';
+
 
 export default function BusinessesPage() {
   const t = useTranslations('BusinessesPage');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // This is crucial for react-beautiful-dnd in Next.js
+  resetServerContext();
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 
   useEffect(() => {
