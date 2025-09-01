@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -11,6 +12,7 @@ import { ConnectBusinessUseCase } from '@/backend/business/application/connect-b
 import { ListUserBusinessesUseCase } from '@/backend/business/application/list-user-businesses.use-case';
 import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
 import { UpdateBusinessStatusUseCase } from '@/backend/business/application/update-business-status.use-case';
+import { UpdateBusinessDetailsUseCase } from '@/backend/business/application/update-business-details.use-case';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
 import { revalidatePath } from 'next/cache';
@@ -20,6 +22,7 @@ const connectBusinessUseCase = new ConnectBusinessUseCase(businessRepository);
 const listUserBusinessesUseCase = new ListUserBusinessesUseCase(businessRepository);
 const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
 const updateBusinessStatusUseCase = new UpdateBusinessStatusUseCase(businessRepository);
+const updateBusinessDetailsUseCase = new UpdateBusinessDetailsUseCase(businessRepository);
 
 
 /**
@@ -146,4 +149,35 @@ export async function updateBusinessStatus(businessId: string, newStatus: SalesS
     console.error('Error updating business status:', error);
     return { success: false, message: error.message || 'An unexpected error occurred.' };
   }
+}
+
+/**
+ * Updates the editable CRM details of a business.
+ * @param businessId The ID of the business to update.
+ * @param detailsToUpdate The details to be updated.
+ * @returns An object indicating success or failure.
+ */
+export async function updateBusinessCrmDetails(businessId: string, detailsToUpdate: Partial<Business>): Promise<{ success: boolean; message: string }> {
+    try {
+        const sessionCookie = cookies().get('session')?.value;
+        if (!sessionCookie) {
+            return { success: false, message: 'Authentication required.' };
+        }
+        const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+        const userId = decodedToken.uid;
+        
+        await updateBusinessDetailsUseCase.execute({
+            businessId,
+            userId,
+            details: detailsToUpdate,
+        });
+        
+        revalidatePath('/businesses');
+
+        return { success: true, message: 'Business details updated successfully.' };
+
+    } catch (error: any) {
+        console.error('Error updating business details:', error);
+        return { success: false, message: error.message || 'An unexpected error occurred.' };
+    }
 }
