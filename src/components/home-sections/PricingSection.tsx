@@ -34,35 +34,35 @@ export function PricingSection() {
         {
             name: t('esencial.title'),
             isRecommended: false,
-            setupPrice: { new: t('esencial.setupPrice') },
-            monthlyPrice: { new: t('esencial.monthlyPrice') },
+            setupPrice: { new: t('prices.esencial.setup') },
+            monthlyPrice: { new: t('prices.esencial.monthly') },
         },
         {
             name: t('profesional.title'),
             isRecommended: true,
             setupPrice: {
-                old: t('profesional.setupPriceOld'),
-                new: t('profesional.setupPriceNew'),
-                saving: t('profesional.setupPriceSaving'),
+                old: t('prices.profesional.setupOld'),
+                new: t('prices.profesional.setupNew'),
+                saving: t('prices.profesional.setupSaving'),
             },
             monthlyPrice: {
-                old: t('profesional.monthlyPriceOld'),
-                new: t('profesional.monthlyPriceNew'),
-                saving: t('profesional.monthlyPriceSaving'),
+                old: t('prices.profesional.monthlyOld'),
+                new: t('prices.profesional.monthlyNew'),
+                saving: t('prices.profesional.monthlySaving'),
             },
         },
         {
             name: t('premium.title'),
             isRecommended: false,
             setupPrice: {
-                old: t('premium.setupPriceOld'),
-                new: t('premium.setupPriceNew'),
-                saving: t('premium.setupPriceSaving'),
+                old: t('prices.premium.setupOld'),
+                new: t('prices.premium.setupNew'),
+                saving: t('prices.premium.setupSaving'),
             },
             monthlyPrice: {
-                old: t('premium.monthlyPriceOld'),
-                new: t('premium.monthlyPriceNew'),
-                saving: t('premium.monthlyPriceSaving'),
+                old: t('prices.premium.monthlyOld'),
+                new: t('prices.premium.monthlyNew'),
+                saving: t('prices.premium.monthlySaving'),
             },
         }
     ];
@@ -75,7 +75,7 @@ export function PricingSection() {
                     <br />
                     <b>{price.new}</b>
                     <br />
-                    <span>{price.saving}</span>
+                    <span className="text-green-600 font-semibold">{price.saving}</span>
                 </>
             );
         }
@@ -116,7 +116,7 @@ export function PricingSection() {
                         <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
                             <div>{t('setupHeader')}</div>
                             {plans.map((plan, index) => (
-                                <div key={index} className="text-center">
+                                <div key={index} className="text-center text-sm leading-tight">
                                     <PriceDisplay price={plan.setupPrice} />
                                 </div>
                             ))}
@@ -125,7 +125,7 @@ export function PricingSection() {
                         <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
                             <div>{t('monthlyHeader')}</div>
                              {plans.map((plan, index) => (
-                                <div key={index} className="text-center">
+                                <div key={index} className="text-center text-sm leading-tight">
                                     <PriceDisplay price={plan.monthlyPrice} />
                                 </div>
                             ))}
