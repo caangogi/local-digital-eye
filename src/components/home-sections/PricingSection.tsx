@@ -85,16 +85,16 @@ export function PricingSection() {
                         
                         <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
                             <div>{t('setupHeader')}</div>
-                            {plans.map((plan, index) => (
-                                <div key={index} className="text-center" dangerouslySetInnerHTML={{ __html: plan.setupPrice }}/>
-                            ))}
+                            <div className="text-center">{plans[0].setupPrice}</div>
+                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[1].setupPrice as string }} />
+                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[2].setupPrice as string }} />
                         </div>
                         
                         <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
                             <div>{t('monthlyHeader')}</div>
-                            {plans.map((plan, index) => (
-                                <div key={index} className="text-center" dangerouslySetInnerHTML={{ __html: plan.monthlyPrice }}/>
-                            ))}
+                            <div className="text-center">{plans[0].monthlyPrice}</div>
+                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[1].monthlyPrice as string }} />
+                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[2].monthlyPrice as string }} />
                         </div>
                         
                         <div className="grid grid-cols-4 gap-4 items-center pt-6">
