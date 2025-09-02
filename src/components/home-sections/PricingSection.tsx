@@ -3,33 +3,53 @@
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function PricingSection() {
-    const t = useTranslations('LandingPage.pricing');
+    const t = useTranslations('LandingPage.plans');
+
+    const features = [
+        {
+            name: t('features.gmb'),
+            esencial: true,
+            profesional: true,
+            premium: true
+        },
+        {
+            name: t('features.reputation'),
+            esencial: false,
+            profesional: true,
+            premium: true
+        },
+        {
+            name: t('features.microsite'),
+            esencial: false,
+            profesional: false,
+            premium: true
+        }
+    ];
 
     const plans = [
         {
-            title: t('setup.title'),
-            price: t('setup.price'),
-            period: t('setup.period'),
-            description: t('setup.description'),
-            isFeatured: false,
+            name: t('esencial.title'),
+            isRecommended: false,
+            setupPrice: t('esencial.setupPrice'),
+            monthlyPrice: t('esencial.monthlyPrice'),
         },
         {
-            title: t('management.title'),
-            price: t('management.price'),
-            period: t('management.period'),
-            description: t('management.description'),
-            isFeatured: true,
+            name: t('profesional.title'),
+            isRecommended: true,
+            setupPrice: t.markup('profesional.setupPrice'),
+            monthlyPrice: t.markup('profesional.monthlyPrice'),
         },
         {
-            title: t('ads.title'),
-            price: t('ads.price'),
-            period: t('ads.period'),
-            description: t('ads.description'),
-            isFeatured: false,
-        },
+            name: t('premium.title'),
+            isRecommended: false,
+            setupPrice: t.markup('premium.setupPrice'),
+            monthlyPrice: t.markup('premium.monthlyPrice'),
+        }
     ];
 
     return (
@@ -41,22 +61,53 @@ export function PricingSection() {
                         {t('subtitle')}
                     </p>
                 </div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-                    {plans.map((plan, index) => (
-                        <Card key={index} className={`flex flex-col shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl ${plan.isFeatured ? 'border-2 border-primary scale-105 bg-accent/5' : 'bg-card'}`}>
-                            <CardHeader className="p-6">
-                                <CardTitle className="text-xl font-bold">{plan.title}</CardTitle>
-                                <div className="flex items-baseline gap-2 mt-4">
-                                     <span className="text-4xl font-extrabold tracking-tight">{plan.price}</span>
-                                     <span className="text-muted-foreground">{plan.period}</span>
+                
+                <div className="overflow-x-auto">
+                    <div className="min-w-max">
+                        <div className="grid grid-cols-4 gap-4 items-end pb-4 border-b">
+                            <div className="text-lg font-semibold">{t('featureHeader')}</div>
+                            {plans.map((plan, index) => (
+                                <div key={index} className="text-center font-semibold p-2 rounded-lg">
+                                    <h3 className="text-lg">{plan.name}</h3>
+                                    {plan.isRecommended && <Badge variant="default" className="mt-1 bg-accent hover:bg-accent/90">{t('recommended')}</Badge>}
                                 </div>
-                            </CardHeader>
-                            <CardContent className="flex-grow p-6 pt-0">
-                                <p className="text-muted-foreground">{plan.description}</p>
-                            </CardContent>
-                        </Card>
-                    ))}
+                            ))}
+                        </div>
+
+                        {features.map((feature, fIndex) => (
+                            <div key={fIndex} className="grid grid-cols-4 gap-4 items-center py-4 border-b">
+                                <div>{feature.name}</div>
+                                <div className="text-center">{feature.esencial ? <Check className="h-6 w-6 text-green-500 mx-auto"/> : <X className="h-6 w-6 text-muted-foreground mx-auto"/>}</div>
+                                <div className="text-center">{feature.profesional ? <Check className="h-6 w-6 text-green-500 mx-auto"/> : <X className="h-6 w-6 text-muted-foreground mx-auto"/>}</div>
+                                <div className="text-center">{feature.premium ? <Check className="h-6 w-6 text-green-500 mx-auto"/> : <X className="h-6 w-6 text-muted-foreground mx-auto"/>}</div>
+                            </div>
+                        ))}
+                        
+                        <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
+                            <div>{t('setupHeader')}</div>
+                            {plans.map((plan, index) => (
+                                <div key={index} className="text-center" dangerouslySetInnerHTML={{ __html: plan.setupPrice }}/>
+                            ))}
+                        </div>
+                        
+                        <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
+                            <div>{t('monthlyHeader')}</div>
+                            {plans.map((plan, index) => (
+                                <div key={index} className="text-center" dangerouslySetInnerHTML={{ __html: plan.monthlyPrice }}/>
+                            ))}
+                        </div>
+                        
+                        <div className="grid grid-cols-4 gap-4 items-center pt-6">
+                            <div></div>
+                            {plans.map((plan, index) => (
+                                <div key={index} className="text-center">
+                                    <Button className="w-full max-w-xs mx-auto">{t('ctaButton')}</Button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </section>
     );
