@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
   
   // The base URL of your application, needed for the final redirect.
-  const baseUrl = request.nextUrl.origin;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
 
   // Handle cases where the user denied access or an error occurred.
   if (error || !code || !state) {

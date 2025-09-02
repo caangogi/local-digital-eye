@@ -13,7 +13,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth.tsx";
-import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye } from "lucide-react";
+import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye, Map } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 
@@ -28,6 +28,7 @@ export function AppSidebar() {
   const navItems = [
     { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
     { href: "/businesses", label: t('businesses'), icon: <Briefcase /> },
+    { href: "/map-search", label: t('mapSearch'), icon: <Map /> },
     { href: "/reports", label: t('reports'), icon: <FileText /> },
     { href: "/service-recommendations", label: t('aiServices'), icon: <Search /> },
   ];
