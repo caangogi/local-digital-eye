@@ -1,3 +1,4 @@
+
 {
   "Home": {
     "title": "Local Digital Eye",
@@ -101,13 +102,13 @@
       },
       "profesional": {
         "title": "Plan Profesional",
-        "setupPrice": "<s>328 €</s><br><b>279 €</b><br>(Ahorra 15%)",
-        "monthlyPrice": "<s>184 €/mes</s><br><b>159 €/mes</b><br>(Ahorra 14%)"
+        "setupPrice": "<s>328 €</s><br/><b>279 €</b><br/>(Ahorra 15%)",
+        "monthlyPrice": "<s>184 €/mes</s><br/><b>159 €/mes</b><br/>(Ahorra 14%)"
       },
       "premium": {
         "title": "Plan Premium",
-        "setupPrice": "<s>585 €</s><br><b>469 €</b><br>(Ahorra 20%)",
-        "monthlyPrice": "<s>283 €/mes</s><br><b>225 €/mes</b><br>(Ahorra 21%)"
+        "setupPrice": "<s>585 €</s><br/><b>469 €</b><br/>(Ahorra 20%)",
+        "monthlyPrice": "<s>283 €/mes</s><br/><b>225 €/mes</b><br/>(Ahorra 21%)"
       }
     },
     "promotions": {
