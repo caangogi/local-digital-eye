@@ -17,7 +17,7 @@ export function PillarsSection() {
         {
             icon: <TrendingUp className="h-10 w-10 text-blue-600" />,
             title: t('gmb.title'),
-            headerColor: "bg-blue-50 dark:bg-blue-900/20",
+            headerColor: "bg-blue-100 dark:bg-blue-900/30",
             setupPrice: t('gmb.setupPrice'),
             monthlyPrice: t('gmb.monthlyPrice'),
             setupFeatures: [
@@ -37,7 +37,7 @@ export function PillarsSection() {
         {
             icon: <ShieldCheck className="h-10 w-10 text-green-600" />,
             title: t('reputation.title'),
-            headerColor: "bg-green-50 dark:bg-green-900/20",
+            headerColor: "bg-green-100 dark:bg-green-900/30",
             setupPrice: t('reputation.setupPrice'),
             monthlyPrice: t('reputation.monthlyPrice'),
             setupFeatures: [
@@ -54,7 +54,7 @@ export function PillarsSection() {
         {
             icon: <Rocket className="h-10 w-10 text-amber-600" />,
             title: t('microsite.title'),
-            headerColor: "bg-amber-50 dark:bg-amber-900/20",
+            headerColor: "bg-amber-100 dark:bg-amber-900/30",
             setupPrice: t('microsite.setupPrice'),
             monthlyPrice: t('microsite.monthlyPrice'),
             setupFeatures: [
