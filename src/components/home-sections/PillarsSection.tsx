@@ -2,15 +2,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Check, Rocket, CalendarDays, TrendingUp, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 export function PillarsSection() {
     const t = useTranslations('Home.detailedServices');
 
     const services = [
         {
+            icon: <TrendingUp className="h-10 w-10 text-primary" />,
             title: t('gmb.title'),
             setupPrice: t('gmb.setupPrice'),
             monthlyPrice: t('gmb.monthlyPrice'),
@@ -29,6 +32,7 @@ export function PillarsSection() {
             ]
         },
         {
+            icon: <ShieldCheck className="h-10 w-10 text-primary" />,
             title: t('reputation.title'),
             setupPrice: t('reputation.setupPrice'),
             monthlyPrice: t('reputation.monthlyPrice'),
@@ -44,6 +48,7 @@ export function PillarsSection() {
             ]
         },
         {
+            icon: <Rocket className="h-10 w-10 text-primary" />,
             title: t('microsite.title'),
             setupPrice: t('microsite.setupPrice'),
             monthlyPrice: t('microsite.monthlyPrice'),
@@ -70,20 +75,25 @@ export function PillarsSection() {
                         {t('subtitle')}
                     </p>
                 </div>
-                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                     {services.map((service, index) => (
-                        <Card key={index} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl hover:border-primary/50 border border-transparent transition-all duration-300 rounded-xl p-4 h-full flex flex-col">
-                            <CardHeader className="p-2">
-                                <CardTitle className="text-xl font-semibold mb-2">{service.title}</CardTitle>
-                                <div className="flex gap-4">
-                                     <Badge variant="outline">{t('setupLabel')}: <span className="font-bold ml-1">{service.setupPrice}</span></Badge>
-                                     <Badge variant="outline">{t('monthlyLabel')}: <span className="font-bold ml-1">{service.monthlyPrice}</span></Badge>
-                                </div>
+                        <Card key={index} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl hover:border-primary/50 border border-transparent transition-all duration-300 rounded-xl flex flex-col">
+                            <CardHeader className="p-6 text-center bg-muted/30 rounded-t-xl">
+                                {service.icon}
+                                <CardTitle className="text-xl font-semibold mt-4 h-16">{service.title}</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-2 flex-grow">
-                                <div className="space-y-4">
+                            <CardContent className="p-6 flex-grow">
+                                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                                     <Badge variant="default" className="text-sm py-1 px-3">{t('setupLabel')}: <b className="ml-1">{service.setupPrice}</b></Badge>
+                                     <Badge variant="outline" className="text-sm py-1 px-3">{t('monthlyLabel')}: <b className="ml-1">{service.monthlyPrice}</b></Badge>
+                                </div>
+                                <Separator className="my-6" />
+                                <div className="space-y-6">
                                     <div>
-                                        <h4 className="font-semibold text-sm mb-2">{t('setupFeaturesLabel')}</h4>
+                                        <h4 className="font-semibold text-md mb-3 flex items-center gap-2">
+                                            <Rocket className="h-5 w-5 text-accent" />
+                                            {t('setupFeaturesLabel')}
+                                        </h4>
                                         <ul className="space-y-2">
                                             {service.setupFeatures.map((feature, fIndex) => (
                                                 <li key={fIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -94,7 +104,10 @@ export function PillarsSection() {
                                         </ul>
                                     </div>
                                     <div>
-                                        <h4 className="font-semibold text-sm mb-2">{t('monthlyFeaturesLabel')}</h4>
+                                        <h4 className="font-semibold text-md mb-3 flex items-center gap-2">
+                                            <CalendarDays className="h-5 w-5 text-accent"/>
+                                            {t('monthlyFeaturesLabel')}
+                                        </h4>
                                         <ul className="space-y-2">
                                             {service.monthlyFeatures.map((feature, fIndex) => (
                                                 <li key={fIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -106,6 +119,9 @@ export function PillarsSection() {
                                     </div>
                                 </div>
                             </CardContent>
+                             <CardFooter className="p-6 mt-auto">
+                                <Button variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground transition-colors duration-300">{t('ctaButton')}</Button>
+                            </CardFooter>
                         </Card>
                     ))}
                 </div>
