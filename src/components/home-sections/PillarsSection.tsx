@@ -7,14 +7,17 @@ import { Check, Rocket, CalendarDays, TrendingUp, ShieldCheck } from "lucide-rea
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 
 export function PillarsSection() {
     const t = useTranslations('Home.detailedServices');
 
     const services = [
         {
-            icon: <TrendingUp className="h-10 w-10 text-primary" />,
+            icon: <TrendingUp className="h-10 w-10 text-blue-600" />,
             title: t('gmb.title'),
+            headerColor: "bg-blue-50 dark:bg-blue-900/20",
             setupPrice: t('gmb.setupPrice'),
             monthlyPrice: t('gmb.monthlyPrice'),
             setupFeatures: [
@@ -32,8 +35,9 @@ export function PillarsSection() {
             ]
         },
         {
-            icon: <ShieldCheck className="h-10 w-10 text-primary" />,
+            icon: <ShieldCheck className="h-10 w-10 text-green-600" />,
             title: t('reputation.title'),
+            headerColor: "bg-green-50 dark:bg-green-900/20",
             setupPrice: t('reputation.setupPrice'),
             monthlyPrice: t('reputation.monthlyPrice'),
             setupFeatures: [
@@ -48,8 +52,9 @@ export function PillarsSection() {
             ]
         },
         {
-            icon: <Rocket className="h-10 w-10 text-primary" />,
+            icon: <Rocket className="h-10 w-10 text-amber-600" />,
             title: t('microsite.title'),
+            headerColor: "bg-amber-50 dark:bg-amber-900/20",
             setupPrice: t('microsite.setupPrice'),
             monthlyPrice: t('microsite.monthlyPrice'),
             setupFeatures: [
@@ -78,7 +83,7 @@ export function PillarsSection() {
                 <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                     {services.map((service, index) => (
                         <Card key={index} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl hover:border-primary/50 border border-transparent transition-all duration-300 rounded-xl flex flex-col">
-                            <CardHeader className="p-6 text-center items-center bg-muted/30 rounded-t-xl">
+                             <CardHeader className={cn("p-6 text-center items-center rounded-t-xl", service.headerColor)}>
                                 {service.icon}
                                 <CardTitle className="text-xl font-semibold mt-4 h-16">{service.title}</CardTitle>
                             </CardHeader>
