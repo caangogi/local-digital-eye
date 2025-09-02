@@ -72,7 +72,7 @@ export function HowItWorks() {
 
   const blocks = [
     {
-      imageSrc: "https://picsum.photos/seed/map/800/600",
+      imageSrc: "https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Fmap-pointer-location-on-a-laptop-3d-illustration-2024-12-07-19-23-56-utc.jpg?alt=media&token=7bd0ee7a-5ea9-41e9-bbd7-6c70fadea0d0",
       imageAlt: "Map with a pin",
       imageHint: "map pin location",
       title: t('block1.title'),
@@ -80,7 +80,7 @@ export function HowItWorks() {
       checklist: t.raw('block1.checklist') as string[],
     },
     {
-      imageSrc: "https://picsum.photos/seed/social/800/600",
+      imageSrc: "https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Fsuccessful-team-leade-2025-01-09-01-39-35-utc.jpg?alt=media&token=b1cce497-cb6b-4c65-909e-915257eb062b",
       imageAlt: "Social media profiles",
       imageHint: "social media profile",
       title: t('block2.title'),
@@ -89,7 +89,7 @@ export function HowItWorks() {
       reverse: true,
     },
     {
-      imageSrc: "https://picsum.photos/seed/filter/800/600",
+      imageSrc: "https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Fsmiling-japanese-woman-standing-at-counter-in-clot-2025-04-03-11-56-21-utc.jpg?alt=media&token=d7c52bee-6c9f-4354-9128-9fc401f04b98",
       imageAlt: "Funnel filtering prospects",
       imageHint: "funnel automation",
       title: t('block3.title'),
@@ -97,7 +97,7 @@ export function HowItWorks() {
       checklist: t.raw('block3.checklist') as string[],
     },
     {
-      imageSrc: "https://picsum.photos/seed/stars/800/600",
+      imageSrc: "https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Fseller-and-buyer-with-shopping-bags-smiling-at-cam-2024-11-11-03-04-54-utc.jpg?alt=media&token=8d8a65d2-7b03-4bba-b2ac-de48dfada6aa",
       imageAlt: "Five star rating",
       imageHint: "five stars rating",
       title: t('block4.title'),
