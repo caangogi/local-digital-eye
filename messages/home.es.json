@@ -125,27 +125,40 @@
       "conditionsTitle": "Condiciones:",
       "launch": {
         "title": "Oferta de Lanzamiento",
-        "description": "¡Paga 6 meses y te regalamos la instalación!",
-        "details": {
-          "d1_title": "Plan Profesional (6 meses):",
-          "d1_description": "Paga solo las mensualidades (6 x 159 € = 954 €) y",
-          "d1_highlight": "ahorra los 279 € de la cuota de alta.",
-          "d2_title": "Plan Premium (6 meses):",
-          "d2_description": "Paga solo las mensualidades (6 x 225 € = 1350 €) y",
-          "d2_highlight": "ahorra los 469 € de la cuota de alta."
+        "subtitle": "¡Elige 6 meses y la cuota de alta va por nuestra cuenta!",
+        "profesional": {
+          "title": "Plan Profesional (6 meses)",
+          "price": "954 €",
+          "note": "Pago único total",
+          "saving": "¡Ahorras los 279 € de la instalación!"
         },
+        "premium": {
+          "title": "Plan Premium (6 meses)",
+          "price": "1350 €",
+          "note": "Pago único total",
+          "saving": "¡Ahorras los 469 € de la instalación!"
+        },
+        "cta": "Contratar Plan de 6 Meses",
         "conditions": {
-          "c1": "Pago único por adelantado.",
-          "c2": "Compromiso de 6 meses de servicio."
+          "c1": "Compromiso de 6 meses.",
+          "c2": "Pago único por adelantado."
         }
       },
       "annual": {
-        "title": "Oferta Anual (Máximo Ahorro)",
-        "description": "¡Contrata 12 meses y obtén la instalación GRATIS + 1 mes de REGALO!",
-        "details": {
-          "d1_title": "Plan Premium Anual:",
-          "d1_description": "Paga 11 meses (11 x 225 € = 2475 €) y te regalamos la cuota de alta (ahorro de 469 €) y una mensualidad adicional (ahorro de 225 €).",
-          "d1_highlight": "¡Ahorro total de 694 €!"
+        "title": "Oferta Anual",
+        "subtitle": "¡Paga 11 meses y te regalamos 1 + la instalación!",
+        "badge": "MÁS POPULAR",
+        "plan": {
+          "title": "Plan Premium Anual",
+          "price": "2475 €",
+          "note": "Pago único total (12 meses)",
+          "savingTitle": "¡Ahorro Total de 694 €!",
+          "savingDetail": "(469€ de instalación + 225€ de un mes gratis)"
+        },
+        "cta": "Quiero el Máximo Ahorro",
+        "conditions": {
+          "c1": "Compromiso de 12 meses.",
+          "c2": "Pago único por adelantado."
         }
       },
       "generalConditions": {

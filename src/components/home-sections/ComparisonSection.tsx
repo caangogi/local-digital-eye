@@ -3,49 +3,12 @@
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle, XCircle, Rocket, CalendarDays, Percent } from "lucide-react";
+import { Check, Rocket, CalendarDays, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export function ComparisonSection() {
     const t = useTranslations('Home.promotions');
-
-    const offers = [
-        {
-            icon: <Rocket className="h-8 w-8 text-primary"/>,
-            title: t('launch.title'),
-            description: t('launch.description'),
-            details: [
-                {
-                    title: t('launch.details.d1_title'),
-                    description: t('launch.details.d1_description'),
-                    highlight: t('launch.details.d1_highlight')
-                },
-                {
-                    title: t('launch.details.d2_title'),
-                    description: t('launch.details.d2_description'),
-                    highlight: t('launch.details.d2_highlight')
-                }
-            ],
-            conditions: [
-                t('launch.conditions.c1'),
-                t('launch.conditions.c2')
-            ]
-        },
-        {
-            icon: <CalendarDays className="h-8 w-8 text-primary"/>,
-            title: t('annual.title'),
-            description: t('annual.description'),
-            details: [
-                {
-                    title: t('annual.details.d1_title'),
-                    description: t('annual.details.d1_description'),
-                    highlight: t('annual.details.d1_highlight')
-                }
-            ],
-            conditions: [
-                // Inherits conditions from launch offer
-            ]
-        }
-    ];
 
     return (
         <section className="py-16 md:py-24 bg-muted/30">
@@ -61,40 +24,84 @@ export function ComparisonSection() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 items-stretch">
-                    {offers.map((offer, index) => (
-                         <Card key={index} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl border border-transparent transition-all duration-300 rounded-xl p-6 text-center flex flex-col">
-                            <div className="flex justify-center mb-4">
-                                <div className="p-4 bg-primary/10 rounded-full">
-                                    {offer.icon}
+                <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    {/* Launch Offer Card */}
+                    <Card className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl border border-transparent transition-all duration-300 rounded-xl p-6 flex flex-col">
+                        <CardHeader className="p-0 items-center text-center">
+                            <div className="p-4 bg-primary/10 rounded-full mb-4">
+                                <Rocket className="h-8 w-8 text-primary"/>
+                            </div>
+                            <CardTitle className="text-xl font-semibold">{t('launch.title')}</CardTitle>
+                            <CardDescription className="text-muted-foreground mt-1">{t('launch.subtitle')}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0 pt-6 flex-grow flex flex-col justify-between">
+                            <div className="space-y-6">
+                                <div className="text-center">
+                                    <h3 className="font-semibold text-lg">{t('launch.profesional.title')}</h3>
+                                    <p className="text-4xl font-bold my-1">{t('launch.profesional.price')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('launch.profesional.note')}</p>
+                                    <Badge variant="secondary" className="mt-2 bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300/50">
+                                        <strong>{t('launch.profesional.saving')}</strong>
+                                    </Badge>
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="font-semibold text-lg">{t('launch.premium.title')}</h3>
+                                    <p className="text-4xl font-bold my-1">{t('launch.premium.price')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('launch.premium.note')}</p>
+                                     <Badge variant="secondary" className="mt-2 bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300/50">
+                                        <strong>{t('launch.premium.saving')}</strong>
+                                    </Badge>
                                 </div>
                             </div>
-                            <CardHeader className="p-0">
-                                <CardTitle className="text-xl font-semibold mb-2">{offer.title}</CardTitle>
-                                <CardDescription className="text-muted-foreground">{offer.description}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-0 pt-6 flex-grow flex flex-col justify-between">
-                                <ul className="space-y-2 text-left mb-6">
-                                  {offer.details.map((detail, dIndex) => (
-                                    <li key={dIndex} className="flex items-start gap-3">
-                                        <Percent className="h-4 w-4 mt-1 text-accent flex-shrink-0" />
-                                        <span>
-                                            <b>{detail.title}</b> {detail.description} <b>{detail.highlight}</b>
-                                        </span>
-                                    </li>
-                                  ))}
-                                </ul>
-                                <div>
+                            <div className="mt-8">
+                                <Button variant="outline" className="w-full">{t('launch.cta')}</Button>
+                                <div className="text-left mt-6">
                                     <h4 className="font-semibold text-sm mb-2">{t('conditionsTitle')}</h4>
                                     <ul className="space-y-1 text-xs text-muted-foreground">
-                                        {offer.conditions.map((condition, cIndex) => (
-                                            <li key={cIndex}>{condition}</li>
-                                        ))}
+                                        <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5"/><span>{t('launch.conditions.c1')}</span></li>
+                                        <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5"/><span>{t('launch.conditions.c2')}</span></li>
                                     </ul>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Annual Offer Card */}
+                    <Card className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl border-2 border-primary transition-all duration-300 rounded-xl p-6 flex flex-col relative overflow-hidden">
+                        <Badge className="absolute top-4 -right-12 rotate-45 px-12 py-1 bg-accent text-accent-foreground text-sm font-bold">{t('annual.badge')}</Badge>
+                         <CardHeader className="p-0 items-center text-center">
+                            <div className="p-4 bg-primary/10 rounded-full mb-4">
+                                <CalendarDays className="h-8 w-8 text-primary"/>
+                            </div>
+                            <CardTitle className="text-xl font-semibold">{t('annual.title')}</CardTitle>
+                            <CardDescription className="text-muted-foreground mt-1">{t('annual.subtitle')}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0 pt-6 flex-grow flex flex-col justify-between">
+                             <div className="space-y-6">
+                                <div className="text-center">
+                                    <h3 className="font-semibold text-lg">{t('annual.plan.title')}</h3>
+                                    <p className="text-5xl font-bold my-1 text-primary">{t('annual.plan.price')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('annual.plan.note')}</p>
+                                    <div className="mt-4 p-3 rounded-lg bg-green-100 dark:bg-green-900/50 border border-green-300/50">
+                                        <h4 className="text-lg font-bold text-green-800 dark:text-green-200">{t('annual.plan.savingTitle')}</h4>
+                                        <p className="text-xs text-green-700 dark:text-green-300">{t('annual.plan.savingDetail')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-8">
+                                <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-primary/40 transition-shadow">
+                                    <Zap className="mr-2 h-4 w-4"/>{t('annual.cta')}
+                                </Button>
+                                <div className="text-left mt-6">
+                                    <h4 className="font-semibold text-sm mb-2">{t('conditionsTitle')}</h4>
+                                    <ul className="space-y-1 text-xs text-muted-foreground">
+                                        <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5"/><span>{t('annual.conditions.c1')}</span></li>
+                                        <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5"/><span>{t('annual.conditions.c2')}</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
                  <div className="mt-12 text-center p-4 bg-card rounded-lg">
                     <h3 className="text-lg font-semibold">{t('generalConditions.title')}</h3>
