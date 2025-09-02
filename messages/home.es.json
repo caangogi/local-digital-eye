@@ -1,30 +1,97 @@
 
 {
   "Home": {
-    "title": "Local Digital Eye",
-    "login": "Iniciar Sesión",
-    "heroTitle": "Deja de hacer malabares digitales. Contrata un <accent>Director Digital con IA</accent>.",
-    "heroSubtitle": "Nuestro servicio no consiste en 'llevarte las redes'. Actuamos como tu Director Comercial Digital. Nuestro único objetivo es generar un flujo constante y predecible de solicitudes de clientes de alta calidad a través de Google, para que tu única preocupación sea realizar el trabajo.",
-    "openDashboardButton": "Accede a tu Panel",
-    "ctaTitle": "¿Listo para Transformar tu Negocio?",
-    "ctaSubtitle": "Deja de perder clientes y empieza a ganar con una estrategia digital profesional. Hablemos.",
-    "ctaButton": "Empezar a Ganar Clientes",
     "copyright": "&copy; {year} Local Digital Eye. Todos los derechos reservados.",
-    "services": {
-      "title": "Un Sistema Diseñado para tu Crecimiento",
-      "reviewFunnel": {
-        "title": "Embudo Inteligente de Reseñas",
-        "description": "Implementamos un sistema inteligente para capturar la opinión de tus clientes, fomentando las reseñas de 5 estrellas en Google y permitiéndote gestionar el feedback negativo de forma privada."
+
+    "Hero": {
+      "title": "Tu Nuevo Agente Comercial es Digital",
+      "subtitle": "Generamos un flujo constante de clientes de calidad para tu negocio, para que tú solo te dediques a lo que mejor sabes hacer: tu trabajo.",
+      "cta": "Quiero mi Agente Digital"
+    },
+
+    "Problem": {
+      "title": "¿Te dedicas a los servicios? Seguramente esto te suena familiar…",
+      "time": {
+        "title": "El Tiempo se Esfuma",
+        "description": "Pasas más tiempo buscando clientes, respondiendo mensajes y atendiendo llamadas que facturando. Cada hora invertida en marketing es una hora que no dedicas a tu oficio."
       },
-      "aiResponder": {
-        "title": "Respondedor de Reseñas con IA",
-        "description": "Ahorra tiempo y mantén una imagen profesional generando respuestas inteligentes y personalizadas a las reseñas de Google en segundos."
+      "noise": {
+        "title": "Ruido y Desgaste",
+        "description": "Tu móvil no para de sonar, pero la mayoría son llamadas comerciales, consultas sin interés real o 'clientes' que solo buscan el precio más bajo. El desgaste es enorme."
       },
-      "seoReports": {
-        "title": "Monitorización SEO Local",
-        "description": "Te proporcionamos métricas claras sobre tu visibilidad y rendimiento en búsquedas locales para que tomes decisiones basadas en datos."
+      "marketing": {
+        "title": "Marketing que No Funciona",
+        "description": "Has probado a publicar en redes sociales o a hacer una web, pero los resultados no llegan. El marketing digital parece un laberinto complejo, caro y sin un retorno claro."
       }
     },
+
+    "Solution": {
+      "title": "La Solución: Un Agente Comercial Digital que Trabaja para Ti 24/7",
+      "description": "En Consultoria.System no te vendemos servicios de marketing aislados. Hemos creado un sistema integral que actúa como tu propio agente comercial. Un motor digital diseñado para atraer, filtrar y entregarte únicamente las oportunidades de negocio que de verdad importan. Olvídate de perseguir clientes; nosotros hacemos que ellos te encuentren a ti."
+    },
+
+    "HowItWorks": {
+      "title": "Las 4 Claves de tu Agente Digital",
+      "block1": {
+        "title": "Te Ponemos en el Mapa (Literalmente).",
+        "description": "No basta con estar en internet, hay que ser la primera opción. Optimizamos tu presencia en Google y tu SEO local para que cuando un cliente busque tus servicios, tu negocio aparezca en las primeras posiciones. Ser el primero no es vanidad, es negocio.",
+        "checklist": [
+          "Optimización avanzada de Perfil de Negocio en Google.",
+          "Estrategia de SEO local para tu web y área de servicio.",
+          "Gestión de tu reputación online para liderar las búsquedas."
+        ]
+      },
+      "block2": {
+        "title": "Autoridad y Confianza, No Solo 'Likes'.",
+        "description": "No usamos las redes para publicar por publicar. Creamos una estrategia de contenidos que te posiciona como un experto en tu sector. Mostramos la calidad de tu trabajo, generamos confianza y convertimos seguidores en clientes que ya saben que eres la mejor opción.",
+        "checklist": [
+          "Publicaciones estratégicas enfocadas en demostrar tu valor.",
+          "Gestión de la comunidad para construir relaciones.",
+          "Contenido visual atractivo que refleja tu profesionalidad."
+        ]
+      },
+      "block3": {
+        "title": "Adiós al Ruido, Hola a los Clientes Reales.",
+        "description": "Aquí está la magia. Implementamos un sistema de automatización vía WhatsApp y un protocolo de llamadas que filtra el 90% de las consultas basura. El sistema atiende 24/7, cualifica al cliente potencial y te pasa el contacto solo cuando está listo para pedir un presupuesto serio.",
+        "checklist": [
+          "WhatsApp Bot que responde y filtra consultas al instante.",
+          "Sistema de cualificación de llamadas.",
+          "Solo recibes avisos de clientes verificados."
+        ]
+      },
+      "block4": {
+        "title": "Tu Mejor Vendedor son Tus Clientes Satisfechos.",
+        "description": "Impulsamos de forma proactiva que tus clientes contentos dejen reseñas positivas en Google. Nuestro sistema patentado dirige las valoraciones de 5 estrellas directamente a tu perfil público, mientras que cualquier feedback constructivo nos llega de forma privada para que puedas mejorar.",
+        "checklist": [
+          "Sistema de captación activa de reseñas.",
+          "Impulso de valoraciones positivas hacia Google.",
+          "Gestión privada del feedback para proteger tu reputación."
+        ]
+      }
+    },
+
+    "Results": {
+      "title": "Tu Negocio, Transformado",
+      "time": {
+        "title": "+ TIEMPO",
+        "description": "Recupera hasta 10 horas semanales. Dedícalas a facturar, a tu familia o a ti. Tu agente digital se encarga del resto."
+      },
+      "quality": {
+        "title": "+ CLIENTES DE CALIDAD",
+        "description": "Deja de competir por precio. Atrae clientes que valoran tu experiencia y están dispuestos a pagar por ella."
+      },
+      "peace": {
+        "title": "+ TRANQUILIDAD",
+        "description": "Ten la certeza de que tu negocio genera oportunidades de forma constante y predecible, incluso mientras duermes."
+      }
+    },
+
+    "FinalCta": {
+      "title": "¿Listo para que tu único trabajo sea hacer presupuestos?",
+      "subtitle": "Hablemos 15 minutos sin compromiso. Analizaremos tu situación actual y te mostraremos cómo tu Agente Comercial Digital puede empezar a generar resultados para tu negocio desde el primer mes.",
+      "cta": "Agendar mi Sesión Estratégica Gratuita"
+    },
+
     "detailedServices": {
       "title": "Nuestros Servicios Individuales",
       "subtitle": "Cada servicio está diseñado para resolver un problema concreto y potenciar tu presencia online local.",
@@ -97,27 +164,35 @@
         "microsite": "Microsite de Posicionamiento SEO"
       },
       "esencial": {
-        "title": "Plan Esencial",
-        "setupPrice": "179 €",
-        "monthlyPrice": "109 €/mes"
+        "title": "Plan Esencial"
       },
       "profesional": {
-        "title": "Plan Profesional",
-        "setupPriceOld": "328 €",
-        "setupPriceNew": "279 €",
-        "setupPriceSaving": "(Ahorra 15%)",
-        "monthlyPriceOld": "184 €/mes",
-        "monthlyPriceNew": "159 €/mes",
-        "monthlyPriceSaving": "(Ahorra 14%)"
+        "title": "Plan Profesional"
       },
       "premium": {
-        "title": "Plan Premium",
-        "setupPriceOld": "585 €",
-        "setupPriceNew": "469 €",
-        "setupPriceSaving": "(Ahorra 20%)",
-        "monthlyPriceOld": "283 €/mes",
-        "monthlyPriceNew": "225 €/mes",
-        "monthlyPriceSaving": "(Ahorra 21%)"
+        "title": "Plan Premium"
+      },
+      "prices": {
+        "esencial": {
+          "setup": "179 €",
+          "monthly": "109 €/mes"
+        },
+        "profesional": {
+          "setupOld": "328 €",
+          "setupNew": "279 €",
+          "setupSaving": "(Ahorra 15%)",
+          "monthlyOld": "184 €/mes",
+          "monthlyNew": "159 €/mes",
+          "monthlySaving": "(Ahorra 14%)"
+        },
+        "premium": {
+          "setupOld": "585 €",
+          "setupNew": "469 €",
+          "setupSaving": "(Ahorra 20%)",
+          "monthlyOld": "283 €/mes",
+          "monthlyNew": "225 €/mes",
+          "monthlySaving": "(Ahorra 21%)"
+        }
       }
     },
     "promotions": {
