@@ -78,7 +78,7 @@ export function PillarsSection() {
                 <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                     {services.map((service, index) => (
                         <Card key={index} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl hover:border-primary/50 border border-transparent transition-all duration-300 rounded-xl flex flex-col">
-                            <CardHeader className="p-6 text-center bg-muted/30 rounded-t-xl">
+                            <CardHeader className="p-6 text-center items-center bg-muted/30 rounded-t-xl">
                                 {service.icon}
                                 <CardTitle className="text-xl font-semibold mt-4 h-16">{service.title}</CardTitle>
                             </CardHeader>
