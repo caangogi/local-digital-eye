@@ -1,3 +1,4 @@
+
 import { Link } from "@/navigation";
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
@@ -39,26 +40,28 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="flex-grow">
-        <Hero />
-        <Problem />
-        <Solution />
-        <HowItWorks />
-        <Results />
+      <div className="w-full max-w-7xl mx-auto">
+        <main className="flex-grow">
+          <Hero />
+          <Problem />
+          <Solution />
+          <HowItWorks />
+          <Results />
 
-        {/* Re-integrating existing pricing sections */}
-        <PillarsSection />
-        <PricingSection />
-        <ComparisonSection />
+          {/* Re-integrating existing pricing sections */}
+          <PillarsSection />
+          <PricingSection />
+          <ComparisonSection />
 
-        <FinalCta />
-      </main>
+          <FinalCta />
+        </main>
 
-      <footer className="py-8 text-center text-muted-foreground border-t border-border/30">
-        <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-          <p dangerouslySetInnerHTML={{ __html: t.markup('copyright', { year: new Date().getFullYear() }) }} />
-        </div>
-      </footer>
+        <footer className="py-8 text-center text-muted-foreground border-t border-border/30">
+          <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
+            <p dangerouslySetInnerHTML={{ __html: t.markup('copyright', { year: new Date().getFullYear() }) }} />
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
