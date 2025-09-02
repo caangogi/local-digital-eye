@@ -14,8 +14,8 @@ export function ComparisonSection() {
             title: t('launch.title'),
             description: t('launch.description'),
             details: [
-                t('launch.details.d1'),
-                t('launch.details.d2')
+                t.markup('launch.details.d1'),
+                t.markup('launch.details.d2')
             ],
             conditions: [
                 t('launch.conditions.c1'),
@@ -27,7 +27,7 @@ export function ComparisonSection() {
             title: t('annual.title'),
             description: t('annual.description'),
             details: [
-                t('annual.details.d1'),
+                t.markup('annual.details.d1'),
             ],
             conditions: [
                 // Inherits conditions from launch offer
