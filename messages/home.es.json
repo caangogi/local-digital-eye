@@ -102,13 +102,21 @@
       },
       "profesional": {
         "title": "Plan Profesional",
-        "setupPrice": "<span class='line-through text-muted-foreground'>328 €</span><br/><b>279 €</b><br/>(Ahorra 15%)",
-        "monthlyPrice": "<span class='line-through text-muted-foreground'>184 €/mes</span><br/><b>159 €/mes</b><br/>(Ahorra 14%)"
+        "setupPriceOld": "328 €",
+        "setupPriceNew": "279 €",
+        "setupPriceSaving": "(Ahorra 15%)",
+        "monthlyPriceOld": "184 €/mes",
+        "monthlyPriceNew": "159 €/mes",
+        "monthlyPriceSaving": "(Ahorra 14%)"
       },
       "premium": {
         "title": "Plan Premium",
-        "setupPrice": "<span class='line-through text-muted-foreground'>585 €</span><br/><b>469 €</b><br/>(Ahorra 20%)",
-        "monthlyPrice": "<span class='line-through text-muted-foreground'>283 €/mes</span><br/><b>225 €/mes</b><br/>(Ahorra 21%)"
+        "setupPriceOld": "585 €",
+        "setupPriceNew": "469 €",
+        "setupPriceSaving": "(Ahorra 20%)",
+        "monthlyPriceOld": "283 €/mes",
+        "monthlyPriceNew": "225 €/mes",
+        "monthlyPriceSaving": "(Ahorra 21%)"
       }
     },
     "promotions": {
