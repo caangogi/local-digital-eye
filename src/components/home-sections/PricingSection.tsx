@@ -8,7 +8,7 @@ import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export function PricingSection() {
-    const t = useTranslations('LandingPage.plans');
+    const t = useTranslations('Home.plans');
 
     const features = [
         {

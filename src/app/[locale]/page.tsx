@@ -11,7 +11,7 @@ import { CtaSection } from "@/components/home-sections/CtaSection";
 
 
 export default function LandingPage() {
-  const t = useTranslations('LandingPage');
+  const t = useTranslations('Home');
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">

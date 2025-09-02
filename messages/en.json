@@ -1,91 +1,5 @@
 
 {
-  "LandingPage": {
-    "title": "Local Digital Eye",
-    "login": "Login",
-    "heroTitle": "Stop Juggling Digital Tasks. Hire an <accent>AI-Powered Digital Director</accent>.",
-    "heroSubtitle": "Our service isn't about 'managing your social media'. We act as your Digital Sales Director. Our sole objective is to generate a constant and predictable flow of high-quality client requests through Google, so your only worry is doing the work.",
-    "openDashboardButton": "Access Your Dashboard",
-    "ctaTitle": "Ready to Transform Your Business?",
-    "ctaSubtitle": "Stop losing customers and start winning with a professional digital strategy. Let's talk.",
-    "ctaButton": "Start Winning Customers",
-    "copyright": "&copy; {year} Local Digital Eye. All rights reserved.",
-    "services": {
-      "title": "A System Designed for Your Growth",
-      "reviewFunnel": {
-        "title": "Intelligent Review Funnel",
-        "description": "We implement a smart system to capture customer feedback, encouraging 5-star reviews on Google and allowing you to privately manage negative feedback."
-      },
-      "aiResponder": {
-        "title": "AI-Powered Review Responder",
-        "description": "Save time and maintain a professional image by generating intelligent, personalized responses to Google reviews in seconds."
-      },
-      "seoReports": {
-        "title": "Local SEO Monitoring",
-        "description": "We provide you with clear metrics on your local search visibility and performance, helping you make data-driven decisions."
-      }
-    },
-    "pillars": {
-      "title": "What Does the 'Digital Sales Director' Plan Include?",
-      "subtitle": "This is a comprehensive, turnkey service. You pay a fee, and we handle everything.",
-      "p1": {
-        "title": "Digital Foundations & Authority",
-        "description": "Extreme optimization of your Google Profile and creation of a high-conversion landing page to establish a solid online presence."
-      },
-      "p2": {
-        "title": "Active Demand Generation",
-        "description": "Content strategy, multimedia management, and proactive Google Ads campaigns to attract customers who are actively looking for you."
-      },
-      "p3_legacy": {
-        "title": "Capture and Conversion System",
-        "description": "AI Voice Assistant to handle calls 24/7 and WhatsApp automation to ensure no opportunity is lost."
-      },
-      "p4": {
-        "title": "Business Intelligence",
-        "description": "Clear monthly performance reports and strategic calls to review results and plan the next steps."
-      }
-    },
-    "pricing": {
-      "title": "Transparent and Profitable Investment",
-      "subtitle": "We separate our management fee from your advertising investment. This is crucial for transparency.",
-      "setup": {
-        "title": "Setup Fee",
-        "price": "€450",
-        "period": "One-time Payment",
-        "description": "Covers all the initial work of the 'Digital Foundations' pillar. A fair fee for creating the entire system's base."
-      },
-      "management": {
-        "title": "Digital Sales Director Fee",
-        "price": "€499",
-        "period": "/ month",
-        "description": "Our fee for actively managing Pillars 2, 3, and 4. It includes our time, expertise, and software tools."
-      },
-      "ads": {
-        "title": "Advertising Investment",
-        "price": "€200-€500",
-        "period": "/ month",
-        "description": "This money goes directly to Google for ads. We manage it, but it is not our income. It's the fuel for the system."
-      }
-    },
-    "comparison": {
-      "title": "Don't Hire an Employee. Hire a <accent>System</accent>.",
-      "subtitle": "Here's why our service isn't an expense, but a massive saving compared to the traditional alternative.",
-      "header_concept": "Concept",
-      "header_traditional": "Traditional Salesperson",
-      "header_digital": "Digital Director Plan",
-      "concept_salary": "Minimum Gross Salary (Junior)",
-      "concept_social_security": "Social Security (Company's Share ~32%)",
-      "concept_other": "Other Expenses (Phone, transport, etc.)",
-      "concept_management_fee": "Our Annual Management Fee",
-      "concept_ad_investment": "Annual Advertising Investment",
-      "total_cost": "TOTAL ANNUAL COST FOR THE BUSINESS",
-      "final_argument": "The final argument:",
-      "argument_1": "A salesperson works 8 hours a day. Our system works 24/7.",
-      "argument_2": "A salesperson does 'cold calls'. Our system attracts clients who are actively searching for you right now.",
-      "argument_3": "A salesperson's performance is subjective. Our system's performance is 100% measurable and transparent.",
-      "conclusion": "Our proposal is not to be another expense for your business, but to become your most profitable investment."
-    }
-  },
   "Features": {
     "businessDiscovery": {
       "title": "Business Discovery",
@@ -125,7 +39,7 @@
     "dashboard": "Dashboard",
     "businesses": "Businesses",
     "reports": "Reports",
-    "mapSearch": "Map Search",
+    "mapSearch": "Portfolio Map",
     "aiServices": "AI Services",
     "settings": "Settings",
     "logOut": "Log Out"
@@ -166,7 +80,7 @@
   "BusinessesPage": {
     "title": "Analyzed Businesses",
     "description": "Manage and review your analyzed businesses.",
-    "addButton": "Add New Business",
+    "addButton": "Add New Prospect",
     "searchPlaceholder": "Search businesses...",
     "filterButton": "Filter",
     "sortButton": "Sort",
@@ -177,27 +91,40 @@
       "dateAdded": "Date Added",
       "tags": "Tags",
       "actions": "Actions"
-    },
-    "add": {
-      "title": "Connect a New Business",
-      "subtitle": "Find your business on Google to start the analysis.",
-      "findTitle": "Find your business",
-      "findDescription": "Enter the official name and location of your business to find it on Google Maps.",
-      "nameLabel": "Business Name",
-      "namePlaceholder": "e.g., The Cozy Cafe",
-      "locationLabel": "Location",
-      "locationPlaceholder": "e.g., New York, NY",
-      "searchButton": "Search on Google",
-      "resultTitle": "Search Result",
-      "connectButton": "Connect this Business",
-      "notFound": "No business found with that name and location. Please check for typos or try a more specific location.",
-      "searchError": "An error occurred while searching. Please try again.",
-      "ratingLabel": "Rating",
-      "reviewsLabel": "reviews",
-      "connectSuccessTitle": "Business Connected!",
-      "connectSuccessDescription": "The business has been successfully linked to your account.",
-      "connectErrorTitle": "Connection Failed",
-      "connectErrorDescription": "An unexpected error occurred. Please try again."
     }
+  },
+  "ProspectingPage": {
+    "title": "Add New Prospects",
+    "subtitle": "Search for businesses on Google to add to your prospecting list.",
+    "findTitle": "Search Businesses",
+    "findDescription": "Enter a search query like 'Plumbers in London' or 'Garages in Manchester'.",
+    "queryLabel": "Search Query",
+    "queryPlaceholder": "e.g., Electricians in New York",
+    "searchButton": "Search",
+    "prospectListTitle": "Prospecting List",
+    "prospectsFoundDescription": "These are the results from your searches. Filter and connect them to add to the pipeline.",
+    "connectButton": "Connect",
+    "notFound": "No businesses found for that query. Check for typos or try a more specific search.",
+    "searchError": "An error occurred while searching. Please try again.",
+    "reviewsLabel": "reviews",
+    "connectSuccessTitle": "Business Connected!",
+    "connectSuccessDescription": "The business has been added to your pipeline.",
+    "connectErrorTitle": "Connection Failed",
+    "connectErrorDescription": "An unexpected error occurred. Please try again.",
+    "clearListButton": "Clear List",
+    "clearListSuccessToast": "Prospecting list has been cleared.",
+    "newProspectsToast": "new prospects added to the list.",
+    "noNewProspectsToast": "No new prospects found. They might already be in your list.",
+    "ratingFilterLabel": "Rating Filter",
+    "ratingFilterUnit": "stars or less",
+    "websiteFilterLabel": "Website Presence",
+    "websiteFilterPlaceholder": "Select a filter...",
+    "websiteFilterAll": "Show All",
+    "websiteFilterWith": "With Website",
+    "websiteFilterWithout": "Without Website",
+    "hasWebsite": "Has Website",
+    "noWebsite": "No Website",
+    "noFilterResults": "No results match your current filters.",
+    "noFilterResultsHint": "Try adjusting the filters or performing a new search."
   }
 }

@@ -7,7 +7,7 @@ import { Filter, Bot, AreaChart } from "lucide-react";
 import Image from "next/image";
 
 export function ServicesSection() {
-    const t = useTranslations('LandingPage.services');
+    const t = useTranslations('Home.services');
 
     const services = [
         {

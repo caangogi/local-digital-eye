@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "@/navigation";
 
 export function HeroSection() {
-    const t = useTranslations('LandingPage');
+    const t = useTranslations('Home');
 
     return (
         <section className="py-20 md:py-32">

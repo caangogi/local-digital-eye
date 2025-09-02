@@ -1,0 +1,144 @@
+{
+  "Home": {
+    "title": "Local Digital Eye",
+    "login": "Iniciar Sesión",
+    "heroTitle": "Deja de hacer malabares digitales. Contrata un <accent>Director Digital con IA</accent>.",
+    "heroSubtitle": "Nuestro servicio no consiste en 'llevarte las redes'. Actuamos como tu Director Comercial Digital. Nuestro único objetivo es generar un flujo constante y predecible de solicitudes de clientes de alta calidad a través de Google, para que tu única preocupación sea realizar el trabajo.",
+    "openDashboardButton": "Accede a tu Panel",
+    "ctaTitle": "¿Listo para Transformar tu Negocio?",
+    "ctaSubtitle": "Deja de perder clientes y empieza a ganar con una estrategia digital profesional. Hablemos.",
+    "ctaButton": "Empezar a Ganar Clientes",
+    "copyright": "&copy; {year} Local Digital Eye. Todos los derechos reservados.",
+    "services": {
+      "title": "Un Sistema Diseñado para tu Crecimiento",
+      "reviewFunnel": {
+        "title": "Embudo Inteligente de Reseñas",
+        "description": "Implementamos un sistema inteligente para capturar la opinión de tus clientes, fomentando las reseñas de 5 estrellas en Google y permitiéndote gestionar el feedback negativo de forma privada."
+      },
+      "aiResponder": {
+        "title": "Respondedor de Reseñas con IA",
+        "description": "Ahorra tiempo y mantén una imagen profesional generando respuestas inteligentes y personalizadas a las reseñas de Google en segundos."
+      },
+      "seoReports": {
+        "title": "Monitorización SEO Local",
+        "description": "Te proporcionamos métricas claras sobre tu visibilidad y rendimiento en búsquedas locales para que tomes decisiones basadas en datos."
+      }
+    },
+    "detailedServices": {
+      "title": "Nuestros Servicios Individuales",
+      "subtitle": "Cada servicio está diseñado para resolver un problema concreto y potenciar tu presencia online local.",
+      "setupLabel": "Alta",
+      "monthlyLabel": "Mensual",
+      "setupFeaturesLabel": "La Puesta en Marcha Incluye:",
+      "monthlyFeaturesLabel": "La Gestión Mensual Incluye:",
+      "gmb": {
+        "title": "Gestión y Optimización de Perfil de Negocio en Google",
+        "setupPrice": "179 €",
+        "monthlyPrice": "109 €/mes",
+        "setupFeatures": {
+          "f1": "Auditoría y optimización completa del perfil.",
+          "f2": "Configuración de datos clave (horarios, dirección, teléfono, web).",
+          "f3": "Optimización de categorías y descripción del negocio.",
+          "f4": "Subida de logotipo, portada y hasta 10 fotos iniciales."
+        },
+        "monthlyFeatures": {
+          "f1": "Creación de 2 a 4 publicaciones mensuales (novedades, ofertas).",
+          "f2": "Subida de nuevas fotos y vídeos proporcionados por el cliente.",
+          "f3": "Respuesta profesional a las nuevas reseñas de clientes.",
+          "f4": "Monitorización activa de cambios en la plataforma y competencia.",
+          "f5": "Informe de rendimiento mensual con métricas clave."
+        }
+      },
+      "reputation": {
+        "title": "Sistema de Reputación y Filtrado de Reseñas",
+        "setupPrice": "149 €",
+        "monthlyPrice": "75 €/mes",
+        "setupFeatures": {
+          "f1": "Creación del sistema de filtrado y página de aterrizaje.",
+          "f2": "Diseño de QR personalizado y material gráfico.",
+          "f3": "Puesta en marcha de las alertas de feedback instantáneo."
+        },
+        "monthlyFeatures": {
+          "f1": "Estrategia proactiva para solicitar reseñas a clientes.",
+          "f2": "Clientes satisfechos (5 estrellas) son dirigidos a Google; el resto a un formulario privado.",
+          "f3": "Mantenimiento de la plataforma para asegurar su funcionamiento."
+        }
+      },
+      "microsite": {
+        "title": "Microsite de Posicionamiento SEO Local",
+        "setupPrice": "247 €",
+        "monthlyPrice": "99 €/mes",
+        "setupFeatures": {
+          "f1": "Diseño y desarrollo de una página única, moderna y adaptada a móviles.",
+          "f2": "Redacción de contenidos optimizados para SEO local.",
+          "f3": "Estructura perfecta para Google (Schema, NAP).",
+          "f4": "Integración total con tu Perfil de Negocio de Google."
+        },
+        "monthlyFeatures": {
+          "f1": "Alojamiento web de alta velocidad y gestión del dominio incluidos.",
+          "f2": "Mantenimiento técnico, actualizaciones de seguridad y copias.",
+          "f3": "Optimización continua de contenidos según el rendimiento."
+        }
+      }
+    },
+    "plans": {
+      "title": "Nuestros Planes de Presencia Local",
+      "subtitle": "Elige el plan que mejor se adapte a tus necesidades. Combina servicios y ahorra.",
+      "featureHeader": "Característica",
+      "setupHeader": "Cuota de Alta (Pago único)",
+      "monthlyHeader": "Cuota Mensual",
+      "ctaButton": "Contratar",
+      "recommended": "Recomendado",
+      "features": {
+        "gmb": "Gestión y Optimización GBP",
+        "reputation": "Sistema de Reputación y Reseñas",
+        "microsite": "Microsite de Posicionamiento SEO"
+      },
+      "esencial": {
+        "title": "Plan Esencial",
+        "setupPrice": "179 €",
+        "monthlyPrice": "109 €/mes"
+      },
+      "profesional": {
+        "title": "Plan Profesional",
+        "setupPrice": "<s>328 €</s><br><b>279 €</b><br>(Ahorra 15%)",
+        "monthlyPrice": "<s>184 €/mes</s><br><b>159 €/mes</b><br>(Ahorra 14%)"
+      },
+      "premium": {
+        "title": "Plan Premium",
+        "setupPrice": "<s>585 €</s><br><b>469 €</b><br>(Ahorra 20%)",
+        "monthlyPrice": "<s>283 €/mes</s><br><b>225 €/mes</b><br>(Ahorra 21%)"
+      }
+    },
+    "promotions": {
+      "title": "Ofertas Especiales",
+      "subtitle": "Aprovecha nuestras ofertas especiales para impulsar tu contratación y maximizar el ahorro.",
+      "conditionsTitle": "Condiciones:",
+      "launch": {
+        "title": "Oferta de Lanzamiento",
+        "description": "¡Paga 6 meses y te regalamos la instalación!",
+        "details": {
+          "d1": "<b>Plan Profesional (6 meses):</b> Paga solo las mensualidades (6 x 159 € = 954 €) y <b>ahorra los 279 €</b> de la cuota de alta.",
+          "d2": "<b>Plan Premium (6 meses):</b> Paga solo las mensualidades (6 x 225 € = 1350 €) y <b>ahorra los 469 €</b> de la cuota de alta."
+        },
+        "conditions": {
+          "c1": "Pago único por adelantado.",
+          "c2": "Compromiso de 6 meses de servicio."
+        }
+      },
+      "annual": {
+        "title": "Oferta Anual (Máximo Ahorro)",
+        "description": "¡Contrata 12 meses y obtén la instalación GRATIS + 1 mes de REGALO!",
+        "details": {
+          "d1": "<b>Plan Premium Anual:</b> Paga 11 meses (11 x 225 € = 2475 €) y te regalamos la cuota de alta (ahorro de 469 €) y una mensualidad adicional (ahorro de 225 €). <b>¡Ahorro total de 694 €!</b>"
+        }
+      },
+      "generalConditions": {
+        "title": "Condiciones Generales del Servicio",
+        "c1": "Contrato mínimo recomendado: 3 meses para poder apreciar resultados sólidos.",
+        "c2": "Facturación: Mensual por adelantado (excepto en ofertas de pago único).",
+        "c3": "Requisitos: El cliente debe proporcionar acceso como 'Administrador' a su ficha de Google Business Profile."
+      }
+    }
+  }
+}
