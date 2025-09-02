@@ -28,10 +28,11 @@
     "detailedServices": {
       "title": "Our Individual Services",
       "subtitle": "Each service is designed to solve a specific problem and strengthen your local online presence.",
-      "setupLabel": "Setup",
+      "setupLabel": "Initial Setup",
       "monthlyLabel": "Monthly",
       "setupFeaturesLabel": "Initial Setup Includes:",
       "monthlyFeaturesLabel": "Monthly Management Includes:",
+      "ctaButton": "Learn More",
       "gmb": {
         "title": "Google Business Profile Management & Optimization",
         "setupPrice": "€179",

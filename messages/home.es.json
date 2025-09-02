@@ -28,10 +28,11 @@
     "detailedServices": {
       "title": "Nuestros Servicios Individuales",
       "subtitle": "Cada servicio está diseñado para resolver un problema concreto y potenciar tu presencia online local.",
-      "setupLabel": "Alta",
+      "setupLabel": "Puesta en Marcha",
       "monthlyLabel": "Mensual",
       "setupFeaturesLabel": "La Puesta en Marcha Incluye:",
       "monthlyFeaturesLabel": "La Gestión Mensual Incluye:",
+      "ctaButton": "Me Interesa",
       "gmb": {
         "title": "Gestión y Optimización de Perfil de Negocio en Google",
         "setupPrice": "179 €",
