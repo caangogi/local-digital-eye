@@ -1,30 +1,97 @@
 
 {
   "Home": {
-    "title": "Local Digital Eye",
-    "login": "Login",
-    "heroTitle": "Stop Juggling Digital Tasks. Hire an <accent>AI-Powered Digital Director</accent>.",
-    "heroSubtitle": "Our service isn't about 'managing your social media'. We act as your Digital Sales Director. Our sole objective is to generate a constant and predictable flow of high-quality client requests through Google, so your only worry is doing the work.",
-    "openDashboardButton": "Access Your Dashboard",
-    "ctaTitle": "Ready to Transform Your Business?",
-    "ctaSubtitle": "Stop losing customers and start winning with a professional digital strategy. Let's talk.",
-    "ctaButton": "Start Winning Customers",
     "copyright": "&copy; {year} Local Digital Eye. All rights reserved.",
-    "services": {
-      "title": "A System Designed for Your Growth",
-      "reviewFunnel": {
-        "title": "Intelligent Review Funnel",
-        "description": "We implement a smart system to capture customer feedback, encouraging 5-star reviews on Google and allowing you to privately manage negative feedback."
+    
+    "Hero": {
+      "title": "Your New Sales Agent is Digital",
+      "subtitle": "We generate a constant flow of quality customers for your business, so you can focus on what you do best: your work.",
+      "cta": "I Want My Digital Agent"
+    },
+
+    "Problem": {
+      "title": "Do you provide services? This probably sounds familiar to you...",
+      "time": {
+        "title": "Time Vanishes",
+        "description": "You spend more time looking for clients, answering messages, and handling calls than invoicing. Every hour spent on marketing is an hour not dedicated to your craft."
       },
-      "aiResponder": {
-        "title": "AI-Powered Review Responder",
-        "description": "Save time and maintain a professional image by generating intelligent, personalized responses to Google reviews in seconds."
+      "noise": {
+        "title": "Noise and Burnout",
+        "description": "Your phone won't stop ringing, but most are sales calls, inquiries with no real interest, or 'clients' just looking for the lowest price. The burnout is immense."
       },
-      "seoReports": {
-        "title": "Local SEO Monitoring",
-        "description": "We provide you with clear metrics on your local search visibility and performance, helping you make data-driven decisions."
+      "marketing": {
+        "title": "Marketing That Doesn't Work",
+        "description": "You've tried posting on social media or creating a website, but the results aren't coming. Digital marketing seems like a complex, expensive maze with no clear return."
       }
     },
+
+    "Solution": {
+      "title": "The Solution: A Digital Sales Agent Working for You 24/7",
+      "description": "At Consultoria.System, we don't sell isolated marketing services. We've created an integrated system that acts as your own sales agent. A digital engine designed to attract, filter, and deliver only the business opportunities that truly matter. Forget chasing clients; we make them find you."
+    },
+
+    "HowItWorks": {
+      "title": "The 4 Keys to Your Digital Agent",
+      "block1": {
+        "title": "We Put You on the Map (Literally).",
+        "description": "It's not enough to be on the internet; you have to be the first choice. We optimize your Google presence and local SEO so that when a customer searches for your services, your business appears at the top. Being first isn't vanity, it's business.",
+        "checklist": [
+          "Advanced Google Business Profile optimization.",
+          "Local SEO strategy for your website and service area.",
+          "Online reputation management to lead the search results."
+        ]
+      },
+      "block2": {
+        "title": "Authority and Trust, Not Just 'Likes'.",
+        "description": "We don't use social media just to post. We create a content strategy that positions you as an expert in your field. We showcase the quality of your work, build trust, and turn followers into clients who already know you're the best option.",
+        "checklist": [
+          "Strategic posts focused on demonstrating your value.",
+          "Community management to build relationships.",
+          "Attractive visual content that reflects your professionalism."
+        ]
+      },
+      "block3": {
+        "title": "Goodbye Noise, Hello Real Clients.",
+        "description": "Here's the magic. We implement an automation system via WhatsApp and a call protocol that filters out 90% of junk inquiries. The system operates 24/7, qualifies the potential client, and passes the contact to you only when they are ready for a serious quote.",
+        "checklist": [
+          "WhatsApp Bot that responds and filters inquiries instantly.",
+          "Call qualification system.",
+          "You only receive notifications from verified clients."
+        ]
+      },
+      "block4": {
+        "title": "Your Best Salesperson is Your Satisfied Customers.",
+        "description": "We proactively encourage your happy customers to leave positive reviews on Google. Our proprietary system directs 5-star ratings directly to your public profile, while any constructive feedback comes to us privately so you can improve.",
+        "checklist": [
+          "Active review capturing system.",
+          "Boosting positive ratings towards Google.",
+          "Private feedback management to protect your reputation."
+        ]
+      }
+    },
+
+    "Results": {
+      "title": "Your Business, Transformed",
+      "time": {
+        "title": "+ TIME",
+        "description": "Get back up to 10 hours a week. Spend them invoicing, with your family, or on yourself. Your digital agent handles the rest."
+      },
+      "quality": {
+        "title": "+ QUALITY CLIENTS",
+        "description": "Stop competing on price. Attract clients who value your expertise and are willing to pay for it."
+      },
+      "peace": {
+        "title": "+ PEACE OF MIND",
+        "description": "Have the certainty that your business is constantly and predictably generating opportunities, even while you sleep."
+      }
+    },
+
+    "FinalCta": {
+      "title": "Ready for your only job to be writing quotes?",
+      "subtitle": "Let's talk for 15 minutes, no strings attached. We'll analyze your current situation and show you how your Digital Sales Agent can start generating results for your business from the first month.",
+      "cta": "Schedule My Free Strategy Session"
+    },
+
     "detailedServices": {
       "title": "Our Individual Services",
       "subtitle": "Each service is designed to solve a specific problem and strengthen your local online presence.",
@@ -97,27 +164,35 @@
         "microsite": "Local SEO Microsite"
       },
       "esencial": {
-        "title": "Essential Plan",
-        "setupPrice": "€179",
-        "monthlyPrice": "€109/mo"
+        "title": "Essential Plan"
       },
       "profesional": {
-        "title": "Professional Plan",
-        "setupPriceOld": "€328",
-        "setupPriceNew": "€279",
-        "setupPriceSaving": "(Save 15%)",
-        "monthlyPriceOld": "€184/mo",
-        "monthlyPriceNew": "€159/mo",
-        "monthlyPriceSaving": "(Save 14%)"
+        "title": "Professional Plan"
       },
       "premium": {
-        "title": "Premium Plan",
-        "setupPriceOld": "€585",
-        "setupPriceNew": "€469",
-        "setupPriceSaving": "(Save 20%)",
-        "monthlyPriceOld": "€283/mo",
-        "monthlyPriceNew": "€225/mo",
-        "monthlyPriceSaving": "(Save 21%)"
+        "title": "Premium Plan"
+      },
+      "prices": {
+        "esencial": {
+          "setup": "€179",
+          "monthly": "€109/mo"
+        },
+        "profesional": {
+          "setupOld": "€328",
+          "setupNew": "€279",
+          "setupSaving": "(Save 15%)",
+          "monthlyOld": "€184/mo",
+          "monthlyNew": "€159/mo",
+          "monthlySaving": "(Save 14%)"
+        },
+        "premium": {
+          "setupOld": "€585",
+          "setupNew": "€469",
+          "setupSaving": "(Save 20%)",
+          "monthlyOld": "€283/mo",
+          "monthlyNew": "€225/mo",
+          "monthlySaving": "(Save 21%)"
+        }
       }
     },
     "promotions": {
