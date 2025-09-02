@@ -3,43 +3,36 @@
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Rocket, CalendarDays, Percent } from "lucide-react";
 
 export function ComparisonSection() {
-    const t = useTranslations('LandingPage.comparison');
+    const t = useTranslations('LandingPage.promotions');
 
-    const comparisonData = [
+    const offers = [
         {
-            concept: t('concept_salary'),
-            traditional: '25.000 €',
-            digital: 'N/A'
+            icon: <Rocket className="h-8 w-8 text-primary"/>,
+            title: t('launch.title'),
+            description: t('launch.description'),
+            details: [
+                t('launch.details.d1'),
+                t('launch.details.d2')
+            ],
+            conditions: [
+                t('launch.conditions.c1'),
+                t('launch.conditions.c2')
+            ]
         },
         {
-            concept: t('concept_social_security'),
-            traditional: '8.000 €',
-            digital: 'N/A'
-        },
-        {
-            concept: t('concept_other'),
-            traditional: '2.400 €',
-            digital: 'N/A'
-        },
-        {
-            concept: t('concept_management_fee'),
-            traditional: 'N/A',
-            digital: '5.988 €'
-        },
-        {
-            concept: t('concept_ad_investment'),
-            traditional: 'N/A',
-            digital: '3.600 €'
-        },
-    ];
-
-    const finalArguments = [
-        t('argument_1'),
-        t('argument_2'),
-        t('argument_3'),
+            icon: <CalendarDays className="h-8 w-8 text-primary"/>,
+            title: t('annual.title'),
+            description: t('annual.description'),
+            details: [
+                t('annual.details.d1'),
+            ],
+            conditions: [
+                // Inherits conditions from launch offer
+            ]
+        }
     ];
 
     return (
@@ -47,78 +40,56 @@ export function ComparisonSection() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="text-center max-w-3xl mx-auto">
                      <h2 
-                        className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight"
-                        dangerouslySetInnerHTML={{ __html: t.markup('title', { accent: (chunks) => `<span class="text-accent">${chunks}</span>` }) }}
-                    />
+                        className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight text-primary"
+                    >
+                        {t('title')}
+                    </h2>
                     <p className="text-lg text-muted-foreground mb-12">
                         {t('subtitle')}
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <Card className="shadow-lg bg-card/80">
-                        <CardHeader>
-                            <CardTitle>{t('header_traditional')}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <ul className="space-y-3">
-                                {comparisonData.map((item, index) => (
-                                    item.traditional !== 'N/A' && (
-                                        <li key={index} className="flex justify-between items-center">
-                                            <span>{item.concept}</span>
-                                            <span className="font-semibold">{item.traditional}</span>
-                                        </li>
-                                    )
-                                ))}
-                            </ul>
-                            <div className="border-t pt-4 mt-4">
-                                <div className="flex justify-between text-lg font-bold">
-                                    <span>{t('total_cost')}</span>
-                                    <span>~35.400 €</span>
+                <div className="grid md:grid-cols-2 gap-8 items-stretch">
+                    {offers.map((offer, index) => (
+                         <Card key={index} className="bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl border border-transparent transition-all duration-300 rounded-xl p-6 text-center flex flex-col">
+                            <div className="flex justify-center mb-4">
+                                <div className="p-4 bg-primary/10 rounded-full">
+                                    {offer.icon}
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="shadow-lg bg-card/80 border-2 border-primary">
-                        <CardHeader>
-                            <CardTitle>{t('header_digital')}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             <ul className="space-y-3">
-                                {comparisonData.map((item, index) => (
-                                    item.digital !== 'N/A' && (
-                                        <li key={index} className="flex justify-between items-center">
-                                            <span>{item.concept}</span>
-                                            <span className="font-semibold">{item.digital}</span>
-                                        </li>
-                                    )
-                                ))}
-                            </ul>
-                            <div className="border-t pt-4 mt-4">
-                                <div className="flex justify-between text-lg font-bold text-primary">
-                                    <span>{t('total_cost')}</span>
-                                    <span>9.588 €</span>
+                            <CardHeader className="p-0">
+                                <CardTitle className="text-xl font-semibold mb-2">{offer.title}</CardTitle>
+                                <CardDescription className="text-muted-foreground">{offer.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 pt-6 flex-grow flex flex-col justify-between">
+                                <ul className="space-y-2 text-left mb-6">
+                                  {offer.details.map((detail, dIndex) => (
+                                    <li key={dIndex} className="flex items-start gap-3">
+                                        <Percent className="h-4 w-4 mt-1 text-accent flex-shrink-0" />
+                                        <span dangerouslySetInnerHTML={{ __html: detail }} />
+                                    </li>
+                                  ))}
+                                </ul>
+                                <div>
+                                    <h4 className="font-semibold text-sm mb-2">{t('conditionsTitle')}</h4>
+                                    <ul className="space-y-1 text-xs text-muted-foreground">
+                                        {offer.conditions.map((condition, cIndex) => (
+                                            <li key={cIndex}>{condition}</li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
-
-                <div className="mt-16 max-w-4xl mx-auto">
-                    <h3 className="text-2xl font-bold text-center mb-6">{t('final_argument')}</h3>
-                    <ul className="space-y-4">
-                       {finalArguments.map((arg, index) => (
-                           <li key={index} className="flex items-start gap-3 p-4 bg-card rounded-lg shadow-sm">
-                               <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0"/>
-                               <p className="text-muted-foreground">{arg}</p>
-                           </li>
-                       ))}
+                 <div className="mt-12 text-center p-4 bg-card rounded-lg">
+                    <h3 className="text-lg font-semibold">{t('generalConditions.title')}</h3>
+                    <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                        <li>{t('generalConditions.c1')}</li>
+                        <li>{t('generalConditions.c2')}</li>
+                        <li>{t('generalConditions.c3')}</li>
                     </ul>
-                     <p className="text-center text-xl font-semibold mt-8 p-6 bg-accent/10 text-accent rounded-lg">
-                        {t('conclusion')}
-                    </p>
-                </div>
+                 </div>
             </div>
         </section>
     );
