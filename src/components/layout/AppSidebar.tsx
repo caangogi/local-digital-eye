@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePathname } from "next/navigation"; // Keep next/navigation for raw pathname
@@ -14,6 +15,7 @@ import {
 import { useAuth } from "@/hooks/useAuth.tsx";
 import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import Image from "next/image";
 
 export function AppSidebar() {
   const rawPathname = usePathname(); // Gets the full path including locale, e.g., /en/dashboard
@@ -36,12 +38,26 @@ export function AppSidebar() {
     <Sidebar side="left" variant="sidebar" collapsible="icon">
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
-            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"/>
-          </svg>
-          <span className="font-bold text-xl font-headline text-primary group-data-[collapsible=icon]:hidden">
-            Local Digital Eye
-          </span>
+            {/* Full logo for expanded state */}
+            <div className="hidden group-data-[collapsible=icon]:hidden">
+                <Image 
+                    src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
+                    alt="ConsultorIA Logo"
+                    width={150}
+                    height={40}
+                    priority
+                />
+            </div>
+             {/* Icon logo for collapsed state */}
+            <div className="hidden group-data-[collapsible=icon]:block">
+                 <Image 
+                    src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Ficono-consultoria.png?alt=media&token=b8070931-c56e-4559-82d4-0a763e98b92d"
+                    alt="ConsultorIA Icon"
+                    width={32}
+                    height={32}
+                    priority
+                />
+            </div>
         </Link>
       </SidebarHeader>
       <SidebarContent className="flex-grow p-2">

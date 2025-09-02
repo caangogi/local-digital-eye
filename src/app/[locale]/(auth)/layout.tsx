@@ -3,6 +3,7 @@ import { Eye, Globe } from 'lucide-react';
 import { Link } from "@/navigation"; // Use next-intl's Link
 import {useTranslations} from 'next-intl';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import Image from 'next/image';
 
 export default function AuthLayout({
   children,
@@ -15,10 +16,13 @@ export default function AuthLayout({
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="absolute top-8 left-8 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
-              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"/>
-            </svg>
-          <span className="font-bold text-lg font-headline">{t('title')}</span>
+            <Image 
+                src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
+                alt="ConsultorIA Logo"
+                width={150}
+                height={40}
+                priority
+            />
         </Link>
       </div>
        <div className="absolute top-8 right-8">

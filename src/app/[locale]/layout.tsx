@@ -9,6 +9,9 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 export const metadata: Metadata = {
   title: 'Local Digital Eye',
   description: 'AI-Powered Business Analysis and Service Recommendations',
+  icons: {
+    icon: 'https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Ficono-consultoria.png?alt=media&token=b8070931-c56e-4559-82d4-0a763e98b92d'
+  }
 };
 
 interface LocaleLayoutProps {
