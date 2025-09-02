@@ -40,7 +40,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
             {/* Full logo for expanded state */}
-            <div className="hidden group-data-[collapsible=icon]:hidden">
+            <div className="group-data-[collapsible=icon]:hidden">
                 <Image 
                     src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
                     alt="ConsultorIA Logo"
