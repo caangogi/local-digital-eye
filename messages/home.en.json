@@ -127,8 +127,12 @@
         "title": "Launch Offer",
         "description": "Pay for 6 months and we'll waive the setup fee!",
         "details": {
-          "d1": "<b>Professional Plan (6 months):</b> Pay only the monthly fees (6 x €159 = €954) and <b>save €279</b> on the setup fee.",
-          "d2": "<b>Premium Plan (6 months):</b> Pay only the monthly fees (6 x €225 = €1350) and <b>save €469</b> on the setup fee."
+          "d1_title": "Professional Plan (6 months):",
+          "d1_description": "Pay only the monthly fees (6 x €159 = €954) and",
+          "d1_highlight": "save €279 on the setup fee.",
+          "d2_title": "Premium Plan (6 months):",
+          "d2_description": "Pay only the monthly fees (6 x €225 = €1350) and",
+          "d2_highlight": "save €469 on the setup fee."
         },
         "conditions": {
           "c1": "Single upfront payment.",
@@ -139,7 +143,9 @@
         "title": "Annual Offer (Maximum Savings)",
         "description": "Sign up for 12 months and get FREE setup + 1 FREE month!",
         "details": {
-          "d1": "<b>Premium Plan (Annual):</b> Pay for 11 months (11 x €225 = €2475) and we waive the setup fee (save €469) and give you one month free (save €225). <b>Total savings of €694!</b>"
+          "d1_title": "Premium Plan (Annual):",
+          "d1_description": "Pay for 11 months (11 x €225 = €2475) and we waive the setup fee (save €469) and give you one month free (save €225).",
+          "d1_highlight": "Total savings of €694!"
         }
       },
       "generalConditions": {

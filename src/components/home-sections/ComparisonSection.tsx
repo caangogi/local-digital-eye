@@ -14,8 +14,16 @@ export function ComparisonSection() {
             title: t('launch.title'),
             description: t('launch.description'),
             details: [
-                t.markup('launch.details.d1'),
-                t.markup('launch.details.d2')
+                {
+                    title: t('launch.details.d1_title'),
+                    description: t('launch.details.d1_description'),
+                    highlight: t('launch.details.d1_highlight')
+                },
+                {
+                    title: t('launch.details.d2_title'),
+                    description: t('launch.details.d2_description'),
+                    highlight: t('launch.details.d2_highlight')
+                }
             ],
             conditions: [
                 t('launch.conditions.c1'),
@@ -27,7 +35,11 @@ export function ComparisonSection() {
             title: t('annual.title'),
             description: t('annual.description'),
             details: [
-                t.markup('annual.details.d1'),
+                {
+                    title: t('annual.details.d1_title'),
+                    description: t('annual.details.d1_description'),
+                    highlight: t('annual.details.d1_highlight')
+                }
             ],
             conditions: [
                 // Inherits conditions from launch offer
@@ -66,7 +78,9 @@ export function ComparisonSection() {
                                   {offer.details.map((detail, dIndex) => (
                                     <li key={dIndex} className="flex items-start gap-3">
                                         <Percent className="h-4 w-4 mt-1 text-accent flex-shrink-0" />
-                                        <span dangerouslySetInnerHTML={{ __html: detail }} />
+                                        <span>
+                                            <b>{detail.title}</b> {detail.description} <b>{detail.highlight}</b>
+                                        </span>
                                     </li>
                                   ))}
                                 </ul>
