@@ -12,7 +12,16 @@ export default getRequestConfig(async ({locale}) => {
 
   let messages: AbstractIntlMessages;
   try {
-    messages = (await import(`../messages/${locale}.json`)).default;
+    // We'll load the main messages and merge home messages for now.
+    // A full namespace solution might involve loading on demand.
+    const mainMessages = (await import(`../messages/${locale}.json`)).default;
+    const homeMessages = (await import(`../messages/home.${locale}.json`)).default;
+    
+    messages = {
+        ...mainMessages,
+        Home: homeMessages.Home // Add the Home namespace
+    }
+
   } catch (error) {
     console.error(`Failed to load messages for locale ${locale}:`, error);
     notFound(); // Or handle differently, e.g., fallback to defaultLocale messages

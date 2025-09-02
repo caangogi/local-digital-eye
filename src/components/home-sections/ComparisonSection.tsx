@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { CheckCircle, XCircle, Rocket, CalendarDays, Percent } from "lucide-react";
 
 export function ComparisonSection() {
-    const t = useTranslations('LandingPage.promotions');
+    const t = useTranslations('Home.promotions');
 
     const offers = [
         {

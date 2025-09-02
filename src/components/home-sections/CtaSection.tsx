@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "@/navigation";
 
 export function CtaSection() {
-    const t = useTranslations('LandingPage');
+    const t = useTranslations('Home');
 
     return (
         <section className="py-16 md:py-24">

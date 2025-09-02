@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export function PillarsSection() {
-    const t = useTranslations('LandingPage.detailedServices');
+    const t = useTranslations('Home.detailedServices');
 
     const services = [
         {
