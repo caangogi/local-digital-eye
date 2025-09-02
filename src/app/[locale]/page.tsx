@@ -31,23 +31,25 @@ export default function LandingPage() {
              }}>
         </div>
       </div>
+      
+      <header className="sticky top-0 z-40 bg-[#72b9ff69] backdrop-blur-lg py-6 px-4 md:px-6">
+        <div className="container mx-auto flex justify-between items-center">
+            <Link href="/" className="flex items-center gap-2 group">
+                <Image 
+                    src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
+                    alt="ConsultorIA Logo"
+                    width={150}
+                    height={40}
+                    priority
+                />
+            </Link>
+            <nav className="flex items-center gap-2">
+                <LanguageSwitcher />
+            </nav>
+        </div>
+      </header>
 
       <div className="mx-auto w-full max-w-7xl">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg container mx-auto py-6 px-4 md:px-6 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-             <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
-                alt="ConsultorIA Logo"
-                width={150}
-                height={40}
-                priority
-            />
-          </Link>
-          <nav className="flex items-center gap-2">
-            <LanguageSwitcher />
-          </nav>
-        </header>
-
         <main className="flex-grow">
           <HeroSection />
           <ServicesSection />
