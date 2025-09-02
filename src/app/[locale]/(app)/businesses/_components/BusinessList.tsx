@@ -74,58 +74,60 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
           </Button>
         </div>
       </div>
-
-      <div className="flex-grow overflow-x-auto rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[200px]">{t('table.name')}</TableHead>
-              <TableHead>Estado GMB</TableHead>
-              <TableHead>Estado de Venta</TableHead>
-              <TableHead className="min-w-[150px]">{t('table.tags')}</TableHead>
-              <TableHead className="text-right min-w-[100px]">{t('table.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredBusinesses.length > 0 ? filteredBusinesses.map((business) => (
-              <TableRow key={business.id} className="hover:bg-muted/50 cursor-pointer" onClick={() => handleRowClick(business)}>
-                <TableCell className="font-medium">{business.name}</TableCell>
-                <TableCell>
-                  <Badge variant={business.gmbStatus === 'linked' ? 'default' : 'outline'}>
-                    {business.gmbStatus === 'linked' ? 'Verificado' : 'No Verificado'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={salesStatusMap[business.salesStatus || 'new']?.variant || 'secondary'} className="capitalize">
-                    {salesStatusMap[business.salesStatus || 'new']?.label || business.salesStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {business.customTags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <BusinessActions business={business} baseUrl={baseUrl} />
-                </TableCell>
-              </TableRow>
-            )) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center h-24">
-                  No hay negocios que coincidan con tu búsqueda.{" "}
-                  {businesses.length > 0 && (
-                    <Button variant="link" className="p-0" onClick={() => setSearchTerm('')}>Limpiar búsqueda</Button>
-                  )}
-                  {businesses.length === 0 && (
-                    <Link href="/businesses/add" className="text-primary hover:underline">
-                      ¡Añade uno para empezar!
-                    </Link>
-                  )}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      
+      <div className="flex-grow rounded-lg border shadow-sm bg-card hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300 overflow-x-auto">
+          <div className="min-w-max w-full">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[200px]">{t('table.name')}</TableHead>
+                  <TableHead>Estado GMB</TableHead>
+                  <TableHead>Estado de Venta</TableHead>
+                  <TableHead className="min-w-[150px]">{t('table.tags')}</TableHead>
+                  <TableHead className="text-right min-w-[100px]">{t('table.actions')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredBusinesses.length > 0 ? filteredBusinesses.map((business) => (
+                  <TableRow key={business.id} className="hover:bg-muted/50 cursor-pointer" onClick={() => handleRowClick(business)}>
+                    <TableCell className="font-medium">{business.name}</TableCell>
+                    <TableCell>
+                      <Badge variant={business.gmbStatus === 'linked' ? 'default' : 'outline'}>
+                        {business.gmbStatus === 'linked' ? 'Verificado' : 'No Verificado'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={salesStatusMap[business.salesStatus || 'new']?.variant || 'secondary'} className="capitalize">
+                        {salesStatusMap[business.salesStatus || 'new']?.label || business.salesStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {business.customTags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                      <BusinessActions business={business} baseUrl={baseUrl} />
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center h-24">
+                      No hay negocios que coincidan con tu búsqueda.{" "}
+                      {businesses.length > 0 && (
+                        <Button variant="link" className="p-0" onClick={() => setSearchTerm('')}>Limpiar búsqueda</Button>
+                      )}
+                      {businesses.length === 0 && (
+                        <Link href="/businesses/add" className="text-primary hover:underline">
+                          ¡Añade uno para empezar!
+                        </Link>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
       </div>
 
     {selectedBusiness && (
