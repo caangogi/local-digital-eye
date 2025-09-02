@@ -105,7 +105,7 @@
         "setupPriceOld": "€328",
         "setupPriceNew": "€279",
         "setupPriceSaving": "(Save 15%)",
-        "monthlyPriceOld": "€184",
+        "monthlyPriceOld": "€184/mo",
         "monthlyPriceNew": "€159/mo",
         "monthlyPriceSaving": "(Save 14%)"
       },
@@ -114,7 +114,7 @@
         "setupPriceOld": "€585",
         "setupPriceNew": "€469",
         "setupPriceSaving": "(Save 20%)",
-        "monthlyPriceOld": "€283",
+        "monthlyPriceOld": "€283/mo",
         "monthlyPriceNew": "€225/mo",
         "monthlyPriceSaving": "(Save 21%)"
       }
@@ -125,27 +125,40 @@
       "conditionsTitle": "Conditions:",
       "launch": {
         "title": "Launch Offer",
-        "description": "Pay for 6 months and we'll waive the setup fee!",
-        "details": {
-          "d1_title": "Professional Plan (6 months):",
-          "d1_description": "Pay only the monthly fees (6 x €159 = €954) and",
-          "d1_highlight": "save €279 on the setup fee.",
-          "d2_title": "Premium Plan (6 months):",
-          "d2_description": "Pay only the monthly fees (6 x €225 = €1350) and",
-          "d2_highlight": "save €469 on the setup fee."
+        "subtitle": "Choose 6 months and the setup fee is on us!",
+        "profesional": {
+          "title": "Professional Plan (6 months)",
+          "price": "€954",
+          "note": "Total one-time payment",
+          "saving": "You save the €279 setup fee!"
         },
+        "premium": {
+          "title": "Premium Plan (6 months)",
+          "price": "€1350",
+          "note": "Total one-time payment",
+          "saving": "You save the €469 setup fee!"
+        },
+        "cta": "Hire 6-Month Plan",
         "conditions": {
-          "c1": "Single upfront payment.",
-          "c2": "6-month service commitment."
+          "c1": "6-month commitment.",
+          "c2": "Single upfront payment."
         }
       },
       "annual": {
-        "title": "Annual Offer (Maximum Savings)",
-        "description": "Sign up for 12 months and get FREE setup + 1 FREE month!",
-        "details": {
-          "d1_title": "Premium Plan (Annual):",
-          "d1_description": "Pay for 11 months (11 x €225 = €2475) and we waive the setup fee (save €469) and give you one month free (save €225).",
-          "d1_highlight": "Total savings of €694!"
+        "title": "Annual Offer",
+        "subtitle": "Pay for 11 months and get 1 FREE + FREE setup!",
+        "badge": "MOST POPULAR",
+        "plan": {
+          "title": "Premium Plan (Annual)",
+          "price": "€2475",
+          "note": "Total one-time payment (12 months)",
+          "savingTitle": "Total Savings of €694!",
+          "savingDetail": "(€469 from setup + €225 from one free month)"
+        },
+        "cta": "I want the Maximum Savings",
+        "conditions": {
+          "c1": "12-month commitment.",
+          "c2": "Single upfront payment."
         }
       },
       "generalConditions": {
