@@ -31,30 +31,32 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <header className="container mx-auto py-6 px-4 md:px-6 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 group">
-           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-foreground group-hover:text-accent transition-colors">
-            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"/>
-          </svg>
-          <h1 className="text-2xl font-bold text-foreground group-hover:text-accent transition-colors">{t('title')}</h1>
-        </Link>
-        <nav className="flex items-center gap-2">
-          <LanguageSwitcher />
-        </nav>
-      </header>
+      <div className="mx-auto w-full max-w-7xl">
+        <header className="container mx-auto py-6 px-4 md:px-6 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2 group">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-foreground group-hover:text-accent transition-colors">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"/>
+            </svg>
+            <h1 className="text-2xl font-bold text-foreground group-hover:text-accent transition-colors">{t('title')}</h1>
+          </Link>
+          <nav className="flex items-center gap-2">
+            <LanguageSwitcher />
+          </nav>
+        </header>
 
-      <main className="flex-grow">
-        <HeroSection />
-        <ServicesSection />
-        <PillarsSection />
-        <PricingSection />
-        <ComparisonSection />
-        <CtaSection />
-      </main>
+        <main className="flex-grow">
+          <HeroSection />
+          <ServicesSection />
+          <PillarsSection />
+          <PricingSection />
+          <ComparisonSection />
+          <CtaSection />
+        </main>
 
-      <footer className="container mx-auto py-8 px-4 md:px-6 text-center text-muted-foreground border-t border-border/30">
-        <p dangerouslySetInnerHTML={{ __html: t.markup('copyright', { year: new Date().getFullYear() }) }} />
-      </footer>
+        <footer className="container mx-auto py-8 px-4 md:px-6 text-center text-muted-foreground border-t border-border/30">
+          <p dangerouslySetInnerHTML={{ __html: t.markup('copyright', { year: new Date().getFullYear() }) }} />
+        </footer>
+      </div>
     </div>
   );
 }
