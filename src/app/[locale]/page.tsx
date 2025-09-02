@@ -32,8 +32,8 @@ export default function LandingPage() {
         </div>
       </div>
       
-      <header className="sticky top-0 z-40 bg-[#72b9ff69] backdrop-blur-lg py-6 px-4 md:px-6">
-        <div className="container mx-auto flex justify-between items-center">
+      <header className="sticky top-0 z-40 bg-[#72b9ff69] backdrop-blur-lg py-4 px-4 md:px-6">
+        <div className="mx-auto w-full max-w-7xl flex justify-between items-center">
             <Link href="/" className="flex items-center gap-2 group">
                 <Image 
                     src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
@@ -49,7 +49,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
         <main className="flex-grow">
           <HeroSection />
           <ServicesSection />
@@ -59,7 +59,7 @@ export default function LandingPage() {
           <CtaSection />
         </main>
 
-        <footer className="container mx-auto py-8 px-4 md:px-6 text-center text-muted-foreground border-t border-border/30">
+        <footer className="py-8 text-center text-muted-foreground border-t border-border/30">
           <p dangerouslySetInnerHTML={{ __html: t.markup('copyright', { year: new Date().getFullYear() }) }} />
         </footer>
       </div>
