@@ -33,7 +33,7 @@ export default function LandingPage() {
       </div>
 
       <div className="mx-auto w-full max-w-7xl">
-        <header className="container mx-auto py-6 px-4 md:px-6 flex justify-between items-center">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg container mx-auto py-6 px-4 md:px-6 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
              <Image 
                 src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
