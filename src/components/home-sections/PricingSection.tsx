@@ -2,7 +2,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -35,22 +34,53 @@ export function PricingSection() {
         {
             name: t('esencial.title'),
             isRecommended: false,
-            setupPrice: t('esencial.setupPrice'),
-            monthlyPrice: t('esencial.monthlyPrice'),
+            setupPrice: { new: t('esencial.setupPrice') },
+            monthlyPrice: { new: t('esencial.monthlyPrice') },
         },
         {
             name: t('profesional.title'),
             isRecommended: true,
-            setupPrice: t.markup('profesional.setupPrice'),
-            monthlyPrice: t.markup('profesional.monthlyPrice'),
+            setupPrice: {
+                old: t('profesional.setupPriceOld'),
+                new: t('profesional.setupPriceNew'),
+                saving: t('profesional.setupPriceSaving'),
+            },
+            monthlyPrice: {
+                old: t('profesional.monthlyPriceOld'),
+                new: t('profesional.monthlyPriceNew'),
+                saving: t('profesional.monthlyPriceSaving'),
+            },
         },
         {
             name: t('premium.title'),
             isRecommended: false,
-            setupPrice: t.markup('premium.setupPrice'),
-            monthlyPrice: t.markup('premium.monthlyPrice'),
+            setupPrice: {
+                old: t('premium.setupPriceOld'),
+                new: t('premium.setupPriceNew'),
+                saving: t('premium.setupPriceSaving'),
+            },
+            monthlyPrice: {
+                old: t('premium.monthlyPriceOld'),
+                new: t('premium.monthlyPriceNew'),
+                saving: t('premium.monthlyPriceSaving'),
+            },
         }
     ];
+
+    const PriceDisplay = ({ price }: { price: { old?: string; new: string; saving?: string } }) => {
+        if (price.old) {
+            return (
+                <>
+                    <span className="line-through text-muted-foreground">{price.old}</span>
+                    <br />
+                    <b>{price.new}</b>
+                    <br />
+                    <span>{price.saving}</span>
+                </>
+            );
+        }
+        return <b>{price.new}</b>;
+    };
 
     return (
         <section className="py-16 md:py-24">
@@ -85,16 +115,20 @@ export function PricingSection() {
                         
                         <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
                             <div>{t('setupHeader')}</div>
-                            <div className="text-center">{plans[0].setupPrice}</div>
-                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[1].setupPrice as string }} />
-                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[2].setupPrice as string }} />
+                            {plans.map((plan, index) => (
+                                <div key={index} className="text-center">
+                                    <PriceDisplay price={plan.setupPrice} />
+                                </div>
+                            ))}
                         </div>
                         
                         <div className="grid grid-cols-4 gap-4 items-center py-4 border-b font-bold">
                             <div>{t('monthlyHeader')}</div>
-                            <div className="text-center">{plans[0].monthlyPrice}</div>
-                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[1].monthlyPrice as string }} />
-                            <div className="text-center" dangerouslySetInnerHTML={{ __html: plans[2].monthlyPrice as string }} />
+                             {plans.map((plan, index) => (
+                                <div key={index} className="text-center">
+                                    <PriceDisplay price={plan.monthlyPrice} />
+                                </div>
+                            ))}
                         </div>
                         
                         <div className="grid grid-cols-4 gap-4 items-center pt-6">

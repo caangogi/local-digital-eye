@@ -102,13 +102,21 @@
       },
       "profesional": {
         "title": "Professional Plan",
-        "setupPrice": "<span class='line-through text-muted-foreground'>€328</span><br/><b>€279</b><br/>(Save 15%)",
-        "monthlyPrice": "<span class='line-through text-muted-foreground'>€184</span><br/><b>€159/mo</b><br/>(Save 14%)"
+        "setupPriceOld": "€328",
+        "setupPriceNew": "€279",
+        "setupPriceSaving": "(Save 15%)",
+        "monthlyPriceOld": "€184",
+        "monthlyPriceNew": "€159/mo",
+        "monthlyPriceSaving": "(Save 14%)"
       },
       "premium": {
         "title": "Premium Plan",
-        "setupPrice": "<span class='line-through text-muted-foreground'>€585</span><br/><b>€469</b><br/>(Save 20%)",
-        "monthlyPrice": "<span class='line-through text-muted-foreground'>€283</span><br/><b>€225/mo</b><br/>(Save 21%)"
+        "setupPriceOld": "€585",
+        "setupPriceNew": "€469",
+        "setupPriceSaving": "(Save 20%)",
+        "monthlyPriceOld": "€283",
+        "monthlyPriceNew": "€225/mo",
+        "monthlyPriceSaving": "(Save 21%)"
       }
     },
     "promotions": {
