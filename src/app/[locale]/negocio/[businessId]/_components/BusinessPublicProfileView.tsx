@@ -63,6 +63,7 @@ const AnimatedSection = ({ children }: { children: React.ReactNode }) => {
 export function BusinessPublicProfileView({ business, mapEmbedUrl }: BusinessPublicProfileViewProps) {
     
     const hasPhotos = business.photos && business.photos.length > 0;
+    const hasValidLocation = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && business.location && typeof business.location.latitude === 'number' && typeof business.location.longitude === 'number';
 
     const ReviewFormCard = () => (
         <Card className="shadow-lg w-full max-w-md bg-card/90 backdrop-blur-sm border border-border/20">
@@ -188,16 +189,18 @@ export function BusinessPublicProfileView({ business, mapEmbedUrl }: BusinessPub
                                         </CardContent>
                                     </Card>
                                  )}
-                                <div className="h-64 w-full rounded-lg overflow-hidden shadow-md">
-                                     <iframe
-                                        className="w-full h-full"
-                                        style={{ border: 0 }}
-                                        loading="lazy"
-                                        allowFullScreen
-                                        referrerPolicy="no-referrer-when-downgrade"
-                                        src={mapEmbedUrl}>
-                                    </iframe>
-                                </div>
+                                {hasValidLocation && (
+                                    <div className="h-64 w-full rounded-lg overflow-hidden shadow-md">
+                                        <iframe
+                                            className="w-full h-full"
+                                            style={{ border: 0 }}
+                                            loading="lazy"
+                                            allowFullScreen
+                                            referrerPolicy="no-referrer-when-downgrade"
+                                            src={mapEmbedUrl}>
+                                        </iframe>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </AnimatedSection>
