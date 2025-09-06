@@ -1,4 +1,5 @@
 
+
 import {
   createLocalizedPathnamesNavigation,
   Pathnames
@@ -12,7 +13,7 @@ export const localePrefix = 'as-needed';
 // The pathnames object holds the mappings from a canonical path
 // to locale-specific paths. This is used to translate URLs.
 export const pathnames = {
-  '/': '/', // Explicitly map the root path
+  '/': '/', 
   '/login': {
     en: '/login',
     es: '/iniciar-sesion'
@@ -62,11 +63,7 @@ export const pathnames = {
     en: '/business/[businessId]',
     es: '/negocio/[businessId]'
   },
-  '/dev/crm-road-map': {
-    en: '/dev/crm-road-map',
-    es: '/dev/crm-hoja-de-ruta'
-  },
-  '/dev/my-bussiness-road-map': {
+   '/dev/my-bussiness-road-map': {
     en: '/dev/my-bussiness-road-map',
     es: '/dev/mi-negocio-hoja-de-ruta'
   }
@@ -76,4 +73,5 @@ export const pathnames = {
 export const {Link, redirect, usePathname, useRouter} =
   createLocalizedPathnamesNavigation({locales, localePrefix, pathnames});
 
+    
     

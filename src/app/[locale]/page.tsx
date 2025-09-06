@@ -1,8 +1,9 @@
 
-import { Link } from "@/navigation";
+import { Link as IntlLink } from "@/navigation";
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import Image from "next/image";
+import Link from 'next/link';
 
 // New Landing Page Sections
 import { Hero } from "@/components/landing/Hero";
@@ -26,7 +27,7 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 bg-[#72b9ff69] backdrop-blur-lg py-3">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-6 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
+          <IntlLink href="/" className="flex items-center gap-2 group">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
               alt="ConsultorIA Logo"
@@ -34,7 +35,7 @@ export default function LandingPage() {
               height={40}
               priority
             />
-          </Link>
+          </IntlLink>
           <nav className="flex items-center gap-2">
             <Link href="/dev/my-bussiness-road-map">
               <Button variant="outline" size="sm">Roadmap</Button>
