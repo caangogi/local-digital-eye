@@ -12,7 +12,7 @@ export const localePrefix = 'as-needed';
 // The pathnames object holds the mappings from a canonical path
 // to locale-specific paths. This is used to translate URLs.
 export const pathnames = {
-  '/': '/',
+  '/': '/', // Explicitly map the root path
   '/login': {
     en: '/login',
     es: '/iniciar-sesion'
