@@ -20,10 +20,10 @@ const createOrUpdateUserUseCase = new CreateOrUpdateUserUseCase(userRepository);
 
 /**
  * Creates a session cookie after verifying the Firebase ID token.
- * It also creates or updates the user profile in Firestore.
+ * It also creates or updates the user profile in Firestore and sets their custom role claim.
  * @param idToken The Firebase ID token from the client.
  */
-export async function createSession(idToken: string): Promise<{ success: boolean; message: string }> {
+export async function createSession(idToken: string): Promise<{ success: boolean; message:string; }> {
   try {
     // 2 weeks expiry for the session cookie
     const expiresIn = 60 * 60 * 24 * 14 * 1000; 
@@ -31,17 +31,25 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     // Verify the ID token and get user data
     const decodedIdToken = await adminAuth.verifyIdToken(idToken, true);
     
+    const userRecord = await adminAuth.getUser(decodedIdToken.uid);
+    const customClaims = (userRecord.customClaims || {}) as { role?: string };
+
+    // Set custom claim `role` if it doesn't exist. Default to 'admin'.
+    if (!customClaims.role) {
+        await adminAuth.setCustomUserClaims(decodedIdToken.uid, { role: 'admin' });
+        console.log(`[AuthAction] Set custom claim 'role: admin' for new user ${decodedIdToken.uid}`);
+    }
+    const finalRole = customClaims.role || 'admin';
+
+
     // Create or update user in our database
-    // The user might sign up with email and password and not have a name or picture yet
-    // on the token. The client-side logic should have updated the Firebase Auth profile
-    // before calling this.
-    const userToSave: Omit<User, 'avatarUrl'> & { avatarUrl?: string } = {
+    const userToSave: Omit<User, 'avatarUrl'> & { avatarUrl?: string, role: 'admin' | 'owner' } = {
       id: decodedIdToken.uid,
       email: decodedIdToken.email || '',
-      name: decodedIdToken.name || '', // Use empty string if name is undefined
+      name: decodedIdToken.name || '',
+      role: finalRole as 'admin' | 'owner',
     };
 
-    // Only add avatarUrl to the object if it exists to avoid sending 'undefined' to Firestore
     if (decodedIdToken.picture) {
         userToSave.avatarUrl = decodedIdToken.picture;
     }
@@ -53,11 +61,10 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     
     const isDevelopment = process.env.NODE_ENV === 'development';
     
-    // Set the cookie in the browser
     cookies().set(SESSION_COOKIE_NAME, sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: !isDevelopment, // Use secure cookies in production
+      secure: !isDevelopment,
       path: '/',
       sameSite: 'lax',
     });
@@ -67,7 +74,6 @@ export async function createSession(idToken: string): Promise<{ success: boolean
 
   } catch (error: any) {
     console.error('Error creating session:', error);
-    // Return the actual error message for better diagnostics
     const errorMessage = error.message || 'An unknown error occurred during session creation.';
     return { success: false, message: errorMessage };
   }

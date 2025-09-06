@@ -44,7 +44,7 @@ const phases = [
         icon: <Database />,
         tasks: [
           { who: "bot", text: "Refinar la entidad `Business` (`business.entity.ts`) para incluir todos los campos públicos de Google Places y los campos del CRM (`leadScore`, `salesStatus`, `customTags`, `notes`, `nextContactDate`, `gmbStatus`, etc.).", completed: false },
-          { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner') para manejar los permisos futuros.", completed: false },
+          { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner') para manejar los permisos futuros.", completed: true },
           { who: "bot", text: "Implementar `FirebaseBusinessRepository` y `FirebaseUserRepository` para que coincidan exactamente con las nuevas entidades, manejando la conversión de Timestamps y los nuevos campos.", completed: false },
           { who: "bot", text: "Adaptar los Casos de Uso existentes (`ConnectBusiness`, `ListUserBusinesses`, etc.) para que operen con las nuevas entidades y la lógica del repositorio.", completed: false }
         ]
@@ -217,5 +217,3 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
-
-    
