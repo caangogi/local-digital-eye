@@ -41,6 +41,10 @@ export const pathnames = {
     en: '/reports',
     es: '/informes'
   },
+   '/map-search': {
+    en: '/map-search',
+    es: '/mapa-de-cartera'
+  },
   '/service-recommendations': {
     en: '/service-recommendations',
     es: '/recomendaciones-ia'
