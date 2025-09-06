@@ -16,6 +16,7 @@ import { FinalCta } from "@/components/landing/FinalCta";
 import { PillarsSection } from "@/components/home-sections/PillarsSection";
 import { PricingSection } from "@/components/home-sections/PricingSection";
 import { ComparisonSection } from "@/components/home-sections/ComparisonSection";
+import { Button } from "@/components/ui/button";
 
 
 export default function LandingPage() {
@@ -35,6 +36,9 @@ export default function LandingPage() {
             />
           </Link>
           <nav className="flex items-center gap-2">
+            <Link href="/dev/my-bussiness-road-map">
+              <Button variant="outline" size="sm">Roadmap</Button>
+            </Link>
             <LanguageSwitcher />
           </nav>
         </div>
