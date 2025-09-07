@@ -37,37 +37,35 @@ interface SearchResult {
 
 const CACHE_KEY = 'prospecting_search_results';
 
-// Helper function to safely get initial state from localStorage
-const getInitialState = (): SearchResult => {
-  try {
-    const cachedResults = localStorage.getItem(CACHE_KEY);
-    if (cachedResults) {
-      const parsed = JSON.parse(cachedResults);
-      // Ensure the parsed object has the correct structure
-      if (parsed && Array.isArray(parsed.prospects)) {
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.error("Failed to parse cached results on init:", error);
-    localStorage.removeItem(CACHE_KEY);
-  }
-  // Return a safe default if cache is invalid or missing
-  return { prospects: [], rawResponse: null };
-};
-
 
 export default function AddBusinessPage() {
   const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<SearchResult>(getInitialState());
+  // Initialize state with a safe default, will hydrate from localStorage in useEffect
+  const [searchResults, setSearchResults] = useState<SearchResult>({ prospects: [], rawResponse: null });
   const [debugConnectData, setDebugConnectData] = useState<Place | null>(null);
   
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
   const [websiteFilter, setWebsiteFilter] = useState<WebsiteFilter>('all');
   
   const { toast } = useToast();
+
+  // Effect to load from cache on mount (Client-side only)
+  useEffect(() => {
+    try {
+      const cachedResults = localStorage.getItem(CACHE_KEY);
+      if (cachedResults) {
+        const parsed = JSON.parse(cachedResults);
+        if (parsed && Array.isArray(parsed.prospects)) {
+          setSearchResults(parsed);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to parse cached results on init:", error);
+      localStorage.removeItem(CACHE_KEY);
+    }
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   // Effect to sync state changes back to localStorage
   useEffect(() => {
@@ -80,7 +78,6 @@ export default function AddBusinessPage() {
   
   
   const filteredResults = useMemo(() => {
-      // Always ensure searchResults.prospects is an array before filtering
       return (searchResults.prospects || []).filter(business => {
           const rating = business.rating ?? 0;
           if (rating > ratingFilter[0]) return false;
@@ -282,5 +279,3 @@ export default function AddBusinessPage() {
     </div>
   );
 }
-
-    
