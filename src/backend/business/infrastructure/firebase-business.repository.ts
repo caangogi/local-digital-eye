@@ -12,6 +12,37 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
   private readonly collection = firestore.collection('businesses');
 
   /**
+   * Helper function to convert Firestore Timestamps to JS Dates.
+   * @param data The raw data from Firestore.
+   * @returns The data with Date objects converted.
+   */
+  private fromFirestore(data: any): any {
+    if (!data) return null;
+
+    const rawData = { ...data };
+
+    // Convert top-level Timestamps
+    if (rawData.gmbTokenExpiryDate && rawData.gmbTokenExpiryDate instanceof Timestamp) {
+      rawData.gmbTokenExpiryDate = rawData.gmbTokenExpiryDate.toDate();
+    }
+    if (rawData.nextContactDate && rawData.nextContactDate instanceof Timestamp) {
+      rawData.nextContactDate = rawData.nextContactDate.toDate();
+    }
+    
+    // Convert Timestamps within the topReviews array
+    if (Array.isArray(rawData.topReviews)) {
+        rawData.topReviews = rawData.topReviews.map((review: any) => {
+            if (review.publishTime && review.publishTime instanceof Timestamp) {
+                return { ...review, publishTime: review.publishTime.toDate() };
+            }
+            return review;
+        });
+    }
+
+    return rawData;
+  }
+
+  /**
    * Saves a business's data (creates or updates).
    * It handles conversion of Date objects to Firestore Timestamps.
    * @param business The business object to be persisted.
@@ -29,6 +60,16 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     if (businessData.nextContactDate) {
         dataToSave.nextContactDate = Timestamp.fromDate(businessData.nextContactDate);
     }
+    // Convert JS Dates inside topReviews array to Timestamps
+    if (Array.isArray(businessData.topReviews)) {
+      dataToSave.topReviews = businessData.topReviews.map((review: any) => {
+        if (review.publishTime && review.publishTime instanceof Date) {
+          return { ...review, publishTime: Timestamp.fromDate(review.publishTime) };
+        }
+        return review;
+      });
+    }
+
 
     // Explicitly handle null values for optional fields to avoid Firestore errors
     dataToSave.ownerId = businessData.ownerId || null;
@@ -49,17 +90,8 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     if (!doc.exists) {
       return null;
     }
-    const data = doc.data();
-    
-    // Convert Firestore Timestamp to JS Date after fetching
-    const rawData: any = { id: doc.id, ...data };
-    if (data?.gmbTokenExpiryDate && data.gmbTokenExpiryDate instanceof Timestamp) {
-        rawData.gmbTokenExpiryDate = data.gmbTokenExpiryDate.toDate();
-    }
-    if (data?.nextContactDate && data.nextContactDate instanceof Timestamp) {
-        rawData.nextContactDate = data.nextContactDate.toDate();
-    }
-
+    const data = this.fromFirestore(doc.data());
+    const rawData = { id: doc.id, ...data };
 
     try {
       return BusinessSchema.parse(rawData);
@@ -81,14 +113,8 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
       return [];
     }
     return snapshot.docs.map(doc => {
-        const data = doc.data();
-        const rawData: any = { id: doc.id, ...data };
-        if (data?.gmbTokenExpiryDate && data.gmbTokenExpiryDate instanceof Timestamp) {
-            rawData.gmbTokenExpiryDate = data.gmbTokenExpiryDate.toDate();
-        }
-        if (data?.nextContactDate && data.nextContactDate instanceof Timestamp) {
-            rawData.nextContactDate = data.nextContactDate.toDate();
-        }
+        const data = this.fromFirestore(doc.data());
+        const rawData = { id: doc.id, ...data };
 
         try {
             return BusinessSchema.parse(rawData);
@@ -108,5 +134,3 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     await this.collection.doc(id).delete();
   }
 }
-
-    
