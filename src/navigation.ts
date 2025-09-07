@@ -27,27 +27,27 @@ export const pathnames = {
   },
   '/businesses': {
     en: '/businesses',
-    es: '/negocios'
+    es: '/businesses'
   },
    '/businesses/add': {
     en: '/businesses/add',
-    es: '/negocios/anadir'
+    es: '/businesses/add'
   },
   '/reports': {
     en: '/reports',
-    es: '/informes'
+    es: '/reports'
   },
    '/map-search': {
     en: '/map-search',
-    es: '/mapa-de-cartera'
+    es: '/map-search'
   },
   '/service-recommendations': {
     en: '/service-recommendations',
-    es: '/recomendaciones-ia'
+    es: '/service-recommendations'
   },
   '/settings': {
     en: '/settings',
-    es: '/configuracion'
+    es: '/settings'
   },
   // This is a dynamic route, we need to specify the slug part
   '/negocio/[businessId]': {
