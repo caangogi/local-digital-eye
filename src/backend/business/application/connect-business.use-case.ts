@@ -65,6 +65,7 @@ export class ConnectBusinessUseCase {
         profilePhotoUrl: review.authorAttribution?.photoUri,
         rating: review.rating,
         text: review.text?.text,
+        // The publishTime from Google is a string, convert it to a Date object for our entity.
         publishTime: review.publishTime ? new Date(review.publishTime) : undefined,
       }));
 
