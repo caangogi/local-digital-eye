@@ -85,7 +85,7 @@ export class ConnectBusinessUseCase {
       rating: gmbData.rating,
       reviewCount: gmbData.userRatingCount,
       category: gmbData.types?.[0] || null, 
-      gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeId}`,
+      gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gmbData.name)}&query_place_id=${placeId}`,
 
       // Add the new enriched fields
       businessStatus: gmbData.businessStatus,
