@@ -17,9 +17,9 @@ export async function createSessionCookie(idToken: string): Promise<void> {
   });
 
   const isDevelopment = process.env.NODE_ENV === 'development';
+  const cookieStore = await cookies();
 
-  // Use the cookies function to set the cookie
-  cookies().set(SESSION_COOKIE_NAME, sessionCookie, {
+  cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
     maxAge: SESSION_COOKIE_EXPIRES_IN,
     httpOnly: true,
     secure: !isDevelopment,
@@ -32,6 +32,6 @@ export async function createSessionCookie(idToken: string): Promise<void> {
  * Clears the session cookie.
  */
 export async function clearSessionCookie(): Promise<void> {
-  // Use the cookies function to delete the cookie by setting maxAge to 0
-  cookies().set(SESSION_COOKIE_NAME, '', { maxAge: 0 });
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, '', { maxAge: 0 });
 }
