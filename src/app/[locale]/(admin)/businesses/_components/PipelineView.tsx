@@ -124,7 +124,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       className={cn(
-                          "bg-muted/40 rounded-lg p-3 flex flex-col h-full min-h-[calc(100vh-20rem)] w-full min-w-[280px] sm:min-w-[300px]",
+                          "bg-muted/40 rounded-lg p-3 flex flex-col w-full min-w-[280px] sm:min-w-[300px]",
                           snapshot.isDraggingOver ? "bg-accent/20" : ""
                       )}
                   >
@@ -148,8 +148,8 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                                   onClick={() => handleCardClick(business)}
                               >
                                   <Card className="bg-card hover:bg-card/80">
-                                      <CardHeader className="p-3">
-                                          <CardTitle className="text-sm font-medium">{business.name}</CardTitle>
+                                      <CardHeader className="p-3 pb-2">
+                                          <CardTitle className="text-sm font-medium leading-tight">{business.name}</CardTitle>
                                       </CardHeader>
                                       <CardContent className="p-3 pt-0">
                                       <div className="text-xs text-muted-foreground space-y-2">
@@ -158,8 +158,13 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                                               <span>{business.rating || 'N/A'} ({business.reviewCount || 0} reseñas)</span>
                                           </div>
                                           <div className="flex items-center gap-1">
-                                              <LinkIcon className="w-3 h-3" />
-                                              <span className="truncate">{business.website ? 'Con Web' : 'Sin Web'}</span>
+                                            {business.gmbStatus === 'linked' ? 
+                                              <LinkIcon className="w-3 h-3 text-green-500" /> : 
+                                              <LinkIcon className="w-3 h-3 text-muted-foreground/50" />
+                                            }
+                                            <span className={cn(business.gmbStatus !== 'linked' && 'text-muted-foreground/50')}>
+                                                {business.gmbStatus === 'linked' ? 'Verificado' : 'No Verificado'}
+                                            </span>
                                           </div>
                                       </div>
                                       <div className="flex flex-wrap gap-1 mt-2">
@@ -192,5 +197,3 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     </>
   );
 }
-
-    
