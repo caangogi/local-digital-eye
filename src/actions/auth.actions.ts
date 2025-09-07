@@ -10,9 +10,7 @@ import { auth as adminAuth } from '@/lib/firebase/firebase-admin-config';
 import { FirebaseUserRepository } from '@/backend/user/infrastructure/firebase-user.repository';
 import { CreateOrUpdateUserUseCase } from '@/backend/user/application/create-or-update-user.use-case';
 import type { User } from '@/backend/user/domain/user.entity';
-import { cookies } from 'next/headers';
-
-const SESSION_COOKIE_NAME = 'session';
+import { createSessionCookie, clearSessionCookie } from '@/lib/session';
 
 // Instantiate repository and use case
 const userRepository = new FirebaseUserRepository();
@@ -25,10 +23,6 @@ const createOrUpdateUserUseCase = new CreateOrUpdateUserUseCase(userRepository);
  */
 export async function createSession(idToken: string): Promise<{ success: boolean; message:string; }> {
   try {
-    const cookieStore = cookies();
-    // 2 weeks expiry for the session cookie
-    const expiresIn = 60 * 60 * 24 * 14 * 1000; 
-    
     // Verify the ID token and get user data
     const decodedIdToken = await adminAuth.verifyIdToken(idToken, true);
     
@@ -47,7 +41,6 @@ export async function createSession(idToken: string): Promise<{ success: boolean
         console.log(`[AuthAction] Set custom claim 'role: ${newRole}' for user ${decodedIdToken.uid}`);
     }
 
-
     // Create or update user in our database
     const userToSave: Omit<User, 'avatarUrl'> & { avatarUrl?: string } = {
       id: decodedIdToken.uid,
@@ -62,18 +55,8 @@ export async function createSession(idToken: string): Promise<{ success: boolean
 
     await createOrUpdateUserUseCase.execute(userToSave as User);
 
-    // Create session cookie
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
-    
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
-    cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
-      maxAge: expiresIn,
-      httpOnly: true,
-      secure: !isDevelopment,
-      path: '/',
-      sameSite: 'lax',
-    });
+    // Call the dedicated function to create the session cookie
+    await createSessionCookie(idToken);
 
     console.log(`[AuthAction] Session created for user ${decodedIdToken.uid}`);
     return { success: true, message: 'Session created successfully.' };
@@ -89,7 +72,7 @@ export async function createSession(idToken: string): Promise<{ success: boolean
  * Clears the session cookie.
  */
 export async function clearSession(): Promise<void> {
-  const cookieStore = cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  // Call the dedicated function to clear the session cookie
+  await clearSessionCookie();
   console.log('[AuthAction] Session cleared.');
 }
