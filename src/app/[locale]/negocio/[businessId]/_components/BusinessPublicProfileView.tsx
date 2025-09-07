@@ -76,9 +76,7 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
 
     return (
         <div className="bg-background text-foreground min-h-screen relative">
-            <div className="absolute inset-0 -z-20">
-                 <BackgroundImageCarousel business={business} googleMapsApiKey={googleMapsApiKey} />
-            </div>
+            <BackgroundImageCarousel business={business} googleMapsApiKey={googleMapsApiKey} />
              {/* Dynamic Aurora Background Effect & Blur Overlay */}
             <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
                 <div className={cn(
@@ -89,7 +87,7 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
             </div>
 
 
-            <div className="container mx-auto px-4 md:px-6">
+            <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
                 {/* --- HERO SECTION --- */}
                 <main className="flex flex-col items-center justify-center text-center min-h-screen py-10">
                     <div className="w-full max-w-4xl mx-auto">
@@ -117,7 +115,8 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
                 <TopReviewsSection reviews={business.topReviews} />
                 <PhotoCarouselSection business={business} googleMapsApiKey={googleMapsApiKey} />
                 <ContactMapSection business={business} googleMapsApiKey={googleMapsApiKey} center={center} />
-                <footer className="py-6">
+                
+                <footer className="py-6 mt-16 border-t border-border/20">
                     <div className="text-center text-muted-foreground">
                         <p>© {new Date().getFullYear()} {business.name}. Todos los derechos reservados.</p>
                     </div>
@@ -248,5 +247,7 @@ const StarRating = ({ rating, className }: { rating: number; className?: string 
         ))}
     </div>
 );
+
+    
 
     
