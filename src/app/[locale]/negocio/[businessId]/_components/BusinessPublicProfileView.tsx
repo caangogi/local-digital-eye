@@ -10,6 +10,9 @@ import { Map as GoogleMap, APIProvider, Marker } from '@vis.gl/react-google-maps
 import Image from "next/image";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import Autoplay from "embla-carousel-autoplay"
+
 
 // Tipos para las props
 interface BusinessPublicProfileViewProps {
@@ -25,22 +28,64 @@ interface PhotoCarouselProps {
 }
 
 
+// --- Background Image Carousel ---
+function BackgroundImageCarousel({ business, googleMapsApiKey }: PhotoCarouselProps) {
+    const photoUrls = business.photos?.map(photo => `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=1600&key=${googleMapsApiKey}`) || [];
+
+    if (photoUrls.length === 0) {
+        // Fallback image if no photos are available
+        return (
+             <div className="absolute inset-0 -z-10 h-full w-full">
+                <Image
+                    src="https://picsum.photos/1920/1080"
+                    alt="Default business background"
+                    fill
+                    className="object-cover"
+                    priority
+                />
+            </div>
+        )
+    }
+
+    return (
+        <Carousel 
+            className="absolute inset-0 -z-10 h-full w-full"
+            plugins={[Autoplay({ delay: 5000, stopOnInteraction: false })]}
+            opts={{ loop: true }}
+        >
+            <CarouselContent className="h-full">
+                {photoUrls.map((url, index) => (
+                    <CarouselItem key={index} className="h-full w-screen">
+                        <Image
+                            src={url}
+                            alt={`${business.name} background image ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            priority={index === 0}
+                        />
+                    </CarouselItem>
+                ))}
+            </CarouselContent>
+        </Carousel>
+    );
+}
+
 // --- Componente principal de la Landing Page ---
 export function BusinessPublicProfileView({ business, googleMapsApiKey }: BusinessPublicProfileViewProps) {
     const center = business.location ? { lat: business.location.latitude, lng: business.location.longitude } : null;
 
     return (
         <div className="bg-background text-foreground min-h-screen isolate">
-            {/* Aurora Background Effect - more prominent in dark mode */}
+             {/* Dynamic Aurora Background Effect */}
             <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-                <div 
-                    className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-10 dark:opacity-15"
-                    style={{
-                        background: 'radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 50%)',
-                        filter: 'blur(120px)'
-                    }}
-                ></div>
+                <div className={cn(
+                    "absolute inset-0 bg-background/60 dark:bg-background/80 backdrop-blur-sm", // Light/Dark overlay
+                    "bg-[radial-gradient(ellipse_100%_40%_at_50%_60%,rgba(var(--primary-rgb),0.1),transparent)] dark:bg-[radial-gradient(ellipse_100%_40%_at_50%_60%,rgba(var(--primary-rgb),0.2),transparent)]"
+                )}>
+                </div>
             </div>
+             <BackgroundImageCarousel business={business} googleMapsApiKey={googleMapsApiKey} />
+
 
             {/* --- HERO SECTION --- */}
             <main className="flex flex-col items-center justify-center text-center min-h-screen p-4 md:p-8 relative z-10">
@@ -66,47 +111,16 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
             </main>
 
             {/* --- INFORMATIONAL SECTIONS --- */}
-            <TopReviewsSection reviews={business.topReviews} />
-
-            <section className="bg-muted/30 py-20 md:py-28">
-                <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-                    <div className="order-2 md:order-1">
-                        <h2 className="text-3xl font-bold mb-6">Contacto y Ubicación</h2>
-                        <div className="space-y-4 text-muted-foreground text-lg">
-                            <div className="flex items-start gap-3"><MapIcon className="h-6 w-6 mt-1 text-primary"/><span>{business.address}</span></div>
-                            <div className="flex items-center gap-3"><Phone className="h-6 w-6 text-primary"/><span>{business.phone || 'Teléfono no disponible'}</span></div>
-                            {business.website && (<div className="flex items-center gap-3"><Globe className="h-6 w-6 text-primary"/><a href={business.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Ver sitio web</a></div>)}
-                        </div>
-                         {business.gmbPageUrl && (
-                           <div className="mt-8">
-                                <Button asChild>
-                                    <a 
-                                        href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Te recomiendo este lugar: ${business.name}. Aquí tienes el enlace a Google Maps: ${business.gmbPageUrl}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <MessageCircle className="mr-2 h-5 w-5"/>
-                                        Compartir con un amigo
-                                    </a>
-                                </Button>
-                           </div>
-                        )}
+            <div className="relative z-10 bg-background">
+                <TopReviewsSection reviews={business.topReviews} />
+                <PhotoCarouselSection business={business} googleMapsApiKey={googleMapsApiKey} />
+                <ContactMapSection business={business} googleMapsApiKey={googleMapsApiKey} center={center} />
+                <footer className="py-6">
+                    <div className="container mx-auto text-center text-muted-foreground">
+                        <p>© {new Date().getFullYear()} {business.name}. Todos los derechos reservados.</p>
                     </div>
-                    {googleMapsApiKey && center && (
-                        <div className="h-96 w-full rounded-lg overflow-hidden border-2 border-primary/20 shadow-xl order-1 md:order-2">
-                            <APIProvider apiKey={googleMapsApiKey}><GoogleMap defaultCenter={center} defaultZoom={15} mapId="businessLocationMap" gestureHandling="cooperative"><Marker position={center} /></GoogleMap></APIProvider>
-                        </div>
-                    )}
-                </div>
-            </section>
-            
-            <PhotoCarouselSection business={business} googleMapsApiKey={googleMapsApiKey} />
-
-             <footer className="py-6">
-                <div className="container mx-auto text-center text-muted-foreground">
-                    <p>© {new Date().getFullYear()} {business.name}. Todos los derechos reservados.</p>
-                </div>
-            </footer>
+                </footer>
+            </div>
         </div>
     );
 }
@@ -114,47 +128,41 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
 // Componente para el carrusel de fotos
 const PhotoCarouselSection = ({ business, googleMapsApiKey }: PhotoCarouselProps) => {
     if (!business.photos || business.photos.length === 0) {
-        return null; // No renderizar nada si no hay fotos
+        return null;
     }
 
     return (
         <section className="py-20 md:py-28">
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">Galería de Imágenes</h2>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">Un vistazo a nuestro espacio y trabajo.</p>
-                </div>
+            <div className="container mx-auto px-0 md:px-6">
                 <Carousel
                     opts={{
                         align: "start",
                         loop: true,
                     }}
-                    className="w-full max-w-4xl mx-auto"
+                    className="w-full max-w-6xl mx-auto" // Increased max-width
                 >
-                    <CarouselContent>
+                    <CarouselContent className="-ml-2 md:-ml-4">
                         {business.photos.map((photo, index) => {
                             const photoUrl = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=1000&key=${googleMapsApiKey}`;
                             return (
-                                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                                    <div className="p-1">
-                                        <Card className="overflow-hidden">
-                                            <CardContent className="flex aspect-square items-center justify-center p-0">
-                                                <Image 
-                                                    src={photoUrl} 
-                                                    alt={`${business.name} photo ${index + 1}`}
-                                                    width={500}
-                                                    height={500}
-                                                    className="object-cover w-full h-full"
-                                                />
-                                            </CardContent>
-                                        </Card>
+                                <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                                    <div className="overflow-hidden rounded-lg">
+                                        <CardContent className="flex aspect-[4/3] items-center justify-center p-0">
+                                            <Image 
+                                                src={photoUrl} 
+                                                alt={`${business.name} photo ${index + 1}`}
+                                                width={600} // Increased size
+                                                height={450} // Increased size
+                                                className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                                            />
+                                        </CardContent>
                                     </div>
                                 </CarouselItem>
                             );
                         })}
                     </CarouselContent>
-                    <CarouselPrevious className="ml-12" />
-                    <CarouselNext className="mr-12" />
+                    <CarouselPrevious className="ml-14 md:ml-4" />
+                    <CarouselNext className="mr-14 md:mr-4" />
                 </Carousel>
             </div>
         </section>
@@ -186,6 +194,47 @@ const TopReviewsSection = ({ reviews }: TopReviewsProps) => {
                         </Card>
                     ))}
                 </div>
+            </div>
+        </section>
+    );
+};
+
+// Componente para la sección de contacto y mapa
+const ContactMapSection = ({ business, googleMapsApiKey, center }: { business: Business, googleMapsApiKey: string | undefined, center: { lat: number, lng: number } | null }) => {
+    return (
+        <section className="bg-muted/30 py-20 md:py-28">
+            <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+                <div className="order-2 md:order-1">
+                    <h2 className="text-3xl font-bold mb-6">Contacto y Ubicación</h2>
+                    <div className="space-y-4 text-muted-foreground text-lg">
+                        <div className="flex items-start gap-3"><MapIcon className="h-6 w-6 mt-1 text-primary"/><span>{business.address}</span></div>
+                        <div className="flex items-center gap-3"><Phone className="h-6 w-6 text-primary"/><span>{business.phone || 'Teléfono no disponible'}</span></div>
+                        {business.website && (<div className="flex items-center gap-3"><Globe className="h-6 w-6 text-primary"/><a href={business.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Ver sitio web</a></div>)}
+                    </div>
+                     {business.gmbPageUrl && (
+                       <div className="mt-8">
+                            <Button asChild>
+                                <a 
+                                    href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Te recomiendo este lugar: ${business.name}. Aquí tienes el enlace a Google Maps: ${business.gmbPageUrl}`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <MessageCircle className="mr-2 h-5 w-5"/>
+                                    Compartir con un amigo
+                                </a>
+                            </Button>
+                       </div>
+                    )}
+                </div>
+                {googleMapsApiKey && center && (
+                    <div className="h-96 w-full rounded-lg overflow-hidden border-2 border-primary/20 shadow-xl order-1 md:order-2">
+                        <APIProvider apiKey={googleMapsApiKey}>
+                            <GoogleMap defaultCenter={center} defaultZoom={15} mapId="businessLocationMap" gestureHandling="cooperative">
+                                <Marker position={center} />
+                            </GoogleMap>
+                        </APIProvider>
+                    </div>
+                )}
             </div>
         </section>
     );
