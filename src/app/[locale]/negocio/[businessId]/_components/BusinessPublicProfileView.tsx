@@ -25,6 +25,11 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
     const hasPhotos = business.photos && business.photos.length > 0;
     const defaultImage = "https://picsum.photos/seed/business-placeholder/1920/1080";
 
+    // Create the LatLngLiteral object expected by the Google Maps components
+    const mapCenter = business.location 
+        ? { lat: business.location.latitude, lng: business.location.longitude }
+        : null;
+
     return (
         <div className="min-h-screen bg-background text-foreground">
             {/* Background Carousel */}
@@ -101,16 +106,16 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
                             </div>
                         </div>
                     </div>
-                    {googleMapsApiKey && business.location && (
+                    {googleMapsApiKey && mapCenter && (
                         <div className="h-80 w-full rounded-lg overflow-hidden border">
                             <APIProvider apiKey={googleMapsApiKey}>
                                 <GoogleMap
-                                    defaultCenter={business.location}
+                                    defaultCenter={mapCenter}
                                     defaultZoom={15}
                                     mapId="businessLocationMap"
                                     gestureHandling="cooperative"
                                 >
-                                    <Marker position={business.location} />
+                                    <Marker position={mapCenter} />
                                 </GoogleMap>
                             </APIProvider>
                         </div>
