@@ -42,8 +42,7 @@ export default function AddBusinessPage() {
   const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  // Initialize state with a safe default, will hydrate from localStorage in useEffect
-  const [searchResults, setSearchResults] = useState<SearchResult>({ prospects: [], rawResponse: null });
+  const [searchResults, setSearchResults] = useState<SearchResult>({ prospects: [] });
   const [debugConnectData, setDebugConnectData] = useState<Place | null>(null);
   
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
@@ -57,13 +56,19 @@ export default function AddBusinessPage() {
       const cachedResults = localStorage.getItem(CACHE_KEY);
       if (cachedResults) {
         const parsed = JSON.parse(cachedResults);
+        // Ensure the parsed data is valid before setting state
         if (parsed && Array.isArray(parsed.prospects)) {
           setSearchResults(parsed);
+        } else {
+           // If cache is invalid, set a default safe state
+           setSearchResults({ prospects: [], rawResponse: null });
         }
       }
     } catch (error) {
       console.error("Failed to parse cached results on init:", error);
+      // Clear invalid cache and set a default safe state
       localStorage.removeItem(CACHE_KEY);
+      setSearchResults({ prospects: [], rawResponse: null });
     }
   }, []); // Empty dependency array ensures this runs only once on mount
 
@@ -78,7 +83,7 @@ export default function AddBusinessPage() {
   
   
   const filteredResults = useMemo(() => {
-      return (searchResults.prospects || []).filter(business => {
+      return searchResults.prospects.filter(business => {
           const rating = business.rating ?? 0;
           if (rating > ratingFilter[0]) return false;
 
@@ -102,11 +107,11 @@ export default function AddBusinessPage() {
       const results = await extractGmbData({ query: data.query });
       if (results && results.mappedData.length > 0) {
         setSearchResults(prevResults => {
-            const existingPlaceIds = new Set((prevResults.prospects || []).map(r => r.placeId));
+            const existingPlaceIds = new Set(prevResults.prospects.map(r => r.placeId));
             const newUniqueResults = results.mappedData.filter(r => !existingPlaceIds.has(r.placeId));
             
             const updatedResults: SearchResult = {
-                prospects: [...(prevResults.prospects || []), ...newUniqueResults],
+                prospects: [...prevResults.prospects, ...newUniqueResults],
                 rawResponse: results.rawData, // Store the raw response
             };
 
@@ -146,7 +151,7 @@ export default function AddBusinessPage() {
         setSearchResults(prevResults => {
             const updatedResults = {
                 ...prevResults,
-                prospects: (prevResults.prospects || []).filter(r => r.placeId !== businessData.placeId),
+                prospects: prevResults.prospects.filter(r => r.placeId !== businessData.placeId),
             };
             return updatedResults;
         });
@@ -213,7 +218,7 @@ export default function AddBusinessPage() {
           <CardHeader>
             <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {(searchResults.prospects || []).length})</CardTitle>
+                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {searchResults.prospects.length})</CardTitle>
                     <CardDescription>{t('prospectsFoundDescription')}</CardDescription>
                 </div>
                 <Button onClick={clearCache} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
@@ -267,7 +272,7 @@ export default function AddBusinessPage() {
               </div>
             ))}
             </div>
-             {filteredResults.length === 0 && (searchResults.prospects || []).length > 0 && (
+             {filteredResults.length === 0 && searchResults.prospects.length > 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                     <p>{t('noFilterResults')}</p>
                     <p className="text-sm">{t('noFilterResultsHint')}</p>

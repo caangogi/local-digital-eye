@@ -101,7 +101,7 @@ const extractGmbDataFlow = ai.defineFlow(
 
     if (!searchResults || !searchResults.normalizedData || searchResults.normalizedData.length === 0) {
       console.log("Flow: No data returned from searchGooglePlaces service.");
-      return null;
+      return { mappedData: [], rawData: searchResults?.rawData };
     }
     
     // Step 2: Map the search result data to the output format.
@@ -111,7 +111,7 @@ const extractGmbDataFlow = ai.defineFlow(
 
     if (mappedData.length === 0) {
         console.log("Flow: Mapping from basic Place API data to output failed for all results.");
-        return null;
+        return { mappedData: [], rawData: searchResults.rawData };
     }
 
     console.log(`Flow: Successfully mapped ${mappedData.length} businesses.`);

@@ -61,6 +61,7 @@ export class ConnectBusinessUseCase {
     const businessToSave: Business = {
       id: placeId,
       userId: userId,
+      ownerId: null, // Initialize ownerId as null
       placeId: placeId,
       name: gmbData.name,
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
