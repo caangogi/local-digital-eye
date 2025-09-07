@@ -25,7 +25,8 @@ const OpeningHoursSchema = z.object({
 
 export const BusinessSchema = z.object({
   id: z.string().describe("Unique identifier for the business, typically the Google Place ID."),
-  userId: z.string().describe("The ID of the user who connected this business."),
+  userId: z.string().describe("The ID of the user (sales agent) who connected this business."),
+  ownerId: z.string().optional().nullable().describe("The ID of the user who owns the business."),
   name: z.string().describe("The official name of the business."),
   placeId: z.string().describe("The Google Place ID for this business."),
   reviewLink: z.string().url().describe("The direct URL for a user to write a Google review."),
@@ -58,3 +59,5 @@ export const BusinessSchema = z.object({
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
+
+    

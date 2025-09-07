@@ -30,6 +30,9 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
         dataToSave.nextContactDate = Timestamp.fromDate(businessData.nextContactDate);
     }
 
+    // Explicitly handle null values for optional fields to avoid Firestore errors
+    dataToSave.ownerId = businessData.ownerId || null;
+
 
     await this.collection.doc(id).set(dataToSave, { merge: true });
     return validatedBusiness;
@@ -105,3 +108,5 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     await this.collection.doc(id).delete();
   }
 }
+
+    

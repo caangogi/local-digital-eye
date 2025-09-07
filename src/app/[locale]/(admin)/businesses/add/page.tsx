@@ -37,11 +37,31 @@ interface SearchResult {
 
 const CACHE_KEY = 'prospecting_search_results';
 
+// Helper function to safely get initial state from localStorage
+const getInitialState = (): SearchResult => {
+  try {
+    const cachedResults = localStorage.getItem(CACHE_KEY);
+    if (cachedResults) {
+      const parsed = JSON.parse(cachedResults);
+      // Ensure the parsed object has the correct structure
+      if (parsed && Array.isArray(parsed.prospects)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to parse cached results on init:", error);
+    localStorage.removeItem(CACHE_KEY);
+  }
+  // Return a safe default if cache is invalid or missing
+  return { prospects: [], rawResponse: null };
+};
+
+
 export default function AddBusinessPage() {
   const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<SearchResult>({ prospects: [] });
+  const [searchResults, setSearchResults] = useState<SearchResult>(getInitialState());
   const [debugConnectData, setDebugConnectData] = useState<Place | null>(null);
   
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
@@ -49,20 +69,19 @@ export default function AddBusinessPage() {
   
   const { toast } = useToast();
 
+  // Effect to sync state changes back to localStorage
   useEffect(() => {
     try {
-      const cachedResults = localStorage.getItem(CACHE_KEY);
-      if (cachedResults) {
-        setSearchResults(JSON.parse(cachedResults));
-      }
+      localStorage.setItem(CACHE_KEY, JSON.stringify(searchResults));
     } catch (error) {
-      console.error("Failed to parse cached results:", error);
-      localStorage.removeItem(CACHE_KEY);
+      console.error("Failed to save results to cache:", error);
     }
-  }, []);
+  }, [searchResults]);
+  
   
   const filteredResults = useMemo(() => {
-      return searchResults.prospects.filter(business => {
+      // Always ensure searchResults.prospects is an array before filtering
+      return (searchResults.prospects || []).filter(business => {
           const rating = business.rating ?? 0;
           if (rating > ratingFilter[0]) return false;
 
@@ -86,15 +105,13 @@ export default function AddBusinessPage() {
       const results = await extractGmbData({ query: data.query });
       if (results && results.mappedData.length > 0) {
         setSearchResults(prevResults => {
-            const existingPlaceIds = new Set(prevResults.prospects.map(r => r.placeId));
+            const existingPlaceIds = new Set((prevResults.prospects || []).map(r => r.placeId));
             const newUniqueResults = results.mappedData.filter(r => !existingPlaceIds.has(r.placeId));
             
             const updatedResults: SearchResult = {
-                prospects: [...prevResults.prospects, ...newUniqueResults],
+                prospects: [...(prevResults.prospects || []), ...newUniqueResults],
                 rawResponse: results.rawData, // Store the raw response
             };
-
-            localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
 
             if(newUniqueResults.length > 0) {
               toast({ title: `${newUniqueResults.length} ${t('newProspectsToast')}`});
@@ -105,7 +122,7 @@ export default function AddBusinessPage() {
         });
       } else {
         toast({ title: t('notFound'), variant: "destructive" });
-        setSearchResults({ prospects: [], rawResponse: results?.rawData }); // Show raw response even if no results
+        setSearchResults(prev => ({...prev, rawResponse: results?.rawData })); // Show raw response even if no results
       }
     } catch (error: any) {
       toast({ title: t('searchError'), description: error.message, variant: "destructive" });
@@ -132,9 +149,8 @@ export default function AddBusinessPage() {
         setSearchResults(prevResults => {
             const updatedResults = {
                 ...prevResults,
-                prospects: prevResults.prospects.filter(r => r.placeId !== businessData.placeId),
+                prospects: (prevResults.prospects || []).filter(r => r.placeId !== businessData.placeId),
             };
-            localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
             return updatedResults;
         });
       } else {
@@ -148,7 +164,7 @@ export default function AddBusinessPage() {
   };
 
   const clearCache = () => {
-    setSearchResults({ prospects: [] });
+    setSearchResults({ prospects: [], rawResponse: null });
     setDebugConnectData(null);
     localStorage.removeItem(CACHE_KEY);
     toast({title: t('clearListSuccessToast')});
@@ -200,7 +216,7 @@ export default function AddBusinessPage() {
           <CardHeader>
             <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {searchResults.prospects.length})</CardTitle>
+                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {(searchResults.prospects || []).length})</CardTitle>
                     <CardDescription>{t('prospectsFoundDescription')}</CardDescription>
                 </div>
                 <Button onClick={clearCache} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
@@ -254,7 +270,7 @@ export default function AddBusinessPage() {
               </div>
             ))}
             </div>
-             {filteredResults.length === 0 && searchResults.prospects.length > 0 && (
+             {filteredResults.length === 0 && (searchResults.prospects || []).length > 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                     <p>{t('noFilterResults')}</p>
                     <p className="text-sm">{t('noFilterResultsHint')}</p>
@@ -266,3 +282,5 @@ export default function AddBusinessPage() {
     </div>
   );
 }
+
+    
