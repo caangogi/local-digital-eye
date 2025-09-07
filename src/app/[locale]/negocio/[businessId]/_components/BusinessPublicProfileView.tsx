@@ -25,44 +25,43 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
     const hasPhotos = business.photos && business.photos.length > 0;
     const defaultImage = "https://picsum.photos/seed/business-placeholder/1920/1080";
 
-    const mapCenter = business.location 
+    const center = business.location 
         ? { lat: business.location.latitude, lng: business.location.longitude }
         : null;
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background text-foreground relative">
             {/* Background Carousel */}
-            <div className="absolute inset-0 z-[-1] overflow-hidden">
-                <Carousel className="h-full w-full" opts={{ loop: true }}>
-                    <CarouselContent className="h-full w-full">
-                         {hasPhotos ? (
-                            business.photos.map((photo, index) => (
-                                <CarouselItem key={index} className="h-full w-full relative">
-                                    <Image
-                                        src={`https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=1080&maxWidthPx=1920&key=${googleMapsApiKey}`}
-                                        alt={`Foto de ${business.name} ${index + 1}`}
-                                        fill
-                                        className="object-cover"
-                                        priority={index === 0}
-                                    />
-                                </CarouselItem>
-                            ))
-                        ) : (
-                             <CarouselItem className="h-full w-full relative">
+            <Carousel className="absolute inset-0 z-[-1] overflow-hidden" opts={{ loop: true }}>
+                <CarouselContent className="h-full">
+                     {hasPhotos ? (
+                        business.photos.map((photo, index) => (
+                            <CarouselItem key={index} className="h-full w-screen relative">
                                 <Image
-                                    src={defaultImage}
-                                    alt="Imagen de marcador de posición para el negocio"
+                                    src={`https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=1080&maxWidthPx=1920&key=${googleMapsApiKey}`}
+                                    alt={`Foto de ${business.name} ${index + 1}`}
                                     fill
                                     className="object-cover"
-                                    priority
-                                    data-ai-hint="placeholder image"
+                                    priority={index === 0}
                                 />
                             </CarouselItem>
-                        )}
-                    </CarouselContent>
-                </Carousel>
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
-            </div>
+                        ))
+                    ) : (
+                         <CarouselItem className="h-full w-screen relative">
+                            <Image
+                                src={defaultImage}
+                                alt="Imagen de marcador de posición para el negocio"
+                                fill
+                                className="object-cover"
+                                priority
+                                data-ai-hint="placeholder image"
+                            />
+                        </CarouselItem>
+                    )}
+                </CarouselContent>
+            </Carousel>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[-1]"></div>
+            
 
             {/* Main Content */}
             <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 md:p-8">
@@ -105,16 +104,16 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
                             </div>
                         </div>
                     </div>
-                    {googleMapsApiKey && mapCenter && (
+                    {googleMapsApiKey && center && (
                         <div className="h-80 w-full rounded-lg overflow-hidden border">
                             <APIProvider apiKey={googleMapsApiKey}>
                                 <GoogleMap
-                                    defaultCenter={mapCenter}
+                                    defaultCenter={center}
                                     defaultZoom={15}
                                     mapId="businessLocationMap"
                                     gestureHandling="cooperative"
                                 >
-                                    <Marker position={mapCenter} />
+                                    <Marker position={center} />
                                 </GoogleMap>
                             </APIProvider>
                         </div>
