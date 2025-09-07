@@ -25,6 +25,7 @@ const createOrUpdateUserUseCase = new CreateOrUpdateUserUseCase(userRepository);
  */
 export async function createSession(idToken: string): Promise<{ success: boolean; message:string; }> {
   try {
+    const cookieStore = cookies();
     // 2 weeks expiry for the session cookie
     const expiresIn = 60 * 60 * 24 * 14 * 1000; 
     
@@ -66,7 +67,7 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     
     const isDevelopment = process.env.NODE_ENV === 'development';
     
-    cookies().set(SESSION_COOKIE_NAME, sessionCookie, {
+    cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
       secure: !isDevelopment,
@@ -88,6 +89,7 @@ export async function createSession(idToken: string): Promise<{ success: boolean
  * Clears the session cookie.
  */
 export async function clearSession(): Promise<void> {
-  cookies().delete(SESSION_COOKIE_NAME);
+  const cookieStore = cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
   console.log('[AuthAction] Session cleared.');
 }
