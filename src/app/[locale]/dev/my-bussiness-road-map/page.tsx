@@ -93,8 +93,8 @@ const phases = [
             title: "Hito 2.1: Flujo de Invitación y Onboarding Seguro (OAuth)",
             icon: <KeyRound />,
             tasks: [
+                { who: "bot", text: "Crear un Server Action `generateOnboardingLink(businessId)` que genere un enlace de invitación único y seguro para cada negocio." },
                 { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada para producción." },
-                { who: "bot", text: "Crear un Server Action `generateOnboardingLink(businessId)` que genere un JWT (JSON Web Token) de corta duración. Este token contendrá el `businessId` y un `type` ('freemium' o 'premium')." },
                 { who: "bot", text: "En la UI del Asistente, añadir un botón 'Invitar al Dueño' que llame a esta acción y permita copiar el enlace generado (ej: `app.com/onboarding?token=JWT`)." },
                 { who: "bot", text: "Crear una nueva página pública `/onboarding` que valide el JWT. Si es válido, mostrará al Dueño la información del negocio al que se le invita y un formulario para crear su cuenta (Nombre, Email, Contraseña)." },
                 { who: "bot", text: "Tras crear la cuenta, el flujo de OAuth de Google se iniciará automáticamente. El `state` del OAuth contendrá el `businessId`." },
@@ -231,5 +231,3 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
-
-    
