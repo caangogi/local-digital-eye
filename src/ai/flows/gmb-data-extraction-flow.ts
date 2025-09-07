@@ -58,11 +58,11 @@ const FlowOutputSchema = z.object({
 });
 
 function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
-  if (!placeData || !placeData.id) {
+  if (!placeData || !placeData.id || !placeData.name) {
     return null;
   }
   
-  const placeName = placeData.name; // Now correctly using the normalized name field
+  const placeName = placeData.name;
 
   let summary = `Un ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establecimiento'} en la zona.`;
   if (placeData.rating && placeData.userRatingCount) {
@@ -79,7 +79,7 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
     reviewCount: placeData.userRatingCount || undefined,
     category: placeData.types?.[0], 
     businessStatus: placeData.businessStatus || undefined,
-    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${placeName}&query_place_id=${placeData.id}`,
+    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}&query_place_id=${placeData.id}`,
     briefReviewSummary: summary,
     
     location: placeData.location || undefined,
