@@ -32,6 +32,6 @@ export async function createSessionCookie(idToken: string): Promise<void> {
  * Clears the session cookie.
  */
 export async function clearSessionCookie(): Promise<void> {
-  // Use the cookies function to delete the cookie
+  // Use the cookies function to delete the cookie by setting maxAge to 0
   cookies().set(SESSION_COOKIE_NAME, '', { maxAge: 0 });
 }
