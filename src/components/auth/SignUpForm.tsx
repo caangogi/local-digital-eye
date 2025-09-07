@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -20,6 +21,12 @@ const signUpSchema = z.object({
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
+
+const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.86 2.25-4.82 2.25-3.64 0-6.55-3-6.55-6.6s2.91-6.6 6.55-6.6c1.98 0 3.22.78 4.25 1.75l2.43-2.33C17.4.9 15.22 0 12.48 0 5.88 0 .81 5.44.81 12.15s5.07 12.15 11.67 12.15c6.48 0 11.4-4.35 11.4-11.75 0-.79-.07-1.54-.19-2.25h-11.z" />
+    </svg>
+);
 
 export function SignUpForm() {
   const { signUpWithEmail, signInWithGoogle, isLoading } = useAuth();
@@ -97,7 +104,7 @@ export function SignUpForm() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <div className="flex items-center justify-center">
-                  <Image src="/google-logo.svg" alt="Google Logo" width={20} height={20} className="mr-2 bg-white rounded-full p-0.5"/>
+                  <GoogleIcon className="mr-2 h-5 w-5" />
                   <span>{t('googleSignInButton')}</span>
                 </div>
               )}
