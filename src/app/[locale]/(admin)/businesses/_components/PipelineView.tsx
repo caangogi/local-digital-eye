@@ -114,7 +114,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
   return (
     <>
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="h-full w-full overflow-x-auto pb-4">
+      <div className="w-full overflow-x-auto pb-4 h-[70vh]">
         <div className="h-full min-w-max flex gap-4">
           {salesStatuses.map(status => (
             <Droppable key={status} droppableId={status}>
@@ -123,7 +123,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                   className={cn(
-                    "flex flex-col w-[280px] sm:w-[300px]",
+                    "flex flex-col w-[280px] sm:w-[300px] h-full",
                   )}
                 >
                   <div className="flex items-center gap-2 mb-4 px-1 flex-shrink-0">
@@ -132,7 +132,7 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
                     <Badge variant="secondary" className="ml-auto">{boardData[status].length}</Badge>
                   </div>
                   <div className={cn(
-                      "space-y-3 rounded-lg p-2 transition-colors min-h-[70vh] overflow-y-auto",
+                      "space-y-3 rounded-lg p-2 transition-colors flex-grow overflow-y-auto",
                       snapshot.isDraggingOver ? "bg-accent/20" : "bg-muted/40"
                   )}>
                     {boardData[status].map((business, index) => (
