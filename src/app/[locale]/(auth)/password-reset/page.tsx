@@ -1,10 +1,19 @@
-import { SignUpForm } from "@/components/auth/SignUpForm";
+import { PasswordResetForm } from "@/components/auth/PasswordResetForm";
+import {getTranslations} from 'next-intl/server';
 import { ClientAuthForm } from "@/components/auth/ClientAuthForm";
 
-export default function SignUpPage() {
+
+export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
+  const t = await getTranslations('AuthPage.passwordReset');
+  return {
+    title: t('title')
+  };
+}
+
+export default function PasswordResetPage() {
   return (
     <ClientAuthForm>
-      <SignUpForm />
+      <PasswordResetForm />
     </ClientAuthForm>
   );
 }
