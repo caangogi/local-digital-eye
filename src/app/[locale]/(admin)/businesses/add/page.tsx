@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,51 +30,32 @@ type SearchFormValues = z.infer<typeof searchSchema>;
 
 type WebsiteFilter = 'all' | 'with_website' | 'without_website';
 
-interface SearchResult {
+// Simplified state for the prospect list
+interface ProspectListState {
     prospects: GmbDataExtractionOutput[];
-    rawResponse?: any;
+    searchRawResponse?: any;
+    connectRawResponse?: Place | null;
 }
-
-const CACHE_KEY = 'prospecting_search_results';
-
 
 export default function AddBusinessPage() {
   const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<SearchResult>({ prospects: [] });
-  const [debugConnectData, setDebugConnectData] = useState<Place | null>(null);
+  
+  // State for search results and debug data
+  const [prospectState, setProspectState] = useState<ProspectListState>({ 
+    prospects: [],
+    searchRawResponse: null,
+    connectRawResponse: null,
+  });
   
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
   const [websiteFilter, setWebsiteFilter] = useState<WebsiteFilter>('all');
   
   const { toast } = useToast();
 
-  // Effect to load from cache on mount (Client-side only)
-  useEffect(() => {
-    try {
-      const cachedResults = localStorage.getItem(CACHE_KEY);
-      if (cachedResults) {
-        const parsed = JSON.parse(cachedResults);
-        // Ensure the parsed data is valid before setting state
-        if (parsed && Array.isArray(parsed.prospects)) {
-          setSearchResults(parsed);
-        } else {
-           // If cache is invalid, set a default safe state
-           setSearchResults({ prospects: [], rawResponse: null });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to parse cached results on init:", error);
-      // Clear invalid cache and set a default safe state
-      localStorage.removeItem(CACHE_KEY);
-      setSearchResults({ prospects: [], rawResponse: null });
-    }
-  }, []); // Empty dependency array ensures this runs only once on mount
-  
-  
   const filteredResults = useMemo(() => {
-      return searchResults.prospects.filter(business => {
+      return prospectState.prospects.filter(business => {
           const rating = business.rating ?? 0;
           if (rating > ratingFilter[0]) return false;
 
@@ -83,7 +64,7 @@ export default function AddBusinessPage() {
           
           return true;
       });
-  }, [searchResults.prospects, ratingFilter, websiteFilter]);
+  }, [prospectState.prospects, ratingFilter, websiteFilter]);
 
 
   const form = useForm<SearchFormValues>({
@@ -93,32 +74,30 @@ export default function AddBusinessPage() {
 
   const handleSearch: SubmitHandler<SearchFormValues> = async (data) => {
     setIsLoading(true);
-    setDebugConnectData(null); // Clear previous connection debug data
+    setProspectState(prevState => ({ ...prevState, connectRawResponse: null })); // Clear previous connection debug data
+
     try {
       const results = await extractGmbData({ query: data.query });
-      if (results && results.mappedData.length > 0) {
-        setSearchResults(prevResults => {
-            const existingPlaceIds = new Set(prevResults.prospects.map(r => r.placeId));
-            const newUniqueResults = results.mappedData.filter(r => !existingPlaceIds.has(r.placeId));
-            
-            const updatedResults: SearchResult = {
-                prospects: [...prevResults.prospects, ...newUniqueResults],
-                rawResponse: results.rawData, // Store the raw response
-            };
-            
-            localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
+      
+      setProspectState(prevState => {
+        const existingPlaceIds = new Set(prevState.prospects.map(p => p.placeId));
+        const newUniqueProspects = (results?.mappedData || []).filter(p => !existingPlaceIds.has(p.placeId));
 
-            if(newUniqueResults.length > 0) {
-              toast({ title: `${newUniqueResults.length} ${t('newProspectsToast')}`});
-            } else {
-              toast({ title: t('noNewProspectsToast')});
-            }
-            return updatedResults;
-        });
-      } else {
-        toast({ title: t('notFound'), variant: "destructive" });
-        setSearchResults(prev => ({...prev, rawResponse: results?.rawData })); // Show raw response even if no results
-      }
+        if (newUniqueProspects.length > 0) {
+            toast({ title: `${newUniqueProspects.length} ${t('newProspectsToast')}` });
+        } else if (results?.mappedData) {
+            toast({ title: t('noNewProspectsToast') });
+        } else {
+            toast({ title: t('notFound'), variant: "destructive" });
+        }
+
+        return {
+            ...prevState,
+            prospects: [...prevState.prospects, ...newUniqueProspects],
+            searchRawResponse: results?.rawData, // Store raw search response for debugging
+        };
+      });
+
     } catch (error: any) {
       toast({ title: t('searchError'), description: error.message, variant: "destructive" });
     } finally {
@@ -130,25 +109,22 @@ export default function AddBusinessPage() {
   const handleConnect = async (businessData: GmbDataExtractionOutput) => {
     if (!businessData.placeId) return;
     setIsConnecting(businessData.placeId);
-    setDebugConnectData(null);
+    setProspectState(prevState => ({ ...prevState, connectRawResponse: null })); // Clear previous debug data
+
     try {
       const response = await connectBusiness(businessData);
-       if (response.debugData) {
-        setDebugConnectData(response.debugData);
-      }
+      
       if (response.success && response.businessId) {
         toast({
           title: t('connectSuccessTitle'),
           description: t('connectSuccessDescription'),
         });
-        setSearchResults(prevResults => {
-            const updatedResults = {
-                ...prevResults,
-                prospects: prevResults.prospects.filter(r => r.placeId !== businessData.placeId),
-            };
-            localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
-            return updatedResults;
-        });
+        // Remove connected prospect from the list
+        setProspectState(prevState => ({
+          ...prevState,
+          prospects: prevState.prospects.filter(p => p.placeId !== businessData.placeId),
+          connectRawResponse: response.debugData, // Store raw connect response for debugging
+        }));
       } else {
         toast({ title: t('connectErrorTitle'), description: response.message, variant: "destructive" });
       }
@@ -159,10 +135,8 @@ export default function AddBusinessPage() {
     }
   };
 
-  const clearCache = () => {
-    setSearchResults({ prospects: [], rawResponse: null });
-    setDebugConnectData(null);
-    localStorage.removeItem(CACHE_KEY);
+  const clearList = () => {
+    setProspectState({ prospects: [], searchRawResponse: null, connectRawResponse: null });
     toast({title: t('clearListSuccessToast')});
   }
 
@@ -203,17 +177,15 @@ export default function AddBusinessPage() {
         </CardContent>
       </Card>
       
-    
-
-      {(searchResults.prospects.length > 0 || searchResults.rawResponse) && (
+      {prospectState.prospects.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {searchResults.prospects.length})</CardTitle>
+                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {prospectState.prospects.length})</CardTitle>
                     <CardDescription>{t('prospectsFoundDescription')}</CardDescription>
                 </div>
-                <Button onClick={clearCache} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
+                <Button onClick={clearList} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -260,7 +232,7 @@ export default function AddBusinessPage() {
               </div>
             ))}
             </div>
-             {filteredResults.length === 0 && searchResults.prospects.length > 0 && (
+             {filteredResults.length === 0 && prospectState.prospects.length > 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                     <p>{t('noFilterResults')}</p>
                     <p className="text-sm">{t('noFilterResultsHint')}</p>
@@ -272,11 +244,11 @@ export default function AddBusinessPage() {
 
       {/* Debugger Section */}
       <div className="mt-8 space-y-4">
-        {searchResults.rawResponse && (
-            <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={searchResults.rawResponse} />
+        {prospectState.searchRawResponse && (
+            <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={prospectState.searchRawResponse} />
         )}
-        {debugConnectData && (
-            <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={debugConnectData} />
+        {prospectState.connectRawResponse && (
+            <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={prospectState.connectRawResponse} />
         )}
       </div>
     </div>
