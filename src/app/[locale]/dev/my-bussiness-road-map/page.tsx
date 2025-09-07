@@ -68,9 +68,9 @@ const phases = [
         icon: <KanbanSquare />,
         tasks: [
           { who: "bot", text: "Reconstruir la página de Prospección (`/businesses/add`) para usar el nuevo `ConnectBusinessUseCase` a través de un Server Action.", completed: true },
-          { who: "bot", text: "Reconstruir la página de listado (`/businesses`) con sus dos vistas: Lista y Pipeline (Kanban).", completed: false },
-          { who: "bot", text: "Asegurar que la vista de Pipeline permita arrastrar y soltar para cambiar el `salesStatus`, llamando a un `UpdateBusinessStatusUseCase`.", completed: false },
-          { who: "bot", text: "Reconstruir el panel lateral (Sheet) que se abre al hacer clic en un negocio, permitiendo la edición de los campos del CRM (`notes`, `customTags`, etc.) a través de un `UpdateBusinessDetailsUseCase`.", completed: false },
+          { who: "bot", text: "Reconstruir la página de listado (`/businesses`) con sus dos vistas: Lista y Pipeline (Kanban).", completed: true },
+          { who: "bot", text: "Asegurar que la vista de Pipeline permita arrastrar y soltar para cambiar el `salesStatus`, llamando a un `UpdateBusinessStatusUseCase`.", completed: true },
+          { who: "bot", text: "Reconstruir el panel lateral (Sheet) que se abre al hacer clic en un negocio, permitiendo la edición de los campos del CRM (`notes`, `customTags`, etc.) a través de un `UpdateBusinessDetailsUseCase`.", completed: true },
         ]
       },
        {
