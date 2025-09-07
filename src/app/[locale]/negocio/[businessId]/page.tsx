@@ -14,10 +14,13 @@ export default async function BusinessPublicProfilePage({ params }: { params: { 
         notFound();
     }
     
+    const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
     // We pass the fetched data to the client component
     return (
         <BusinessPublicProfileView 
-            business={business} 
+            business={business}
+            googleMapsApiKey={googleMapsApiKey}
         />
     );
 }

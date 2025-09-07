@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,10 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { submitNegativeFeedback } from '@/actions/feedback.actions';
 import { useToast } from "@/hooks/use-toast";
+import { CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 
 interface ReviewFormProps {
@@ -21,13 +23,14 @@ interface ReviewFormProps {
 }
 
 const reviewSchema = z.object({
-    rating: z.number().min(1, "Por favor, selecciona una calificación.").max(5),
+    rating: z.string().refine(val => parseInt(val) >= 1 && parseInt(val) <= 5, { message: "Por favor, selecciona una calificación." }),
     comment: z.string().optional(),
     name: z.string().optional(),
-    email: z.string().optional(), // Making email optional for now
+    email: z.string().email({message: "Por favor, introduce un email válido."}).optional().or(z.literal('')),
 }).refine(data => {
     // If rating is < 5, comment must be provided.
-    if (data.rating < 5) {
+    const ratingNum = parseInt(data.rating, 10);
+    if (ratingNum < 5) {
         return data.comment && data.comment.length > 10;
     }
     return true;
@@ -39,25 +42,37 @@ const reviewSchema = z.object({
 type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 
+const thankYouMessages = [
+    "¡Muchas gracias por tu valoración! 💛\nTus comentarios nos ayudan a mejorar y a seguir sirviendo con el cariño que te mereces. Cada opinión la leemos y la tenemos en cuenta.",
+    "Gracias por regalarnos un minuto de tu tiempo 🙏\nTu reseña es un ingrediente esencial para que podamos seguir creciendo y darte siempre el mejor servicio.",
+    "¡Tu voz cuenta y mucho! 🌟\nApreciamos de corazón tu comentario. Lo leeremos con atención y aplicaremos todo lo que nos ayude a mejorar.",
+    "Tu opinión nos inspira 🍴✨\nCada valoración es una guía para servirte mejor. Gracias por confiar en nosotros y ayudarnos a crecer.",
+    "Estamos felices de contar con clientes como tú 💕\nTus comentarios nos motivan a dar lo mejor cada día. Gracias por compartir tu experiencia.",
+    "Gracias de corazón por tu reseña 💫\nTus palabras son la mejor recompensa para nuestro equipo. Nos ayudan a mejorar y a seguir sirviendo con pasión.",
+    "¡Tu opinión es nuestro motor! 🚀\nCada comentario lo leemos y lo valoramos muchísimo. Gracias por ayudarnos a crecer contigo."
+];
+
+
 export function ReviewForm({ business }: ReviewFormProps) {
     const { toast } = useToast();
-    const [hoveredRating, setHoveredRating] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionCompleted, setSubmissionCompleted] = useState(false);
+    const [randomMessage, setRandomMessage] = useState('');
+
+    useEffect(() => {
+        setRandomMessage(thankYouMessages[Math.floor(Math.random() * thankYouMessages.length)]);
+    }, []);
 
     const form = useForm<ReviewFormValues>({
         resolver: zodResolver(reviewSchema),
-        defaultValues: {
-            rating: 0,
-            comment: "",
-            name: "",
-            email: ""
-        }
+        defaultValues: { rating: "0", comment: "", name: "", email: "" }
     });
 
-    const selectedRating = form.watch('rating');
+    const selectedRating = parseInt(form.watch('rating'), 10);
 
-    const handleRatingClick = (rating: number) => {
+    const handleRatingChange = (value: string) => {
+        const rating = parseInt(value, 10);
+        form.setValue('rating', value, { shouldValidate: true });
         if (rating === 5) {
             if (business.reviewLink) {
                 window.location.href = business.reviewLink;
@@ -68,21 +83,17 @@ export function ReviewForm({ business }: ReviewFormProps) {
                     variant: "destructive",
                 });
             }
-        } else {
-            form.setValue('rating', rating, { shouldValidate: true });
         }
     };
 
     const handleSubmit = async (data: ReviewFormValues) => {
-        // This function will now only be called for ratings 1-4
-        if (data.rating === 5) return; 
-
+        if (parseInt(data.rating, 10) === 5) return; 
         setIsSubmitting(true);
         try {
             const response = await submitNegativeFeedback({
                 businessId: business.id,
                 businessName: business.name,
-                rating: data.rating,
+                rating: parseInt(data.rating, 10),
                 comment: data.comment || '',
                 userName: data.name,
                 userEmail: data.email,
@@ -91,19 +102,10 @@ export function ReviewForm({ business }: ReviewFormProps) {
             if (response.success) {
                 setSubmissionCompleted(true);
             } else {
-                toast({
-                    title: "Error al enviar",
-                    description: response.message,
-                    variant: "destructive",
-                });
+                toast({ title: "Error al enviar", description: response.message, variant: "destructive" });
             }
-
         } catch (error) {
-            toast({
-                title: "Error inesperado",
-                description: "Ocurrió un error al enviar tus comentarios. Por favor, inténtalo de nuevo.",
-                variant: "destructive",
-            });
+            toast({ title: "Error inesperado", description: "Ocurrió un error.", variant: "destructive" });
         } finally {
             setIsSubmitting(false);
         }
@@ -114,83 +116,99 @@ export function ReviewForm({ business }: ReviewFormProps) {
             <div className="text-center p-8 flex flex-col items-center gap-4">
                 <CheckCircle className="w-16 h-16 text-green-500"/>
                 <h3 className="text-xl font-bold text-foreground">¡Gracias por tu feedback!</h3>
-                <p className="text-muted-foreground">Hemos recibido tus comentarios y los usaremos para mejorar nuestro servicio. Apreciamos mucho tu tiempo.</p>
+                <p className="text-muted-foreground whitespace-pre-line">{randomMessage}</p>
             </div>
         );
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                <div className="flex flex-col items-center">
-                    <FormLabel className="text-lg font-semibold mb-4">¿Cómo calificarías tu experiencia?</FormLabel>
-                    <div 
-                        className="flex items-center gap-2"
-                        onMouseLeave={() => setHoveredRating(null)}
-                    >
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                                key={star}
-                                className={cn(
-                                    "w-10 h-10 cursor-pointer transition-all duration-200",
-                                    (hoveredRating ?? selectedRating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
+                <CardHeader>
+                    <CardTitle>Valora tu experiencia</CardTitle>
+                    <CardDescription>Queremos conocer tu opinión para seguir mejorando. ¡Gracias por tu tiempo!</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="rating"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>¿Con cuántas estrellas nos valoras?</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={handleRatingChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-2"
+                            >
+                                {[5, 4, 3, 2, 1].map((ratingValue) => (
+                                    <FormItem key={ratingValue} className={cn("flex items-center space-x-3 space-y-0 p-3 rounded-lg border transition-all", selectedRating === ratingValue ? "bg-accent/20 border-accent" : "hover:bg-muted/50", ratingValue === 5 && "border-2 border-amber-400 shadow-lg shadow-amber-500/20")}>
+                                         <FormControl>
+                                            <RadioGroupItem value={String(ratingValue)} />
+                                        </FormControl>
+                                        <div className="flex">
+                                            {Array.from({ length: ratingValue }).map((_, i) => (
+                                                 <Star key={i} className={cn("h-5 w-5", ratingValue === 5 ? "text-amber-400 fill-amber-400" : "text-yellow-400 fill-yellow-400")} />
+                                            ))}
+                                            {Array.from({ length: 5 - ratingValue }).map((_, i) => (
+                                                <Star key={i + ratingValue} className={cn("h-5 w-5", ratingValue === 5 ? "text-amber-400/50" : "text-gray-300")} />
+                                            ))}
+                                        </div>
+                                    </FormItem>
+                                ))}
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {selectedRating > 0 && selectedRating < 5 && (
+                        <div className="space-y-4 pt-4 border-t animate-in fade-in-50 duration-500">
+                            <p className="text-center text-sm text-muted-foreground">Lamentamos que tu experiencia no haya sido perfecta. Por favor, danos más detalles.</p>
+                             <FormField
+                                control={form.control}
+                                name="comment"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tus comentarios</FormLabel>
+                                        <FormControl><Textarea placeholder="Cuéntanos qué ha pasado..." {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                                onMouseEnter={() => setHoveredRating(star)}
-                                onClick={() => handleRatingClick(star)}
                             />
-                        ))}
-                    </div>
-                    <FormMessage className="mt-2">{form.formState.errors.rating?.message}</FormMessage>
-                </div>
-
-
+                             <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tu Nombre (Opcional)</FormLabel>
+                                        <FormControl><Input placeholder="Juan Pérez" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tu Email (Opcional)</FormLabel>
+                                        <FormControl><Input placeholder="tu@email.com" {...field} /></FormControl>
+                                         <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    )}
+                </CardContent>
                 {selectedRating > 0 && selectedRating < 5 && (
-                    <div className="space-y-4 p-4 border bg-muted/50 rounded-lg animate-in fade-in-50 duration-500">
-                        <p className="text-center text-sm text-muted-foreground">Lamentamos que tu experiencia no haya sido perfecta. Por favor, danos más detalles para poder mejorar.</p>
-                         <FormField
-                            control={form.control}
-                            name="comment"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tus comentarios</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Cuéntanos qué ha pasado..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tu Nombre (Opcional)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Juan Pérez" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tu Email (Opcional)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="tu@email.com" {...field} />
-                                    </FormControl>
-                                     <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <Button type="submit" className="w-full" disabled={isSubmitting}>
+                     <CardFooter>
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Enviar Comentarios
                          </Button>
-                    </div>
+                    </CardFooter>
                 )}
             </form>
         </Form>
