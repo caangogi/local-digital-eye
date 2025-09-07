@@ -95,3 +95,5 @@ function MapSearchContent({ businesses }: { businesses: Business[] }) {
     </Card>
   );
 }
+
+    

@@ -248,3 +248,5 @@ export function BusinessDetailSheet({ isOpen, onOpenChange, business }: Business
     </Sheet>
   );
 }
+
+    

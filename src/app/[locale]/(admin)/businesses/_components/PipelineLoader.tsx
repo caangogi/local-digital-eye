@@ -39,3 +39,5 @@ interface PipelineLoaderProps {
 export function PipelineLoader({ initialBusinesses }: PipelineLoaderProps) {
   return <PipelineView initialBusinesses={initialBusinesses} />;
 }
+
+    

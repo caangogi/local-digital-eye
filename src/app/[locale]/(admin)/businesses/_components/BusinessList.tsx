@@ -140,3 +140,5 @@ export function BusinessList({ businesses, baseUrl }: BusinessListProps) {
     </>
   );
 }
+
+    

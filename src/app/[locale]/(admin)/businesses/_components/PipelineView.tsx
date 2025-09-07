@@ -192,3 +192,5 @@ export function PipelineView({ initialBusinesses }: PipelineViewProps) {
     </>
   );
 }
+
+    

@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync } from "lucide-react";
 import React from 'react';
 
 export async function generateMetadata() {
@@ -35,6 +35,20 @@ const developmentPrinciples = [
 
 const phases = [
   {
+    phase: "Hito 0",
+    title: "Configuración y Estructura del Proyecto",
+    description: "Tareas iniciales para establecer una base sólida para el proyecto, incluyendo la estructura de rutas y la configuración de la arquitectura.",
+    milestones: [
+       {
+        title: "Hito 0.1: Estructuración del Enrutamiento por Roles",
+        icon: <FolderSync />,
+        tasks: [
+          { who: "bot", text: "Reestructurar las carpetas de la aplicación para eliminar los conflictos de rutas paralelas y crear la base para el enrutamiento basado en roles (admin/owner).", completed: true },
+        ]
+      }
+    ]
+  },
+  {
     phase: "Fase 1",
     title: "Fundación de la Plataforma y Reconstrucción del CRM",
     description: "Reconstruir las funcionalidades existentes sobre la nueva arquitectura sólida. El objetivo es tener un panel para el Asistente de Ventas 100% funcional y robusto, integrando el CRM desde el inicio.",
@@ -44,7 +58,7 @@ const phases = [
         icon: <Database />,
         tasks: [
           { who: "bot", text: "Refinar la entidad `Business` (`business.entity.ts`) para incluir todos los campos públicos de Google Places y los campos del CRM (`leadScore`, `salesStatus`, `customTags`, `notes`, `nextContactDate`, `gmbStatus`, etc.).", completed: false },
-          { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner') para manejar los permisos futuros.", completed: true },
+          { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner' | 'super_admin') para manejar los permisos futuros.", completed: true },
           { who: "bot", text: "Implementar `FirebaseBusinessRepository` y `FirebaseUserRepository` para que coincidan exactamente con las nuevas entidades, manejando la conversión de Timestamps y los nuevos campos.", completed: false },
           { who: "bot", text: "Adaptar los Casos de Uso existentes (`ConnectBusiness`, `ListUserBusinesses`, etc.) para que operen con las nuevas entidades y la lógica del repositorio.", completed: false }
         ]

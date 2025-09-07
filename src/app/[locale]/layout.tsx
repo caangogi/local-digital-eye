@@ -2,37 +2,39 @@
 "use client"; 
 
 import type React from 'react';
-import { useEffect } from 'react';
-import { AppHeader } from '@/components/layout/AppHeader';
-import { AppSidebar } from '@/components/layout/AppSidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth.tsx';
-import { Toaster } from '@/components/ui/toaster';
-import { usePathname, useRouter } from '@/navigation'; 
-import { useLocale } from 'next-intl';
+import { usePathname } from '@/navigation';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
-
-function AuthenticatedLayout({
+export default function RootLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { locale: string };
 }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
+  const { isLoading } = useAuth();
   const pathname = usePathname();
-  const locale = useLocale();
 
-  useEffect(() => {
-    // Only redirect if loading is finished, user is not authenticated,
-    // and we are not already on a public auth page.
-    if (!isLoading && !isAuthenticated) {
-       console.log(`[Auth Guard] Not authenticated. Redirecting to /login from ${pathname}`);
-       router.push(`/login`);
-    }
-  }, [isAuthenticated, isLoading, router, pathname]);
+  const isPublicPath = ['/login', '/signup', '/password-reset', '/negocio', '/dev'].some(path =>
+    pathname.startsWith(path)
+  );
+  
+  if (pathname === '/') {
+     return (
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
+     )
+  }
 
-  if (isLoading) {
-    return (
+  if (isLoading && !isPublicPath) {
+     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-4">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary animate-pulse">
@@ -44,69 +46,14 @@ function AuthenticatedLayout({
     );
   }
 
-  // If loading is finished but user is still not authenticated,
-  // return null to prevent a flash of the authenticated layout.
-  // The useEffect above will handle the redirection.
-  if (!isAuthenticated) {
-    return null; 
-  }
-  
-  const appBackgroundGlow = (
-    <div className="absolute inset-0 z-[-2] overflow-hidden pointer-events-none">
-      <div className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-20"
-            style={{
-              background: 'radial-gradient(ellipse at center, hsl(var(--accent) / 0.3) 0%, transparent 60%)',
-              filter: 'blur(100px)' 
-            }}>
-      </div>
-    </div>
-  );
-
   return (
-    <SidebarProvider defaultOpen={true}>
-      {appBackgroundGlow}
-      <AppSidebar />
-      <SidebarInset>
-        <AppHeader />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
   );
 }
-
-export default function AppLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { locale: string };
-}) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const pathname = usePathname();
-
-  // Define public root paths that do not require the AuthenticatedLayout
-  const publicPaths = ['/login', '/signup', '/password-reset', '/negocio', '/dev'];
-
-  // Check if the current path starts with any of the public paths
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
-  
-   // The root path '/' is also public
-  if (pathname === '/') {
-    return <>{children}</>;
-  }
-
-
-  if (isPublicPath || isLoading) {
-    return <>{children}</>;
-  }
-
-  if (!isAuthenticated) {
-    return <>{children}</>
-  }
-
-  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
-}
-
-    
