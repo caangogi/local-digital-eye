@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
 import type { Business } from '@/backend/business/domain/business.entity';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 interface BusinessActionsProps {
   business: Business;
@@ -77,7 +78,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     }
   };
   
-  const actionButtonClasses = "w-full justify-start p-6 text-md";
+  const actionButtonClasses = "w-full justify-start p-4 text-sm sm:p-5 sm:text-base";
 
   return (
     <>
@@ -89,30 +90,33 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
 
       {/* Main Actions Dialog */}
       <Dialog open={isActionsModalOpen} onOpenChange={setIsActionsModalOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Acciones para &quot;{business.name}&quot;</DialogTitle>
             <DialogDescription>
               Selecciona una acción para gestionar el perfil de este negocio.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
-              <Button asChild variant="outline" className={actionButtonClasses}>
-                  <Link href={profileLink} target="_blank">
-                      <ExternalLink className="mr-2 h-4 w-4" /> Ir al perfil público
-                  </Link>
-              </Button>
-              <Button variant="outline" className={actionButtonClasses} onClick={copyToClipboard}>
-                <Link2 className="mr-2 h-4 w-4" /> Copiar enlace del perfil
-              </Button>
-               <Button variant="outline" className={actionButtonClasses} onClick={handleOpenQrModal}>
-                  <QrCode className="mr-2 h-4 w-4" /> Generar código QR
-              </Button>
-               <Button variant="outline" className={actionButtonClasses} onClick={handleConnectGoogle} disabled={isConnecting}>
-                   {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
-                   Conectar Perfil de Google
-              </Button>
-              <Button variant="destructive" className={cn(actionButtonClasses, "sm:col-span-2")}>
+          <div className="space-y-4 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Button asChild variant="outline" className={actionButtonClasses}>
+                      <Link href={profileLink} target="_blank">
+                          <ExternalLink className="mr-2 h-4 w-4" /> Ir al perfil público
+                      </Link>
+                  </Button>
+                  <Button variant="outline" className={actionButtonClasses} onClick={copyToClipboard}>
+                    <Link2 className="mr-2 h-4 w-4" /> Copiar enlace
+                  </Button>
+                   <Button variant="outline" className={actionButtonClasses} onClick={handleOpenQrModal}>
+                      <QrCode className="mr-2 h-4 w-4" /> Generar QR
+                  </Button>
+                   <Button variant="outline" className={actionButtonClasses} onClick={handleConnectGoogle} disabled={isConnecting}>
+                       {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
+                       Conectar Google
+                  </Button>
+              </div>
+              <Separator />
+               <Button variant="destructive" className={cn(actionButtonClasses, "w-full")}>
                   <Trash2 className="mr-2 h-4 w-4" /> Desconectar negocio
               </Button>
           </div>
