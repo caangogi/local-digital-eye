@@ -56,10 +56,10 @@ const phases = [
         title: "Hito 1.1: Definición del Dominio y la Infraestructura Central",
         icon: <Database />,
         tasks: [
-          { who: "bot", text: "Refinar la entidad `Business` para incluir campos del CRM y un `ownerId` futuro.", completed: true },
+          { who: "bot", text: "Refinar la entidad `Business` para incluir todos los campos públicos de Google Places y los campos del CRM (`leadScore`, `salesStatus`, `customTags`, `notes`, `nextContactDate`, `gmbStatus`, etc.).", completed: true },
           { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner' | 'super_admin') para manejar los permisos futuros.", completed: true },
-          { who: "bot", text: "Implementar `FirebaseBusinessRepository` y `FirebaseUserRepository` para que coincidan exactamente con las nuevas entidades, manejando la conversión de Timestamps y los nuevos campos.", completed: false },
-          { who: "bot", text: "Adaptar los Casos de Uso existentes (`ConnectBusiness`, `ListUserBusinesses`, etc.) para que operen con las nuevas entidades y la lógica del repositorio.", completed: false }
+          { who: "bot", text: "Implementar `FirebaseBusinessRepository` y `FirebaseUserRepository` para que coincidan exactamente con las nuevas entidades, manejando la conversión de Timestamps y los nuevos campos.", completed: true },
+          { who: "bot", text: "Adaptar los Casos de Uso existentes (`ConnectBusiness`, `ListUserBusinesses`, etc.) para que operen con las nuevas entidades y la lógica del repositorio.", completed: true }
         ]
       },
       {
@@ -230,5 +230,3 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
-
-    
