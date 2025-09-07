@@ -19,6 +19,9 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { DebugCollapse } from '@/components/dev/DebugCollapse';
+import type { Place } from '@/services/googleMapsService';
+
 
 const searchSchema = z.object({
   query: z.string().min(3, { message: "La consulta debe tener al menos 3 caracteres." }),
@@ -27,13 +30,19 @@ type SearchFormValues = z.infer<typeof searchSchema>;
 
 type WebsiteFilter = 'all' | 'with_website' | 'without_website';
 
+interface SearchResult {
+    prospects: GmbDataExtractionOutput[];
+    rawResponse?: any;
+}
+
 const CACHE_KEY = 'prospecting_search_results';
 
 export default function AddBusinessPage() {
   const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<GmbDataExtractionOutput[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult>({ prospects: [] });
+  const [debugConnectData, setDebugConnectData] = useState<Place | null>(null);
   
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
   const [websiteFilter, setWebsiteFilter] = useState<WebsiteFilter>('all');
@@ -53,7 +62,7 @@ export default function AddBusinessPage() {
   }, []);
   
   const filteredResults = useMemo(() => {
-      return searchResults.filter(business => {
+      return searchResults.prospects.filter(business => {
           const rating = business.rating ?? 0;
           if (rating > ratingFilter[0]) return false;
 
@@ -62,7 +71,7 @@ export default function AddBusinessPage() {
           
           return true;
       });
-  }, [searchResults, ratingFilter, websiteFilter]);
+  }, [searchResults.prospects, ratingFilter, websiteFilter]);
 
 
   const form = useForm<SearchFormValues>({
@@ -72,14 +81,21 @@ export default function AddBusinessPage() {
 
   const handleSearch: SubmitHandler<SearchFormValues> = async (data) => {
     setIsLoading(true);
+    setDebugConnectData(null); // Clear previous connection debug data
     try {
       const results = await extractGmbData({ query: data.query });
-      if (results && results.length > 0) {
+      if (results && results.mappedData.length > 0) {
         setSearchResults(prevResults => {
-            const existingPlaceIds = new Set(prevResults.map(r => r.placeId));
-            const newUniqueResults = results.filter(r => !existingPlaceIds.has(r.placeId));
-            const updatedResults = [...prevResults, ...newUniqueResults];
+            const existingPlaceIds = new Set(prevResults.prospects.map(r => r.placeId));
+            const newUniqueResults = results.mappedData.filter(r => !existingPlaceIds.has(r.placeId));
+            
+            const updatedResults: SearchResult = {
+                prospects: [...prevResults.prospects, ...newUniqueResults],
+                rawResponse: results.rawData, // Store the raw response
+            };
+
             localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
+
             if(newUniqueResults.length > 0) {
               toast({ title: `${newUniqueResults.length} ${t('newProspectsToast')}`});
             } else {
@@ -89,6 +105,7 @@ export default function AddBusinessPage() {
         });
       } else {
         toast({ title: t('notFound'), variant: "destructive" });
+        setSearchResults({ prospects: [], rawResponse: results?.rawData }); // Show raw response even if no results
       }
     } catch (error: any) {
       toast({ title: t('searchError'), description: error.message, variant: "destructive" });
@@ -101,15 +118,22 @@ export default function AddBusinessPage() {
   const handleConnect = async (businessData: GmbDataExtractionOutput) => {
     if (!businessData.placeId) return;
     setIsConnecting(businessData.placeId);
+    setDebugConnectData(null);
     try {
       const response = await connectBusiness(businessData);
+       if (response.debugData) {
+        setDebugConnectData(response.debugData);
+      }
       if (response.success && response.businessId) {
         toast({
           title: t('connectSuccessTitle'),
           description: t('connectSuccessDescription'),
         });
         setSearchResults(prevResults => {
-            const updatedResults = prevResults.filter(r => r.placeId !== businessData.placeId);
+            const updatedResults = {
+                ...prevResults,
+                prospects: prevResults.prospects.filter(r => r.placeId !== businessData.placeId),
+            };
             localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
             return updatedResults;
         });
@@ -124,7 +148,8 @@ export default function AddBusinessPage() {
   };
 
   const clearCache = () => {
-    setSearchResults([]);
+    setSearchResults({ prospects: [] });
+    setDebugConnectData(null);
     localStorage.removeItem(CACHE_KEY);
     toast({title: t('clearListSuccessToast')});
   }
@@ -166,18 +191,26 @@ export default function AddBusinessPage() {
         </CardContent>
       </Card>
       
-      {searchResults.length > 0 && (
+      {debugConnectData && (
+        <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={debugConnectData} />
+      )}
+
+      {(searchResults.prospects.length > 0 || searchResults.rawResponse) && (
         <Card>
           <CardHeader>
             <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {searchResults.length})</CardTitle>
+                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {searchResults.prospects.length})</CardTitle>
                     <CardDescription>{t('prospectsFoundDescription')}</CardDescription>
                 </div>
                 <Button onClick={clearCache} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {searchResults.rawResponse && (
+                <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={searchResults.rawResponse} />
+            )}
+
             <div className="p-4 border rounded-lg bg-muted/30 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="grid gap-2">
                     <Label htmlFor="rating-filter" className="flex items-center gap-2"><Star className="w-4 h-4" />{t('ratingFilterLabel')}: <span className="font-bold text-primary">{ratingFilter[0].toFixed(1)} {t('ratingFilterUnit')}</span></Label>
@@ -221,7 +254,7 @@ export default function AddBusinessPage() {
               </div>
             ))}
             </div>
-             {filteredResults.length === 0 && (
+             {filteredResults.length === 0 && searchResults.prospects.length > 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                     <p>{t('noFilterResults')}</p>
                     <p className="text-sm">{t('noFilterResultsHint')}</p>

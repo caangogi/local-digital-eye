@@ -13,7 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchGooglePlaces } from '@/services/googleMapsService'; // Updated import
+import { searchGooglePlaces, type Place } from '@/services/googleMapsService'; // Updated import
 
 // Updated input schema to be a single query string
 const GmbDataExtractionInputSchema = z.object({
@@ -51,8 +51,13 @@ const GmbDataExtractionOutputSchema = z.object({
 });
 export type GmbDataExtractionOutput = z.infer<typeof GmbDataExtractionOutputSchema>;
 
+// New schema for the flow output, including raw data for debugging
+const FlowOutputSchema = z.object({
+    mappedData: z.array(GmbDataExtractionOutputSchema),
+    rawData: z.any().optional().describe('Raw JSON response from the Google API for debugging.'),
+});
 
-function mapPlaceToOutput(placeData: any | null): GmbDataExtractionOutput | null {
+function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
   if (!placeData || !placeData.id || !placeData.name) {
     return null;
   }
@@ -78,7 +83,7 @@ function mapPlaceToOutput(placeData: any | null): GmbDataExtractionOutput | null
     // Mapping new fields
     location: placeData.location,
     photos: placeData.photos,
-    openingHours: placeData.openingHours,
+    openingHours: placeData.regularOpeningHours || placeData.currentOpeningHours,
   };
 }
 
@@ -87,21 +92,20 @@ const extractGmbDataFlow = ai.defineFlow(
   {
     name: 'extractGmbDataFlow',
     inputSchema: GmbDataExtractionInputSchema,
-    // Output is now an array of results
-    outputSchema: z.array(GmbDataExtractionOutputSchema).nullable(),
+    outputSchema: FlowOutputSchema.nullable(),
   },
   async (input) => {
     // Step 1: Search for the business to get the place ID and basic info
     console.log(`Flow: Searching Google Place for "${input.query}"`);
     const searchResults = await searchGooglePlaces(input.query); // Use the new plural function
 
-    if (!searchResults || searchResults.length === 0) {
+    if (!searchResults || !searchResults.normalizedData || searchResults.normalizedData.length === 0) {
       console.log("Flow: No data returned from searchGooglePlaces service.");
       return null;
     }
     
     // Step 2: Map the search result data to the output format.
-    const mappedData = searchResults
+    const mappedData = searchResults.normalizedData
         .map(place => mapPlaceToOutput(place))
         .filter((p): p is GmbDataExtractionOutput => p !== null);
 
@@ -111,11 +115,14 @@ const extractGmbDataFlow = ai.defineFlow(
     }
 
     console.log(`Flow: Successfully mapped ${mappedData.length} businesses.`);
-    return mappedData;
+    return {
+        mappedData: mappedData,
+        rawData: searchResults.rawData, // Pass raw data through
+    };
   }
 );
 
-export async function extractGmbData(input: GmbDataExtractionInput): Promise<GmbDataExtractionOutput[] | null> {
+export async function extractGmbData(input: GmbDataExtractionInput): Promise<z.infer<typeof FlowOutputSchema> | null> {
   console.log("Local Digital Eye - GMB Data Extraction from Google Places API (Search & List)");
   console.log("This feature uses the Google Places API. Usage is subject to Google's terms and pricing.");
   console.log("--------------------------------------------------------------------");

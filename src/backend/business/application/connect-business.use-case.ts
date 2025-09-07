@@ -1,6 +1,6 @@
 import type { Business } from '../domain/business.entity';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
-import { getGooglePlaceDetails } from '@/services/googleMapsService';
+import { getGooglePlaceDetails, type Place } from '@/services/googleMapsService';
 
 /**
  * @fileoverview Defines the use case for connecting a business to a user.
@@ -12,6 +12,11 @@ interface ConnectBusinessInput {
     placeId: string;
 }
 
+interface ConnectBusinessOutput {
+    business: Business | null;
+    rawData: Place | null;
+}
+
 export class ConnectBusinessUseCase {
   constructor(
     private readonly businessRepository: BusinessRepositoryPort
@@ -20,9 +25,9 @@ export class ConnectBusinessUseCase {
   /**
    * Executes the use case.
    * @param input The data required to create the business connection.
-   * @returns The newly created and saved Business object.
+   * @returns The newly created and saved Business object and the raw data from the API.
    */
-  async execute(input: ConnectBusinessInput): Promise<Business | null> {
+  async execute(input: ConnectBusinessInput): Promise<ConnectBusinessOutput> {
     const { userId, placeId } = input;
 
     if (!placeId) {
@@ -36,18 +41,20 @@ export class ConnectBusinessUseCase {
     if (existingBusiness) {
       if (existingBusiness.userId === userId) {
           console.log(`[ConnectBusinessUseCase] Business ${placeId} is already connected to user ${userId}.`);
-          return existingBusiness;
+          return { business: existingBusiness, rawData: null };
       } else {
           throw new Error("This business is already connected by another user.");
       }
     }
 
     // Fetch full, enriched data from Google Places Details API
-    const gmbData = await getGooglePlaceDetails(placeId);
+    const gmbDataResult = await getGooglePlaceDetails(placeId);
 
-    if (!gmbData || !gmbData.name) {
+    if (!gmbDataResult || !gmbDataResult.normalizedData || !gmbDataResult.normalizedData.name) {
         throw new Error(`Could not fetch complete details for placeId ${placeId} from Google.`);
     }
+
+    const gmbData = gmbDataResult.normalizedData;
     
     // Create a new Business entity from the enriched data
     // Ensure all optional fields are replaced with null if undefined to prevent Firestore errors.
@@ -81,6 +88,8 @@ export class ConnectBusinessUseCase {
     };
 
     // Save the business to our database
-    return this.businessRepository.save(businessToSave);
+    const savedBusiness = await this.businessRepository.save(businessToSave);
+
+    return { business: savedBusiness, rawData: gmbDataResult.rawData };
   }
 }

@@ -10,7 +10,7 @@ const PhotoSchema = z.object({
     name: z.string(),
     widthPx: z.number(),
     heightPx: z.number(),
-    authorAttributions: z.array(z.any()).optional(),
+    authorAttributions: z.array(z.any()).optional(), // Keeping it simple
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
@@ -46,6 +46,17 @@ export type Place = z.infer<typeof PlaceSchema>;
 const GooglePlacesNewTextSearchResponseSchema = z.object({
   places: z.array(z.any()).optional(),
 });
+
+// New return type for functions to include raw data for debugging
+interface PlaceResult {
+    normalizedData: Place | null;
+    rawData: any;
+}
+
+interface PlaceListResult {
+    normalizedData: Place[];
+    rawData: any;
+}
 
 /**
  * Normalizes the raw place data from Google API to our Place schema.
@@ -84,11 +95,11 @@ function normalizePlace(place: any): Place {
 /**
  * Searches for places using Google Places API (New - searchText).
  * @param textQuery The search query (e.g., "Restaurant in New York").
- * @returns A promise that resolves to an array of Place objects, or null.
+ * @returns A promise that resolves to an object containing an array of Place objects and the raw API response.
  */
 export async function searchGooglePlaces(
   query: string
-): Promise<Place[] | null> {
+): Promise<PlaceListResult | null> {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     console.error("[GoogleMapsService] CRITICAL: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set.");
@@ -117,24 +128,27 @@ export async function searchGooglePlaces(
       body: JSON.stringify(requestBody),
     });
 
+    const rawData = await response.json();
+
     if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}));
-        const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : 'No details';
+        const detailedError = rawData.error ? JSON.stringify(rawData.error) : 'No details';
         console.error(`[GoogleMapsService] Search API Error: ${response.status} - ${detailedError}`);
         throw new Error(`Google Places Search API request failed with status ${response.status}. Details: ${detailedError}`);
     }
 
-    const data = await response.json();
-    const validatedData = GooglePlacesNewTextSearchResponseSchema.safeParse(data);
+    const validatedData = GooglePlacesNewTextSearchResponseSchema.safeParse(rawData);
     
     if (!validatedData.success || !validatedData.data.places || validatedData.data.places.length === 0) {
       console.log(`[GoogleMapsService] No results found for "${requestBody.textQuery}".`);
-      return null;
+      return { normalizedData: [], rawData: rawData };
     }
     
     const places = validatedData.data.places;
     console.log(`[GoogleMapsService] Found ${places.length} places.`);
-    return places.map(normalizePlace);
+    return {
+        normalizedData: places.map(normalizePlace),
+        rawData: rawData
+    };
 
   } catch (error: any) {
     console.error("[GoogleMapsService] Critical error during searchGooglePlace:", error.message);
@@ -146,9 +160,9 @@ export async function searchGooglePlaces(
  * Gets detailed information for a specific place ID using Places API (New).
  * This is used to get the full, enriched data before connecting a business.
  * @param placeId The place ID to get details for.
- * @returns A promise that resolves to a detailed Place object, or null.
+ * @returns A promise that resolves to an object with detailed Place data and the raw API response.
  */
-export async function getGooglePlaceDetails(placeId: string): Promise<Place | null> {
+export async function getGooglePlaceDetails(placeId: string): Promise<PlaceResult | null> {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       console.error("[GoogleMapsService] CRITICAL: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set.");
@@ -170,16 +184,19 @@ export async function getGooglePlaceDetails(placeId: string): Promise<Place | nu
         },
       });
   
+      const rawData = await response.json();
+
       if (!response.ok) {
-          const errorBody = await response.json().catch(() => ({}));
-          const detailedError = errorBody.error ? JSON.stringify(errorBody.error) : `Status: ${response.status}`;
+          const detailedError = rawData.error ? JSON.stringify(rawData.error) : `Status: ${response.status}`;
           console.error(`[GoogleMapsService] Details API Error: ${detailedError}`);
           throw new Error(`Google Places Details API request failed with status ${response.status}. Details: ${detailedError}`);
       }
   
-      const data = await response.json();
-      console.log(`[GoogleMapsService] Successfully fetched details for ${data.id}.`);
-      return normalizePlace(data);
+      console.log(`[GoogleMapsService] Successfully fetched details for ${rawData.id}.`);
+      return {
+          normalizedData: normalizePlace(rawData),
+          rawData: rawData
+      };
   
     } catch (error: any) {
       console.error(`[GoogleMapsService] Critical error during getGooglePlaceDetails for placeId ${placeId}:`, error.message);

@@ -16,6 +16,8 @@ import { UpdateBusinessDetailsUseCase } from '@/backend/business/application/upd
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
 import { revalidatePath } from 'next/cache';
+import type { Place } from '@/services/googleMapsService';
+
 
 const businessRepository = new FirebaseBusinessRepository();
 const connectBusinessUseCase = new ConnectBusinessUseCase(businessRepository);
@@ -31,7 +33,7 @@ const updateBusinessDetailsUseCase = new UpdateBusinessDetailsUseCase(businessRe
  * @param searchResult The business data from the initial Google search.
  * @returns An object indicating success or failure.
  */
-export async function connectBusiness(searchResult: GmbDataExtractionOutput): Promise<{ success: boolean; message: string; businessId?: string }> {
+export async function connectBusiness(searchResult: GmbDataExtractionOutput): Promise<{ success: boolean; message: string; businessId?: string; debugData?: Place | null; }> {
   try {
     // 1. Get current user from session cookie
     const sessionCookie = cookies().get('session')?.value;
@@ -47,7 +49,7 @@ export async function connectBusiness(searchResult: GmbDataExtractionOutput): Pr
     }
 
     // 2. Execute the use case. It will handle fetching full details.
-    const business = await connectBusinessUseCase.execute({
+    const { business, rawData } = await connectBusinessUseCase.execute({
       userId: userId,
       placeId: placeId,
     });
@@ -59,7 +61,12 @@ export async function connectBusiness(searchResult: GmbDataExtractionOutput): Pr
     revalidatePath('/businesses');
 
     console.log(`[BusinessAction] Successfully connected business ${business.id} to user ${userId}`);
-    return { success: true, message: 'Business connected successfully!', businessId: business.id };
+    return { 
+        success: true, 
+        message: 'Business connected successfully!', 
+        businessId: business.id, 
+        debugData: rawData // Return raw data for debugging
+    };
 
   } catch (error: any) {
     console.error('Error connecting business:', error);
