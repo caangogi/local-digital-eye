@@ -78,7 +78,7 @@ interface PlaceListResult {
 function normalizePlace(place: any): Place {
   if (!place) return place;
 
-  // Handle new displayName structure from Google API
+  // The 'name' field is obsolete for searchText, use 'displayName.text' instead.
   const displayName = place.displayName?.text ?? place.name;
 
   return {
@@ -115,7 +115,7 @@ export async function searchGooglePlaces(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Adjusted the field mask to request displayName, as name is obsolete for this endpoint.
+  // Use 'displayName' instead of 'name' as it's the recommended field for searchText.
   const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location,places.websiteUri,places.businessStatus";
 
   const requestBody = {

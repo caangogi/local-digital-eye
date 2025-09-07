@@ -95,14 +95,20 @@ export default function AddBusinessPage() {
     try {
       const results = await extractGmbData({ query: data.query });
       
+      // Always show the raw data for debugging purposes
       setDebugSearchData(results?.rawData);
 
       if (!results || !results.mappedData) {
-        throw new Error("No results were returned from the search flow.");
+        throw new Error("The search flow returned no results. Check the debug data below.");
       }
 
+      if (results.mappedData.length === 0 && results.rawData?.places?.length > 0) {
+        toast({ title: "Error de Mapeo", description: "Recibimos datos de Google, pero no se pudieron procesar. Revisa la consola o el depurador.", variant: "destructive" });
+        return;
+      }
+      
       const existingPlaceIds = new Set(prospects.map(p => p.placeId));
-      const newUniqueProspects = (results.mappedData).filter(p => !existingPlaceIds.has(p.placeId));
+      const newUniqueProspects = (results.mappedData).filter(p => p.placeId && !existingPlaceIds.has(p.placeId));
 
       if (newUniqueProspects.length > 0) {
           toast({ title: `${newUniqueProspects.length} ${t('newProspectsToast')}` });
@@ -114,6 +120,7 @@ export default function AddBusinessPage() {
       }
 
     } catch (error: any) {
+      console.error("Search Handler Error:", error);
       toast({ title: t('searchError'), description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -140,7 +147,7 @@ export default function AddBusinessPage() {
         });
         setProspects(prev => prev.filter(p => p.placeId !== businessData.placeId));
       } else {
-        toast({ title: t('connectErrorTitle'), description: response.message, variant: "destructive" });
+        throw new Error(response.message);
       }
     } catch (error: any) {
       toast({ title: t('connectErrorTitle'), description: error.message, variant: "destructive" });
@@ -270,3 +277,4 @@ export default function AddBusinessPage() {
     </div>
   );
 }
+

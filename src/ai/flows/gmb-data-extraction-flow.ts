@@ -58,9 +58,11 @@ const FlowOutputSchema = z.object({
 });
 
 function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | null {
-  if (!placeData || !placeData.id || !placeData.name) {
+  if (!placeData || !placeData.id) {
     return null;
   }
+  
+  const placeName = placeData.name; // Now correctly using the normalized name field
 
   let summary = `Un ${placeData.types?.[0]?.replace(/_/g, ' ') || 'establecimiento'} en la zona.`;
   if (placeData.rating && placeData.userRatingCount) {
@@ -69,21 +71,20 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
 
   return {
     placeId: placeData.id,
-    extractedName: placeData.name, // Use the already-normalized name
-    address: placeData.formattedAddress,
-    phone: placeData.internationalPhoneNumber,
-    website: placeData.websiteUri,
-    rating: placeData.rating,
-    reviewCount: placeData.userRatingCount,
+    extractedName: placeName,
+    address: placeData.formattedAddress || undefined,
+    phone: placeData.internationalPhoneNumber || undefined,
+    website: placeData.websiteUri || undefined,
+    rating: placeData.rating || undefined,
+    reviewCount: placeData.userRatingCount || undefined,
     category: placeData.types?.[0], 
-    businessStatus: placeData.businessStatus,
-    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${placeData.name}&query_place_id=${placeData.id}`,
+    businessStatus: placeData.businessStatus || undefined,
+    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${placeName}&query_place_id=${placeData.id}`,
     briefReviewSummary: summary,
     
-    // Mapping new fields
-    location: placeData.location,
+    location: placeData.location || undefined,
     photos: placeData.photos,
-    openingHours: placeData.regularOpeningHours,
+    openingHours: placeData.regularOpeningHours || undefined,
   };
 }
 
@@ -95,29 +96,27 @@ const extractGmbDataFlow = ai.defineFlow(
     outputSchema: FlowOutputSchema.nullable(),
   },
   async (input) => {
-    // Step 1: Search for the business to get the place ID and basic info
     console.log(`Flow: Searching Google Place for "${input.query}"`);
     const searchResults = await searchGooglePlaces(input.query);
 
-    if (!searchResults || !searchResults.normalizedData || searchResults.normalizedData.length === 0) {
+    if (!searchResults) {
       console.log("Flow: No data returned from searchGooglePlaces service.");
-      return { mappedData: [], rawData: searchResults?.rawData };
+      return { mappedData: [], rawData: null };
     }
     
-    // Step 2: Map the search result data to the output format.
+    if (!searchResults.normalizedData || searchResults.normalizedData.length === 0) {
+      console.log("Flow: No places found in normalized data.");
+      return { mappedData: [], rawData: searchResults.rawData };
+    }
+    
     const mappedData = searchResults.normalizedData
         .map(place => mapPlaceToOutput(place))
         .filter((p): p is GmbDataExtractionOutput => p !== null);
 
-    if (mappedData.length === 0) {
-        console.log("Flow: Mapping from basic Place API data to output failed for all results.");
-        return { mappedData: [], rawData: searchResults.rawData };
-    }
-
     console.log(`Flow: Successfully mapped ${mappedData.length} businesses.`);
     return {
         mappedData: mappedData,
-        rawData: searchResults.rawData, // Pass raw data through
+        rawData: searchResults.rawData,
     };
   }
 );
