@@ -113,10 +113,10 @@ export function ReviewForm({ business }: ReviewFormProps) {
     
     if (submissionCompleted) {
         return (
-            <div className="text-center p-8 flex flex-col items-center gap-4">
-                <CheckCircle className="w-16 h-16 text-green-500"/>
-                <h3 className="text-xl font-bold text-foreground">¡Gracias por tu feedback!</h3>
-                <p className="text-muted-foreground whitespace-pre-line">{randomMessage}</p>
+            <div className="text-center p-8 flex flex-col items-center gap-4 text-white">
+                <CheckCircle className="w-16 h-16 text-green-400"/>
+                <h3 className="text-xl font-bold">¡Gracias por tu feedback!</h3>
+                <p className="text-slate-300 whitespace-pre-line">{randomMessage}</p>
             </div>
         );
     }
@@ -124,9 +124,9 @@ export function ReviewForm({ business }: ReviewFormProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
-                <CardHeader>
-                    <CardTitle>Valora tu experiencia</CardTitle>
-                    <CardDescription>Queremos conocer tu opinión para seguir mejorando. ¡Gracias por tu tiempo!</CardDescription>
+                <CardHeader className="text-white">
+                    <CardTitle className="text-2xl">Valora tu experiencia</CardTitle>
+                    <CardDescription className="text-slate-300">Queremos conocer tu opinión para seguir mejorando. ¡Gracias por tu tiempo!</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <FormField
@@ -134,46 +134,58 @@ export function ReviewForm({ business }: ReviewFormProps) {
                       name="rating"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel>¿Con cuántas estrellas nos valoras?</FormLabel>
+                          <FormLabel className="sr-only">¿Con cuántas estrellas nos valoras?</FormLabel>
                           <FormControl>
-                            <RadioGroup
-                              onValueChange={handleRatingChange}
-                              defaultValue={field.value}
-                              className="flex flex-col space-y-2"
-                            >
+                             {/* Remove RadioGroup and replace with styled buttons */}
+                            <div className="flex flex-col space-y-2">
                                 {[5, 4, 3, 2, 1].map((ratingValue) => (
-                                    <FormItem key={ratingValue} className={cn("flex items-center space-x-3 space-y-0 p-3 rounded-lg border transition-all", selectedRating === ratingValue ? "bg-accent/20 border-accent" : "hover:bg-muted/50", ratingValue === 5 && "border-2 border-amber-400 shadow-lg shadow-amber-500/20")}>
-                                         <FormControl>
-                                            <RadioGroupItem value={String(ratingValue)} />
-                                        </FormControl>
+                                    <button
+                                        key={ratingValue}
+                                        type="button"
+                                        onClick={() => handleRatingChange(String(ratingValue))}
+                                        className={cn(
+                                            "flex items-center space-x-3 space-y-0 p-4 rounded-lg border-2 transition-all duration-300 w-full text-left",
+                                            selectedRating === ratingValue 
+                                                ? "bg-primary/20 border-primary" 
+                                                : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20",
+                                            ratingValue === 5 && "shadow-[0_0_15px_rgba(255,215,0,0.5)] border-amber-400"
+                                        )}
+                                    >
                                         <div className="flex">
                                             {Array.from({ length: ratingValue }).map((_, i) => (
-                                                 <Star key={i} className={cn("h-5 w-5", ratingValue === 5 ? "text-amber-400 fill-amber-400" : "text-yellow-400 fill-yellow-400")} />
+                                                 <Star key={i} className={cn("h-6 w-6", ratingValue === 5 ? "text-amber-400 fill-amber-400" : "text-yellow-400 fill-yellow-400")} />
                                             ))}
                                             {Array.from({ length: 5 - ratingValue }).map((_, i) => (
-                                                <Star key={i + ratingValue} className={cn("h-5 w-5", ratingValue === 5 ? "text-amber-400/50" : "text-gray-300")} />
+                                                <Star key={i + ratingValue} className={cn("h-6 w-6 text-gray-600")} />
                                             ))}
                                         </div>
-                                    </FormItem>
+                                         <span className={cn("font-semibold", ratingValue === 5 && "text-amber-300")}>
+                                            {ratingValue === 5 && "¡Excelente!"}
+                                            {ratingValue === 4 && "Bueno"}
+                                            {ratingValue === 3 && "Aceptable"}
+                                            {ratingValue === 2 && "Regular"}
+                                            {ratingValue === 1 && "Malo"}
+                                        </span>
+                                    </button>
                                 ))}
-                            </RadioGroup>
+                            </div>
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400" />
                         </FormItem>
                       )}
                     />
 
                     {selectedRating > 0 && selectedRating < 5 && (
-                        <div className="space-y-4 pt-4 border-t animate-in fade-in-50 duration-500">
-                            <p className="text-center text-sm text-muted-foreground">Lamentamos que tu experiencia no haya sido perfecta. Por favor, danos más detalles.</p>
+                        <div className="space-y-4 pt-4 border-t border-white/10 animate-in fade-in-50 duration-500 text-left">
+                            <p className="text-center text-sm text-slate-300">Lamentamos que tu experiencia no haya sido perfecta. Por favor, danos más detalles.</p>
                              <FormField
                                 control={form.control}
                                 name="comment"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tus comentarios</FormLabel>
-                                        <FormControl><Textarea placeholder="Cuéntanos qué ha pasado..." {...field} /></FormControl>
-                                        <FormMessage />
+                                        <FormLabel className="text-slate-300">Tus comentarios</FormLabel>
+                                        <FormControl><Textarea className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400" placeholder="Cuéntanos qué ha pasado..." {...field} /></FormControl>
+                                        <FormMessage className="text-red-400"/>
                                     </FormItem>
                                 )}
                             />
@@ -182,9 +194,9 @@ export function ReviewForm({ business }: ReviewFormProps) {
                                 name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tu Nombre (Opcional)</FormLabel>
-                                        <FormControl><Input placeholder="Juan Pérez" {...field} /></FormControl>
-                                        <FormMessage />
+                                        <FormLabel className="text-slate-300">Tu Nombre (Opcional)</FormLabel>
+                                        <FormControl><Input className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400" placeholder="Juan Pérez" {...field} /></FormControl>
+                                        <FormMessage className="text-red-400"/>
                                     </FormItem>
                                 )}
                             />
@@ -193,9 +205,9 @@ export function ReviewForm({ business }: ReviewFormProps) {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tu Email (Opcional)</FormLabel>
-                                        <FormControl><Input placeholder="tu@email.com" {...field} /></FormControl>
-                                         <FormMessage />
+                                        <FormLabel className="text-slate-300">Tu Email (Opcional)</FormLabel>
+                                        <FormControl><Input className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400" placeholder="tu@email.com" {...field} /></FormControl>
+                                         <FormMessage className="text-red-400"/>
                                     </FormItem>
                                 )}
                             />
@@ -204,7 +216,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
                 </CardContent>
                 {selectedRating > 0 && selectedRating < 5 && (
                      <CardFooter>
-                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white" disabled={isSubmitting}>
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Enviar Comentarios
                          </Button>
