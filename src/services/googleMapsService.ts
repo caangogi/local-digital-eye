@@ -25,20 +25,20 @@ export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
 const PlaceSchema = z.object({
   id: z.string().describe("The unique identifier of the place."),
   name: z.string().optional().describe("The human-readable name for the place."),
-  formattedAddress: z.string().optional(),
-  internationalPhoneNumber: z.string().optional(),
-  rating: z.number().min(0).max(5).optional(),
-  userRatingCount: z.number().int().optional(),
+  formattedAddress: z.string().nullable().optional(),
+  internationalPhoneNumber: z.string().nullable().optional(),
+  rating: z.number().min(0).max(5).nullable().optional(),
+  userRatingCount: z.number().int().nullable().optional(),
   types: z.array(z.string()).optional(),
-  websiteUri: z.string().url().optional(),
-  businessStatus: z.string().optional(),
+  websiteUri: z.string().url().nullable().optional(),
+  businessStatus: z.string().nullable().optional(),
   location: z.object({
     latitude: z.number(),
     longitude: z.number(),
-  }).optional(),
+  }).nullable().optional(),
   photos: z.array(PhotoSchema).optional(),
-  currentOpeningHours: OpeningHoursSchema.optional(),
-  regularOpeningHours: OpeningHoursSchema.optional(),
+  // Use regularOpeningHours as the primary source for our entity
+  regularOpeningHours: OpeningHoursSchema.nullable().optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
@@ -60,6 +60,7 @@ interface PlaceListResult {
 
 /**
  * Normalizes the raw place data from Google API to our Place schema.
+ * Ensures that any missing optional fields are set to null instead of undefined.
  * @param place The raw place data.
  * @returns A normalized Place object.
  */
@@ -67,27 +68,22 @@ function normalizePlace(place: any): Place {
   if (!place) return place;
 
   const displayName = place.displayName?.text ?? place.name;
-  
-  // Combine opening hours data into a single object for our entity.
-  // The API returns current and regular hours separately. We can decide which to prioritize.
-  // For simplicity, we'll use regular hours if available, otherwise current.
-  const openingHoursData = place.regularOpeningHours || place.currentOpeningHours;
 
   return {
     id: place.id,
     name: displayName,
-    formattedAddress: place.formattedAddress,
-    internationalPhoneNumber: place.internationalPhoneNumber,
-    websiteUri: place.websiteUri,
-    rating: place.rating,
-    userRatingCount: place.userRatingCount,
-    types: place.types,
-    businessStatus: place.businessStatus,
-    location: place.location,
-    photos: place.photos,
-    // Assign the combined opening hours data
-    currentOpeningHours: place.currentOpeningHours,
-    regularOpeningHours: place.regularOpeningHours,
+    // Explicitly map fields and fall back to null if undefined/null
+    formattedAddress: place.formattedAddress || null,
+    internationalPhoneNumber: place.internationalPhoneNumber || null,
+    websiteUri: place.websiteUri || null,
+    rating: place.rating ?? null,
+    userRatingCount: place.userRatingCount ?? null,
+    types: place.types || [],
+    businessStatus: place.businessStatus || null,
+    location: place.location || null,
+    photos: place.photos || [],
+    // We prioritize regular opening hours.
+    regularOpeningHours: place.regularOpeningHours || null,
   };
 }
 

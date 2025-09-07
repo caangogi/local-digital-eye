@@ -41,7 +41,9 @@ export class ConnectBusinessUseCase {
     if (existingBusiness) {
       if (existingBusiness.userId === userId) {
           console.log(`[ConnectBusinessUseCase] Business ${placeId} is already connected to user ${userId}.`);
-          return { business: existingBusiness, rawData: null };
+          // Even if existing, we might want to return the raw data from a fresh API call for debugging.
+          const gmbDataResult = await getGooglePlaceDetails(placeId);
+          return { business: existingBusiness, rawData: gmbDataResult?.rawData || null };
       } else {
           throw new Error("This business is already connected by another user.");
       }
@@ -57,27 +59,27 @@ export class ConnectBusinessUseCase {
     const gmbData = gmbDataResult.normalizedData;
     
     // Create a new Business entity from the enriched data
-    // Ensure all optional fields are replaced with null if undefined to prevent Firestore errors.
+    // The normalized data from the service already handles null values.
     const businessToSave: Business = {
       id: placeId,
       userId: userId,
       ownerId: null, // Initialize ownerId as null
       placeId: placeId,
-      name: gmbData.name,
+      name: gmbData.name, // Name is guaranteed by the check above
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
       
-      // Add all the enriched public data, ensuring no undefined values
-      address: gmbData.formattedAddress || null,
-      phone: gmbData.internationalPhoneNumber || null,
-      website: gmbData.websiteUri || null,
-      rating: gmbData.rating || null,
-      reviewCount: gmbData.userRatingCount || null,
-      category: gmbData.types?.[0] || null,
+      // Add all the enriched public data from our normalized Place object
+      address: gmbData.formattedAddress,
+      phone: gmbData.internationalPhoneNumber,
+      website: gmbData.websiteUri,
+      rating: gmbData.rating,
+      reviewCount: gmbData.userRatingCount,
+      category: gmbData.types?.[0] || null, // Take the first category as primary
       gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeId}`,
-      businessStatus: gmbData.businessStatus || null,
-      location: gmbData.location || null,
-      photos: gmbData.photos || [],
-      openingHours: gmbData.regularOpeningHours || gmbData.currentOpeningHours || null,
+      businessStatus: gmbData.businessStatus,
+      location: gmbData.location,
+      photos: gmbData.photos,
+      openingHours: gmbData.regularOpeningHours,
 
       // Initialize CRM fields with default values
       salesStatus: 'new',
@@ -85,7 +87,7 @@ export class ConnectBusinessUseCase {
       customTags: [],
       nextContactDate: null,
       notes: null,
-      gmbStatus: 'unlinked',
+      gmbStatus: 'unlinked', // GMB connection is initially unlinked
     };
 
     // Save the business to our database

@@ -18,13 +18,17 @@ import type { Business, SalesStatus } from '@/backend/business/domain/business.e
 import { revalidatePath } from 'next/cache';
 import type { Place } from '@/services/googleMapsService';
 
-
-const businessRepository = new FirebaseBusinessRepository();
-const connectBusinessUseCase = new ConnectBusinessUseCase(businessRepository);
-const listUserBusinessesUseCase = new ListUserBusinessesUseCase(businessRepository);
-const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
-const updateBusinessStatusUseCase = new UpdateBusinessStatusUseCase(businessRepository);
-const updateBusinessDetailsUseCase = new UpdateBusinessDetailsUseCase(businessRepository);
+// This function centralizes repository and use case instantiation.
+function getBusinessUseCases() {
+    const businessRepository = new FirebaseBusinessRepository();
+    return {
+        connectBusinessUseCase: new ConnectBusinessUseCase(businessRepository),
+        listUserBusinessesUseCase: new ListUserBusinessesUseCase(businessRepository),
+        getBusinessDetailsUseCase: new GetBusinessDetailsUseCase(businessRepository),
+        updateBusinessStatusUseCase: new UpdateBusinessStatusUseCase(businessRepository),
+        updateBusinessDetailsUseCase: new UpdateBusinessDetailsUseCase(businessRepository),
+    };
+}
 
 
 /**
@@ -48,7 +52,8 @@ export async function connectBusiness(searchResult: GmbDataExtractionOutput): Pr
         return { success: false, message: 'Invalid business data provided. Place ID is required.' };
     }
 
-    // 2. Execute the use case. It will handle fetching full details.
+    // 2. Instantiate and execute the use case
+    const { connectBusinessUseCase } = getBusinessUseCases();
     const { business, rawData } = await connectBusinessUseCase.execute({
       userId: userId,
       placeId: placeId,
@@ -91,6 +96,7 @@ export async function listUserBusinesses(): Promise<Business[]> {
         const userId = decodedToken.uid;
 
         console.log(`[BusinessAction] Fetching businesses for user ${userId}`);
+        const { listUserBusinessesUseCase } = getBusinessUseCases();
         const businesses = await listUserBusinessesUseCase.execute(userId);
         return businesses;
 
@@ -114,6 +120,7 @@ export async function listUserBusinesses(): Promise<Business[]> {
 export async function getBusinessDetails(businessId: string): Promise<Business | null> {
     try {
         console.log(`[BusinessAction] Fetching public details for business ${businessId}`);
+        const { getBusinessDetailsUseCase } = getBusinessUseCases();
         const business = await getBusinessDetailsUseCase.execute(businessId);
         if (!business) {
             console.warn(`[BusinessAction] Business not found: ${businessId}`);
@@ -142,6 +149,7 @@ export async function updateBusinessStatus(businessId: string, newStatus: SalesS
     const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
     const userId = decodedToken.uid;
 
+    const { updateBusinessStatusUseCase } = getBusinessUseCases();
     await updateBusinessStatusUseCase.execute({
         businessId,
         userId,
@@ -173,6 +181,7 @@ export async function updateBusinessCrmDetails(businessId: string, detailsToUpda
         const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
         const userId = decodedToken.uid;
         
+        const { updateBusinessDetailsUseCase } = getBusinessUseCases();
         await updateBusinessDetailsUseCase.execute({
             businessId,
             userId,
