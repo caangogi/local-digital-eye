@@ -70,15 +70,6 @@ export default function AddBusinessPage() {
       setSearchResults({ prospects: [], rawResponse: null });
     }
   }, []); // Empty dependency array ensures this runs only once on mount
-
-  // Effect to sync state changes back to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(searchResults));
-    } catch (error) {
-      console.error("Failed to save results to cache:", error);
-    }
-  }, [searchResults]);
   
   
   const filteredResults = useMemo(() => {
@@ -113,6 +104,8 @@ export default function AddBusinessPage() {
                 prospects: [...prevResults.prospects, ...newUniqueResults],
                 rawResponse: results.rawData, // Store the raw response
             };
+            
+            localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
 
             if(newUniqueResults.length > 0) {
               toast({ title: `${newUniqueResults.length} ${t('newProspectsToast')}`});
@@ -152,6 +145,7 @@ export default function AddBusinessPage() {
                 ...prevResults,
                 prospects: prevResults.prospects.filter(r => r.placeId !== businessData.placeId),
             };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(updatedResults));
             return updatedResults;
         });
       } else {
