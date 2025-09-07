@@ -77,9 +77,9 @@ const phases = [
         title: "Hito 1.3: Reconstrucción de la Página Pública y el Embudo de Reseñas",
         icon: <Table />,
         tasks: [
-          { who: "bot", text: "Crear la nueva página pública de negocio (`/negocio/[businessId]`) como un Server Component que obtiene los datos y los pasa a un Componente de Cliente para su renderización.", completed: false },
-          { who: "bot", text: "Implementar el embudo de valoración: 5 estrellas redirige al enlace de reseña de Google; menos de 5 estrellas muestra el formulario de feedback.", completed: false },
-          { who: "bot", text: "Crear la entidad y el repositorio para `Feedback` y el `SubmitNegativeFeedbackUseCase` que guarda el feedback y notifica al Asistente de Ventas (por ahora).", completed: false },
+          { who: "bot", text: "Crear la nueva página pública de negocio (`/negocio/[businessId]`) como un Server Component que obtiene los datos y los pasa a un Componente de Cliente para su renderización.", completed: true },
+          { who: "bot", text: "Implementar el embudo de valoración: 5 estrellas redirige al enlace de reseña de Google; menos de 5 estrellas muestra el formulario de feedback.", completed: true },
+          { who: "bot", text: "Crear la entidad y el repositorio para `Feedback` y el `SubmitNegativeFeedbackUseCase` que guarda el feedback y notifica al Asistente de Ventas (por ahora).", completed: true },
         ]
       },
     ]
@@ -231,3 +231,5 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
+    
