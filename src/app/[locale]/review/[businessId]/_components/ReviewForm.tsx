@@ -26,16 +26,17 @@ const reviewSchema = z.object({
     comment: z.string().optional(),
     name: z.string().optional(),
     email: z.string().email({message: "Por favor, introduce un email válido."}).optional().or(z.literal('')),
+    phone: z.string().optional(),
 }).refine(data => {
-    // If rating is < 5, comment must be provided.
+    // If rating is < 5, comment, name and email must be provided.
     const ratingNum = parseInt(data.rating, 10);
     if (ratingNum < 5) {
-        return data.comment && data.comment.length > 10;
+        return data.comment && data.comment.length > 10 && data.name && data.name.length > 1 && data.email;
     }
     return true;
 }, {
-    message: "Por favor, déjanos un comentario de al menos 10 caracteres.",
-    path: ["comment"],
+    message: "Por favor, déjanos un comentario de al menos 10 caracteres y completa tu nombre y email.",
+    path: ["comment"], 
 });
 
 type ReviewFormValues = z.infer<typeof reviewSchema>;
@@ -74,7 +75,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
 
     const form = useForm<ReviewFormValues>({
         resolver: zodResolver(reviewSchema),
-        defaultValues: { rating: "0", comment: "", name: "", email: "" }
+        defaultValues: { rating: "0", comment: "", name: "", email: "", phone: "" }
     });
 
     const selectedRating = parseInt(form.watch('rating'), 10);
@@ -106,6 +107,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
                 comment: data.comment || '',
                 userName: data.name,
                 userEmail: data.email,
+                userPhone: data.phone,
             });
 
             if (response.success) {
@@ -191,7 +193,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
                                 name="comment"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tus comentarios</FormLabel>
+                                        <FormLabel>Tus comentarios <span className="text-destructive">*</span></FormLabel>
                                         <FormControl><Textarea className="bg-background/50 dark:bg-slate-800/50 border-border dark:border-slate-700 placeholder:text-muted-foreground" placeholder="Cuéntanos qué ha pasado..." {...field} /></FormControl>
                                         <FormMessage className="text-red-500 dark:text-red-400"/>
                                     </FormItem>
@@ -202,7 +204,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
                                 name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tu Nombre (Opcional)</FormLabel>
+                                        <FormLabel>Tu Nombre <span className="text-destructive">*</span></FormLabel>
                                         <FormControl><Input className="bg-background/50 dark:bg-slate-800/50 border-border dark:border-slate-700 placeholder:text-muted-foreground" placeholder="Juan Pérez" {...field} /></FormControl>
                                         <FormMessage className="text-red-500 dark:text-red-400"/>
                                     </FormItem>
@@ -213,8 +215,19 @@ export function ReviewForm({ business }: ReviewFormProps) {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tu Email (Opcional)</FormLabel>
+                                        <FormLabel>Tu Email <span className="text-destructive">*</span></FormLabel>
                                         <FormControl><Input className="bg-background/50 dark:bg-slate-800/50 border-border dark:border-slate-700 placeholder:text-muted-foreground" placeholder="tu@email.com" {...field} /></FormControl>
+                                         <FormMessage className="text-red-500 dark:text-red-400"/>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tu Teléfono (Opcional)</FormLabel>
+                                        <FormControl><Input className="bg-background/50 dark:bg-slate-800/50 border-border dark:border-slate-700 placeholder:text-muted-foreground" placeholder="+34 600 000 000" {...field} /></FormControl>
                                          <FormMessage className="text-red-500 dark:text-red-400"/>
                                     </FormItem>
                                 )}

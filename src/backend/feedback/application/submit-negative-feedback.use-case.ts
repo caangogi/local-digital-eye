@@ -1,3 +1,4 @@
+
 import type { Feedback } from '../domain/feedback.entity';
 import type { FeedbackRepositoryPort } from '../domain/feedback.repository.port';
 import { NotifyOwnerOfNegativeFeedbackUseCase } from '@/backend/business/application/notify-owner-of-negative-feedback.use-case';
@@ -15,6 +16,7 @@ interface SubmitNegativeFeedbackInput {
     comment: string;
     userName?: string;
     userEmail?: string;
+    userPhone?: string;
 }
 
 export class SubmitNegativeFeedbackUseCase {
@@ -45,6 +47,7 @@ export class SubmitNegativeFeedbackUseCase {
       status: 'new', // Default status for new feedback
       userName: input.userName,
       userEmail: input.userEmail,
+      userPhone: input.userPhone,
     };
 
     // The repository will handle the creation of the ID and timestamp.

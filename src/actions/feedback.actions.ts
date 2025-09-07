@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -17,6 +18,7 @@ interface SubmitFeedbackInput {
     comment: string;
     userName?: string;
     userEmail?: string;
+    userPhone?: string; // Added phone
 }
 
 /**
@@ -32,7 +34,6 @@ export async function submitNegativeFeedback(feedbackData: SubmitFeedbackInput):
     // We get the business owner's user ID from the business entity itself.
     // This part is simplified; in a real app, we'd fetch the business to get the owner's ID.
     // For now, we assume the business object contains the necessary userId.
-    // Let's pass the businessId and businessName directly to the use case.
 
     const feedbackToSave = {
       ...feedbackData,

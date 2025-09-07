@@ -23,33 +23,40 @@ export class NotifyOwnerOfNegativeFeedbackUseCase {
   async execute(feedback: Feedback): Promise<void> {
     console.log(`[NotifyOwnerUseCase] Starting notification process for feedback ${feedback.id}`);
 
-    // 1. Get the business to find the owner's userId
     const business = await this.businessRepository.findById(feedback.businessId);
     if (!business) {
       throw new Error(`Business with ID ${feedback.businessId} not found.`);
     }
 
-    // 2. Get the user (business owner) to find their email
-    const user = await this.userRepository.findById(business.userId);
-    if (!user || !user.email) {
-      throw new Error(`Owner (User ID: ${business.userId}) for business ${business.id} not found or has no email.`);
+    // Determine the recipient: Prioritize the owner, fallback to the admin.
+    let recipientId = business.ownerId || business.userId;
+    console.log(`[NotifyOwnerUseCase] Determined recipient ID: ${recipientId}. Owner: ${business.ownerId}, Admin: ${business.userId}`);
+
+    if (business.ownerId) {
+        const owner = await this.userRepository.findById(business.ownerId);
+        if (!owner || !owner.email) {
+            console.warn(`[NotifyOwnerUseCase] Owner ${business.ownerId} found but has no email. Falling back to admin ${business.userId}.`);
+            recipientId = business.userId; // Fallback to admin
+        }
     }
 
-    // 3. Create the email document in the 'mail' collection
-    // The "Trigger Email" extension listens to this collection.
-    // The `to` field is top-level. The `message` object contains subject and html.
+    const recipient = await this.userRepository.findById(recipientId);
+    if (!recipient || !recipient.email) {
+        throw new Error(`Recipient (User ID: ${recipientId}) for business ${business.id} not found or has no email.`);
+    }
+
     const mailCollection = firestore.collection('mail');
     
     const emailDocument = {
-      to: [user.email], // `to` is a top-level field and must be an array.
+      to: [recipient.email],
       message: {
-        subject: `Nueva opinión de ${feedback.rating} estrellas para ${feedback.businessName}`,
+        subject: `Has recibido una nueva valoración para ${feedback.businessName}`,
         html: this.createEmailHtml(feedback),
       },
     };
 
     await mailCollection.add(emailDocument);
-    console.log(`[NotifyOwnerUseCase] Email document created in 'mail' collection for user ${user.email}.`);
+    console.log(`[NotifyOwnerUseCase] Email document created in 'mail' collection for user ${recipient.email}.`);
   }
 
   /**
@@ -60,7 +67,15 @@ export class NotifyOwnerOfNegativeFeedbackUseCase {
   private createEmailHtml(feedback: Feedback): string {
     const stars = '★'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
     const customerName = feedback.userName || 'un cliente';
-    const customerContact = feedback.userEmail ? `(${feedback.userEmail})` : '';
+    
+    let contactInfo = '';
+    if (feedback.userEmail && feedback.userPhone) {
+        contactInfo = `(${feedback.userEmail} - ${feedback.userPhone})`;
+    } else if (feedback.userEmail) {
+        contactInfo = `(${feedback.userEmail})`;
+    } else if (feedback.userPhone) {
+        contactInfo = `(${feedback.userPhone})`;
+    }
 
     return `
         <!DOCTYPE html>
@@ -72,28 +87,28 @@ export class NotifyOwnerOfNegativeFeedbackUseCase {
                 body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
                 .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
                 .header { background-color: #f8f8f8; padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
-                .header h1 { margin: 0; color: #d9534f; }
+                .header h1 { margin: 0; color: #333; }
                 .content { padding: 20px 0; }
                 .rating { font-size: 24px; color: #ffcc00; }
-                .comment { background-color: #f9f9f9; border-left: 4px solid #d9534f; padding: 15px; margin-top: 15px; }
+                .comment { background-color: #f9f9f9; border-left: 4px solid #f0ad4e; padding: 15px; margin-top: 15px; }
                 .footer { margin-top: 20px; font-size: 12px; color: #777; text-align: center; }
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>¡Atención! Nueva Opinión Negativa</h1>
+                    <h1>Nueva Valoración de Cliente</h1>
                 </div>
                 <div class="content">
                     <p>Hola,</p>
-                    <p>Has recibido una nueva opinión para tu negocio <strong>${feedback.businessName}</strong> que requiere tu atención.</p>
+                    <p>Has recibido una nueva opinión para tu negocio <strong>${feedback.businessName}</strong> que podría requerir tu atención.</p>
                     <p><strong>Calificación:</strong> <span class="rating">${stars}</span> (${feedback.rating}/5)</p>
-                    <p><strong>De:</strong> ${customerName} ${customerContact}</p>
+                    <p><strong>De:</strong> ${customerName} ${contactInfo}</p>
                     <div class="comment">
                         <p><strong>Comentario:</strong></p>
                         <p><em>"${feedback.comment}"</em></p>
                     </div>
-                    <p>Te recomendamos gestionar esta opinión lo antes posible para mantener una buena reputación online.</p>
+                    <p>Te recomendamos gestionar esta opinión lo antes posible para mantener una buena relación con tus clientes.</p>
                     <p>Atentamente,<br>El equipo de Local Digital Eye</p>
                 </div>
                 <div class="footer">

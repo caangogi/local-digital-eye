@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 /**
@@ -15,6 +16,7 @@ export const FeedbackSchema = z.object({
   createdAt: z.date().describe("The timestamp when the feedback was submitted."),
   userName: z.string().optional().describe("The name of the customer who left the feedback."),
   userEmail: z.string().email().optional().describe("The email of the customer who left the feedback."),
+  userPhone: z.string().optional().describe("The phone number of the customer."),
 });
 
 export type Feedback = z.infer<typeof FeedbackSchema>;
