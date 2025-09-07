@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -202,9 +203,7 @@ export default function AddBusinessPage() {
         </CardContent>
       </Card>
       
-      {debugConnectData && (
-        <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={debugConnectData} />
-      )}
+    
 
       {(searchResults.prospects.length > 0 || searchResults.rawResponse) && (
         <Card>
@@ -218,10 +217,6 @@ export default function AddBusinessPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {searchResults.rawResponse && (
-                <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={searchResults.rawResponse} />
-            )}
-
             <div className="p-4 border rounded-lg bg-muted/30 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="grid gap-2">
                     <Label htmlFor="rating-filter" className="flex items-center gap-2"><Star className="w-4 h-4" />{t('ratingFilterLabel')}: <span className="font-bold text-primary">{ratingFilter[0].toFixed(1)} {t('ratingFilterUnit')}</span></Label>
@@ -274,6 +269,18 @@ export default function AddBusinessPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Debugger Section */}
+      <div className="mt-8 space-y-4">
+        {searchResults.rawResponse && (
+            <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={searchResults.rawResponse} />
+        )}
+        {debugConnectData && (
+            <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={debugConnectData} />
+        )}
+      </div>
     </div>
   );
 }
+
+    
