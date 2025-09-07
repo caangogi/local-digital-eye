@@ -1,17 +1,18 @@
-
 import type React from 'react';
+import '@/app/globals.css';
 import { AuthProvider } from '@/hooks/useAuth.tsx';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
-import { NextIntlClientProvider, useMessages } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params: { locale }
 }: {
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const messages = useMessages();
+  const messages = await getMessages();
 
   // By wrapping the entire application in the providers here,
   // any child component or layout can now safely use their respective hooks.
