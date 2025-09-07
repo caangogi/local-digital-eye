@@ -14,18 +14,14 @@ export const localePrefix = 'as-needed';
 // to locale-specific paths. This is used to translate URLs.
 export const pathnames = {
   '/': '/', 
-  '/login': {
-    en: '/login',
-    es: '/iniciar-sesion'
-  },
-  '/signup': {
-    en: '/signup',
-    es: '/registro'
-  },
-  '/password-reset': {
-    en: '/password-reset',
-    es: '/restablecer-contrasena'
-  },
+  
+  // Auth routes are not internationalized, but we define them
+  // so that the Link component can work without a locale.
+  // The middleware will skip adding a locale prefix for these.
+  '/login': '/login',
+  '/signup': '/signup',
+  '/password-reset': '/password-reset',
+  
   '/dashboard': {
     en: '/dashboard',
     es: '/panel'
@@ -58,10 +54,6 @@ export const pathnames = {
   '/negocio/[businessId]': {
     en: '/business/[businessId]',
     es: '/negocio/[businessId]'
-  },
-   '/roadmap': {
-    en: '/roadmap',
-    es: '/hoja-de-ruta'
   }
 } satisfies Pathnames<typeof locales>;
 
