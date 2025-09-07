@@ -1,57 +1,112 @@
-import type { Metadata } from "next";
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getRequestConfig } from 'next-intl/server';
-import { Toaster } from "@/components/ui/toaster";
-import '../globals.css'; 
-import { AuthProvider } from '@/hooks/useAuth.tsx';
-import { ThemeProvider } from "@/components/layout/ThemeProvider";
 
-export const metadata: Metadata = {
-  title: 'Local Digital Eye',
-  description: 'AI-Powered Business Analysis and Service Recommendations',
-  icons: {
-    icon: 'https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Ficono-consultoria.png?alt=media&token=b8070931-c56e-4559-82d4-0a763e98b92d'
-  }
-};
+"use client"; 
 
-interface LocaleLayoutProps {
-  children: React.ReactNode;
-  params: {locale: string};
-}
+import type React from 'react';
+import { useEffect } from 'react';
+import { AppHeader } from '@/components/layout/AppHeader';
+import { AppSidebar } from '@/components/layout/AppSidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { useAuth } from '@/hooks/useAuth.tsx';
+import { Toaster } from '@/components/ui/toaster';
+import { usePathname, useRouter } from '@/navigation'; 
+import { useLocale } from 'next-intl';
 
-export default async function LocaleLayout({
+
+function AuthenticatedLayout({
   children,
-  params: {locale}
-}: LocaleLayoutProps) {
-  const messages = await getMessages();
-  const { timeZone } = await getRequestConfig({locale});
+}: {
+  children: React.ReactNode;
+}) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
+
+  useEffect(() => {
+    // Only redirect if loading is finished, user is not authenticated,
+    // and we are not already on a public auth page.
+    if (!isLoading && !isAuthenticated) {
+       console.log(`[Auth Guard] Not authenticated. Redirecting to /login from ${pathname}`);
+       router.push(`/login`);
+    }
+  }, [isAuthenticated, isLoading, router, pathname]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary animate-pulse">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"/>
+          </svg>
+          <p className="text-muted-foreground">Loading Local Digital Eye...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If loading is finished but user is still not authenticated,
+  // return null to prevent a flash of the authenticated layout.
+  // The useEffect above will handle the redirection.
+  if (!isAuthenticated) {
+    return null; 
+  }
+  
+  const appBackgroundGlow = (
+    <div className="absolute inset-0 z-[-2] overflow-hidden pointer-events-none">
+      <div className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-20"
+            style={{
+              background: 'radial-gradient(ellipse at center, hsl(var(--accent) / 0.3) 0%, transparent 60%)',
+              filter: 'blur(100px)' 
+            }}>
+      </div>
+    </div>
+  );
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <NextIntlClientProvider
-            locale={locale}
-            messages={messages}
-            timeZone={timeZone}
-          >
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-            <Toaster />
-          </NextIntlClientProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <SidebarProvider defaultOpen={true}>
+      {appBackgroundGlow}
+      <AppSidebar />
+      <SidebarInset>
+        <AppHeader />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
+
+export default function AppLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const pathname = usePathname();
+
+  // Define public root paths that do not require the AuthenticatedLayout
+  const publicPaths = ['/login', '/signup', '/password-reset', '/negocio', '/dev'];
+
+  // Check if the current path starts with any of the public paths
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  
+   // The root path '/' is also public
+  if (pathname === '/') {
+    return <>{children}</>;
+  }
+
+
+  if (isPublicPath || isLoading) {
+    return <>{children}</>;
+  }
+
+  if (!isAuthenticated) {
+    return <>{children}</>
+  }
+
+  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+}
+
+    

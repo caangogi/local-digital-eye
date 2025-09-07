@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import type React from 'react';
@@ -78,10 +77,33 @@ function AuthenticatedLayout({
 
 export default function AppLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { locale: string };
 }) {
-  return (
-      <AuthenticatedLayout>{children}</AuthenticatedLayout>
-  );
+  const { isAuthenticated, isLoading } = useAuth();
+  const pathname = usePathname();
+
+  // Define public root paths that do not require the AuthenticatedLayout
+  const publicPaths = ['/login', '/signup', '/password-reset', '/negocio', '/dev'];
+
+  // Check if the current path starts with any of the public paths
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  
+   // The root path '/' is also public
+  if (pathname === '/') {
+    return <>{children}</>;
+  }
+
+
+  if (isPublicPath || isLoading) {
+    return <>{children}</>;
+  }
+
+  if (!isAuthenticated) {
+    return <>{children}</>
+  }
+
+  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
 }
