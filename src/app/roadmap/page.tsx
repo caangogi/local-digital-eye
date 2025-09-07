@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync } from "lucide-react";
+import React from 'react';
 
 export async function generateMetadata() {
   return {
@@ -34,6 +35,20 @@ const developmentPrinciples = [
 
 const phases = [
   {
+    phase: "Hito 0",
+    title: "Configuración y Estructura del Proyecto",
+    description: "Tareas iniciales para establecer una base sólida para el proyecto, incluyendo la estructura de rutas y la configuración de la arquitectura.",
+    milestones: [
+       {
+        title: "Hito 0.1: Estructuración del Enrutamiento por Roles",
+        icon: <FolderSync />,
+        tasks: [
+          { who: "bot", text: "Reestructurar las carpetas de la aplicación para eliminar los conflictos de rutas paralelas y crear la base para el enrutamiento basado en roles (admin/owner).", completed: true },
+        ]
+      }
+    ]
+  },
+  {
     phase: "Fase 1",
     title: "Fundación de la Plataforma y Reconstrucción del CRM",
     description: "Reconstruir las funcionalidades existentes sobre la nueva arquitectura sólida. El objetivo es tener un panel para el Asistente de Ventas 100% funcional y robusto, integrando el CRM desde el inicio.",
@@ -42,20 +57,20 @@ const phases = [
         title: "Hito 1.1: Definición del Dominio y la Infraestructura Central",
         icon: <Database />,
         tasks: [
-          { who: "bot", text: "Refinar la entidad `Business` (`business.entity.ts`) para incluir todos los campos públicos de Google Places y los campos del CRM (`leadScore`, `salesStatus`, `customTags`, `notes`, `nextContactDate`, `gmbStatus`, etc.).", completed: true },
-          { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner') para manejar los permisos futuros.", completed: true },
-          { who: "bot", text: "Implementar `FirebaseBusinessRepository` y `FirebaseUserRepository` para que coincidan exactamente con las nuevas entidades, manejando la conversión de Timestamps y los nuevos campos.", completed: true },
-          { who: "bot", text: "Adaptar los Casos de Uso existentes (`ConnectBusiness`, `ListUserBusinesses`, etc.) para que operen con las nuevas entidades y la lógica del repositorio.", completed: true }
+          { who: "bot", text: "Refinar la entidad `Business` (`business.entity.ts`) para incluir todos los campos públicos de Google Places y los campos del CRM (`leadScore`, `salesStatus`, `customTags`, `notes`, `nextContactDate`, `gmbStatus`, etc.).", completed: false },
+          { who: "bot", text: "Crear la entidad `User` con un campo `role` ('admin' | 'owner' | 'super_admin') para manejar los permisos futuros.", completed: true },
+          { who: "bot", text: "Implementar `FirebaseBusinessRepository` y `FirebaseUserRepository` para que coincidan exactamente con las nuevas entidades, manejando la conversión de Timestamps y los nuevos campos.", completed: false },
+          { who: "bot", text: "Adaptar los Casos de Uso existentes (`ConnectBusiness`, `ListUserBusinesses`, etc.) para que operen con las nuevas entidades y la lógica del repositorio.", completed: false }
         ]
       },
       {
         title: "Hito 1.2: Reimplementación del Panel del Asistente de Ventas",
         icon: <Layers />,
         tasks: [
-          { who: "bot", text: "Reconstruir la página de Prospección (`/businesses/add`) para usar el nuevo `ConnectBusinessUseCase` a través de un Server Action.", completed: true },
-          { who: "bot", text: "Reconstruir la página de listado (`/businesses`) con sus dos vistas: Lista y Pipeline (Kanban).", completed: true },
-          { who: "bot", text: "Asegurar que la vista de Pipeline permita arrastrar y soltar para cambiar el `salesStatus`, llamando a un `UpdateBusinessStatusUseCase`.", completed: true },
-          { who: "bot", text: "Reconstruir el panel lateral (Sheet) que se abre al hacer clic en un negocio, permitiendo la edición de los campos del CRM (`notes`, `customTags`, etc.) a través de un `UpdateBusinessDetailsUseCase`.", completed: true },
+          { who: "bot", text: "Reconstruir la página de Prospección (`/businesses/add`) para usar el nuevo `ConnectBusinessUseCase` a través de un Server Action.", completed: false },
+          { who: "bot", text: "Reconstruir la página de listado (`/businesses`) con sus dos vistas: Lista y Pipeline (Kanban).", completed: false },
+          { who: "bot", text: "Asegurar que la vista de Pipeline permita arrastrar y soltar para cambiar el `salesStatus`, llamando a un `UpdateBusinessStatusUseCase`.", completed: false },
+          { who: "bot", text: "Reconstruir el panel lateral (Sheet) que se abre al hacer clic en un negocio, permitiendo la edición de los campos del CRM (`notes`, `customTags`, etc.) a través de un `UpdateBusinessDetailsUseCase`.", completed: false },
         ]
       },
        {
@@ -129,7 +144,7 @@ const phases = [
   }
 ];
 
-const TaskIcon = ({ who, completed }) => {
+const TaskIcon = ({ who, completed }: { who: string; completed?: boolean }) => {
     if (completed) {
         return <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" aria-label="Task Completed" />;
     }
@@ -139,7 +154,7 @@ const TaskIcon = ({ who, completed }) => {
     return <UserCog className="h-5 w-5 text-amber-500 flex-shrink-0" aria-label="User Task" />;
 };
 
-const MilestoneIcon = ({ icon }) => {
+const MilestoneIcon = ({ icon }: { icon: React.ReactElement }) => {
     return (
         <div className="absolute -left-4 top-1 h-8 w-8 bg-background flex items-center justify-center rounded-full border-2 border-primary/50">
             {React.cloneElement(icon, { className: "h-5 w-5 text-primary" })}

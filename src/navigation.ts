@@ -54,18 +54,14 @@ export const pathnames = {
     en: '/settings',
     es: '/configuracion'
   },
-  '/road-map': {
-    en: '/road-map',
-    es: '/hoja-de-ruta'
-  },
   // This is a dynamic route, we need to specify the slug part
   '/negocio/[businessId]': {
     en: '/business/[businessId]',
     es: '/negocio/[businessId]'
   },
-   '/dev/my-bussiness-road-map': {
-    en: '/dev/my-bussiness-road-map',
-    es: '/dev/mi-negocio-hoja-de-ruta'
+   '/roadmap': {
+    en: '/roadmap',
+    es: '/hoja-de-ruta'
   }
 } satisfies Pathnames<typeof locales>;
 

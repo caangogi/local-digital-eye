@@ -37,7 +37,7 @@ export default function LandingPage() {
             />
           </IntlLink>
           <nav className="flex items-center gap-2">
-            <Link href="/dev/my-bussiness-road-map">
+            <Link href="/roadmap">
               <Button variant="outline" size="sm">Roadmap</Button>
             </Link>
             <LanguageSwitcher />
@@ -70,5 +70,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
