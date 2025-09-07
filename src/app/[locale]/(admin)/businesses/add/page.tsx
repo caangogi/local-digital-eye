@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,32 +30,47 @@ type SearchFormValues = z.infer<typeof searchSchema>;
 
 type WebsiteFilter = 'all' | 'with_website' | 'without_website';
 
-// Simplified state for the prospect list
-interface ProspectListState {
-    prospects: GmbDataExtractionOutput[];
-    searchRawResponse?: any;
-    connectRawResponse?: Place | null;
-}
+const PROSPECTS_STORAGE_KEY = 'localDigitalEye_prospects';
 
 export default function AddBusinessPage() {
   const t = useTranslations('ProspectingPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   
-  // State for search results and debug data
-  const [prospectState, setProspectState] = useState<ProspectListState>({ 
-    prospects: [],
-    searchRawResponse: null,
-    connectRawResponse: null,
-  });
+  const [prospects, setProspects] = useState<GmbDataExtractionOutput[]>([]);
+  const [debugSearchData, setDebugSearchData] = useState<any>(null);
+  const [debugConnectData, setDebugConnectData] = useState<Place | null>(null);
   
   const [ratingFilter, setRatingFilter] = useState<number[]>([5]);
   const [websiteFilter, setWebsiteFilter] = useState<WebsiteFilter>('all');
   
   const { toast } = useToast();
 
+  // Load prospects from localStorage on initial client-side render
+  useEffect(() => {
+    try {
+      const cachedProspects = localStorage.getItem(PROSPECTS_STORAGE_KEY);
+      if (cachedProspects) {
+        setProspects(JSON.parse(cachedProspects));
+      }
+    } catch (error) {
+      console.error("Failed to parse prospects from localStorage", error);
+      localStorage.removeItem(PROSPECTS_STORAGE_KEY);
+    }
+  }, []);
+
+  // Save prospects to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(PROSPECTS_STORAGE_KEY, JSON.stringify(prospects));
+    } catch (error) {
+      console.error("Failed to save prospects to localStorage", error);
+    }
+  }, [prospects]);
+
+
   const filteredResults = useMemo(() => {
-      return prospectState.prospects.filter(business => {
+      return prospects.filter(business => {
           const rating = business.rating ?? 0;
           if (rating > ratingFilter[0]) return false;
 
@@ -64,7 +79,7 @@ export default function AddBusinessPage() {
           
           return true;
       });
-  }, [prospectState.prospects, ratingFilter, websiteFilter]);
+  }, [prospects, ratingFilter, websiteFilter]);
 
 
   const form = useForm<SearchFormValues>({
@@ -74,29 +89,25 @@ export default function AddBusinessPage() {
 
   const handleSearch: SubmitHandler<SearchFormValues> = async (data) => {
     setIsLoading(true);
-    setProspectState(prevState => ({ ...prevState, connectRawResponse: null })); // Clear previous connection debug data
+    setDebugSearchData(null);
+    setDebugConnectData(null);
 
     try {
       const results = await extractGmbData({ query: data.query });
       
-      setProspectState(prevState => {
-        const existingPlaceIds = new Set(prevState.prospects.map(p => p.placeId));
-        const newUniqueProspects = (results?.mappedData || []).filter(p => !existingPlaceIds.has(p.placeId));
+      setDebugSearchData(results?.rawData);
 
-        if (newUniqueProspects.length > 0) {
-            toast({ title: `${newUniqueProspects.length} ${t('newProspectsToast')}` });
-        } else if (results?.mappedData) {
-            toast({ title: t('noNewProspectsToast') });
-        } else {
-            toast({ title: t('notFound'), variant: "destructive" });
-        }
+      const existingPlaceIds = new Set(prospects.map(p => p.placeId));
+      const newUniqueProspects = (results?.mappedData || []).filter(p => !existingPlaceIds.has(p.placeId));
 
-        return {
-            ...prevState,
-            prospects: [...prevState.prospects, ...newUniqueProspects],
-            searchRawResponse: results?.rawData, // Store raw search response for debugging
-        };
-      });
+      if (newUniqueProspects.length > 0) {
+          toast({ title: `${newUniqueProspects.length} ${t('newProspectsToast')}` });
+          setProspects(prev => [...prev, ...newUniqueProspects]);
+      } else if (results?.mappedData) {
+          toast({ title: t('noNewProspectsToast') });
+      } else {
+          toast({ title: t('notFound'), variant: "destructive" });
+      }
 
     } catch (error: any) {
       toast({ title: t('searchError'), description: error.message, variant: "destructive" });
@@ -109,22 +120,21 @@ export default function AddBusinessPage() {
   const handleConnect = async (businessData: GmbDataExtractionOutput) => {
     if (!businessData.placeId) return;
     setIsConnecting(businessData.placeId);
-    setProspectState(prevState => ({ ...prevState, connectRawResponse: null })); // Clear previous debug data
+    setDebugConnectData(null);
 
     try {
       const response = await connectBusiness(businessData);
       
+       if (response.debugData) {
+        setDebugConnectData(response.debugData);
+      }
+
       if (response.success && response.businessId) {
         toast({
           title: t('connectSuccessTitle'),
           description: t('connectSuccessDescription'),
         });
-        // Remove connected prospect from the list
-        setProspectState(prevState => ({
-          ...prevState,
-          prospects: prevState.prospects.filter(p => p.placeId !== businessData.placeId),
-          connectRawResponse: response.debugData, // Store raw connect response for debugging
-        }));
+        setProspects(prev => prev.filter(p => p.placeId !== businessData.placeId));
       } else {
         toast({ title: t('connectErrorTitle'), description: response.message, variant: "destructive" });
       }
@@ -136,7 +146,9 @@ export default function AddBusinessPage() {
   };
 
   const clearList = () => {
-    setProspectState({ prospects: [], searchRawResponse: null, connectRawResponse: null });
+    setProspects([]);
+    setDebugSearchData(null);
+    setDebugConnectData(null);
     toast({title: t('clearListSuccessToast')});
   }
 
@@ -177,12 +189,12 @@ export default function AddBusinessPage() {
         </CardContent>
       </Card>
       
-      {prospectState.prospects.length > 0 && (
+      {prospects.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {prospectState.prospects.length})</CardTitle>
+                    <CardTitle>{t('prospectListTitle')} ({filteredResults.length} / {prospects.length})</CardTitle>
                     <CardDescription>{t('prospectsFoundDescription')}</CardDescription>
                 </div>
                 <Button onClick={clearList} variant="outline" size="sm"><Trash2 className="mr-2 h-4 w-4"/> {t('clearListButton')}</Button>
@@ -232,7 +244,7 @@ export default function AddBusinessPage() {
               </div>
             ))}
             </div>
-             {filteredResults.length === 0 && prospectState.prospects.length > 0 && (
+             {filteredResults.length === 0 && prospects.length > 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                     <p>{t('noFilterResults')}</p>
                     <p className="text-sm">{t('noFilterResultsHint')}</p>
@@ -243,16 +255,14 @@ export default function AddBusinessPage() {
       )}
 
       {/* Debugger Section */}
-      <div className="mt-8 space-y-4">
-        {prospectState.searchRawResponse && (
-            <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={prospectState.searchRawResponse} />
+      <footer className="mt-8 space-y-4">
+        {debugSearchData && (
+            <DebugCollapse title="Respuesta Completa de Google (Búsqueda)" data={debugSearchData} />
         )}
-        {prospectState.connectRawResponse && (
-            <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={prospectState.connectRawResponse} />
+        {debugConnectData && (
+            <DebugCollapse title="Respuesta Completa de Google (Al Conectar)" data={debugConnectData} />
         )}
-      </div>
+      </footer>
     </div>
   );
 }
-
-    
