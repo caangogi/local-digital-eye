@@ -12,7 +12,6 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { submitNegativeFeedback } from '@/actions/feedback.actions';
 import { useToast } from "@/hooks/use-toast";
 import { CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -42,6 +41,14 @@ const reviewSchema = z.object({
 type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 
+const reviewPrompts = [
+    { title: "Valora tu experiencia ✨", description: "¡Tu opinión es muy importante para nosotros! Ayúdanos a mejorar con tu reseña." },
+    { title: "¿Qué tal fue todo? 🤔", description: "Nos encantaría saber cómo fue tu visita. ¡Gracias por dedicarnos un momento!" },
+    { title: "¡Tu voz nos importa! 📣", description: "Comparte tu experiencia para que podamos seguir creciendo y ofreciéndote lo mejor." },
+    { title: "Una ayudita por aquí, por favor 🙏", description: "Tus comentarios son el motor de nuestro día a día. ¡Cuéntanos qué te pareció!" },
+    { title: "Califica nuestro servicio 🌟", description: "Tómate un segundo para valorar tu experiencia. ¡Cada detalle cuenta para nosotros!" },
+];
+
 const thankYouMessages = [
     "¡Muchas gracias por tu valoración! 💛\nTus comentarios nos ayudan a mejorar y a seguir sirviendo con el cariño que te mereces. Cada opinión la leemos y la tenemos en cuenta.",
     "Gracias por regalarnos un minuto de tu tiempo 🙏\nTu reseña es un ingrediente esencial para que podamos seguir creciendo y darte siempre el mejor servicio.",
@@ -57,10 +64,12 @@ export function ReviewForm({ business }: ReviewFormProps) {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionCompleted, setSubmissionCompleted] = useState(false);
-    const [randomMessage, setRandomMessage] = useState('');
+    const [prompt, setPrompt] = useState({ title: "Valora tu experiencia", description: "Queremos conocer tu opinión para seguir mejorando. ¡Gracias por tu tiempo!" });
+    const [thankYouMessage, setThankYouMessage] = useState('');
 
     useEffect(() => {
-        setRandomMessage(thankYouMessages[Math.floor(Math.random() * thankYouMessages.length)]);
+        setPrompt(reviewPrompts[Math.floor(Math.random() * reviewPrompts.length)]);
+        setThankYouMessage(thankYouMessages[Math.floor(Math.random() * thankYouMessages.length)]);
     }, []);
 
     const form = useForm<ReviewFormValues>({
@@ -116,7 +125,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
             <div className="text-center p-8 flex flex-col items-center gap-4">
                 <CheckCircle className="w-16 h-16 text-green-500 dark:text-green-400"/>
                 <h3 className="text-xl font-bold">¡Gracias por tu feedback!</h3>
-                <p className="text-muted-foreground whitespace-pre-line">{randomMessage}</p>
+                <p className="text-muted-foreground whitespace-pre-line">{thankYouMessage}</p>
             </div>
         );
     }
@@ -125,8 +134,8 @@ export function ReviewForm({ business }: ReviewFormProps) {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <CardHeader>
-                    <CardTitle className="text-2xl">Valora tu experiencia</CardTitle>
-                    <CardDescription className="text-muted-foreground">Queremos conocer tu opinión para seguir mejorando. ¡Gracias por tu tiempo!</CardDescription>
+                    <CardTitle className="text-2xl">{prompt.title}</CardTitle>
+                    <CardDescription className="text-muted-foreground">{prompt.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <FormField
