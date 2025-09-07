@@ -126,7 +126,6 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
     );
 }
 
-// Componente para el carrusel de fotos
 const PhotoCarouselSection = ({ business, googleMapsApiKey }: PhotoCarouselProps) => {
     if (!business.photos || business.photos.length === 0) {
         return null;
