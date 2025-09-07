@@ -25,7 +25,6 @@ export function BusinessPublicProfileView({ business, googleMapsApiKey }: Busine
     const hasPhotos = business.photos && business.photos.length > 0;
     const defaultImage = "https://picsum.photos/seed/business-placeholder/1920/1080";
 
-    // Create the LatLngLiteral object expected by the Google Maps components
     const mapCenter = business.location 
         ? { lat: business.location.latitude, lng: business.location.longitude }
         : null;
