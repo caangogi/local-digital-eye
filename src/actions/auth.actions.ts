@@ -34,20 +34,25 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     const userRecord = await adminAuth.getUser(decodedIdToken.uid);
     const customClaims = (userRecord.customClaims || {}) as { role?: string };
 
-    // Set custom claim `role` if it doesn't exist. Default to 'admin'.
-    if (!customClaims.role) {
-        await adminAuth.setCustomUserClaims(decodedIdToken.uid, { role: 'admin' });
-        console.log(`[AuthAction] Set custom claim 'role: admin' for new user ${decodedIdToken.uid}`);
+    // Determine role - TEMPORARY LOGIC for super_admin
+    let newRole = customClaims.role || 'admin'; // Default to admin
+    if (decodedIdToken.email === 'caaangogi@gmail.com') {
+      newRole = 'super_admin';
     }
-    const finalRole = customClaims.role || 'admin';
+
+    // Set custom claim `role` if it's different from the current one.
+    if (customClaims.role !== newRole) {
+        await adminAuth.setCustomUserClaims(decodedIdToken.uid, { role: newRole });
+        console.log(`[AuthAction] Set custom claim 'role: ${newRole}' for user ${decodedIdToken.uid}`);
+    }
 
 
     // Create or update user in our database
-    const userToSave: Omit<User, 'avatarUrl'> & { avatarUrl?: string, role: 'admin' | 'owner' } = {
+    const userToSave: Omit<User, 'avatarUrl'> & { avatarUrl?: string } = {
       id: decodedIdToken.uid,
       email: decodedIdToken.email || '',
       name: decodedIdToken.name || '',
-      role: finalRole as 'admin' | 'owner',
+      role: newRole as 'admin' | 'owner' | 'super_admin',
     };
 
     if (decodedIdToken.picture) {

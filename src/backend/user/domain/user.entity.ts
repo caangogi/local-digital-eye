@@ -11,7 +11,7 @@ export const UserSchema = z.object({
   email: z.string().email().describe("User's email address."),
   name: z.string().optional().describe("User's full name or display name."),
   avatarUrl: z.string().url().optional().describe("URL for the user's profile picture."),
-  role: z.enum(['admin', 'owner']).default('admin').describe("The role of the user within the application."),
+  role: z.enum(['admin', 'owner', 'super_admin']).default('admin').describe("The role of the user within the application."),
 });
 
 // TypeScript type inferred from the Zod schema.
