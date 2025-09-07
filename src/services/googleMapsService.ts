@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Service for interacting with Google Maps Places API.
  * This file uses the recommended "Places API (New)".
@@ -8,9 +7,8 @@ import {z} from 'genkit';
 // Schema for a single photo from the Places API
 const PhotoSchema = z.object({
     name: z.string(),
-    widthPx: z.number(),
-    heightPx: z.number(),
-    authorAttributions: z.array(z.any()).optional(), // Keeping it simple
+    widthPx: z.number().optional(),
+    heightPx: z.number().optional(),
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
@@ -20,6 +18,20 @@ const OpeningHoursSchema = z.object({
     weekdayDescriptions: z.array(z.string()).optional(),
 });
 export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
+
+// Schema for a single review from the Places API
+const ReviewSchema = z.object({
+  name: z.string(),
+  rating: z.number().min(1).max(5),
+  text: z.object({ text: z.string(), languageCode: z.string() }).nullable().optional(),
+  publishTime: z.string(),
+  authorAttribution: z.object({
+    displayName: z.string(),
+    uri: z.string().url(),
+    photoUri: z.string().url(),
+  }).nullable().optional(),
+});
+export type Review = z.infer<typeof ReviewSchema>;
 
 // Main schema for a Place, expanded with more details
 const PlaceSchema = z.object({
@@ -37,8 +49,8 @@ const PlaceSchema = z.object({
     longitude: z.number(),
   }).nullable().optional(),
   photos: z.array(PhotoSchema).optional(),
-  // Use regularOpeningHours as the primary source for our entity
   regularOpeningHours: OpeningHoursSchema.nullable().optional(),
+  reviews: z.array(ReviewSchema).optional(), // Add reviews to the Place schema
 });
 
 export type Place = z.infer<typeof PlaceSchema>;
@@ -47,7 +59,6 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
   places: z.array(z.any()).optional(),
 });
 
-// New return type for functions to include raw data for debugging
 interface PlaceResult {
     normalizedData: Place | null;
     rawData: any;
@@ -72,7 +83,6 @@ function normalizePlace(place: any): Place {
   return {
     id: place.id,
     name: displayName,
-    // Explicitly map fields and fall back to null if undefined/null
     formattedAddress: place.formattedAddress || null,
     internationalPhoneNumber: place.internationalPhoneNumber || null,
     websiteUri: place.websiteUri || null,
@@ -81,9 +91,9 @@ function normalizePlace(place: any): Place {
     types: place.types || [],
     businessStatus: place.businessStatus || null,
     location: place.location || null,
-    photos: place.photos || [],
-    // We prioritize regular opening hours.
+    photos: (place.photos || []).map((p: any) => ({ name: p.name, widthPx: p.widthPx, heightPx: p.heightPx })),
     regularOpeningHours: place.regularOpeningHours || null,
+    reviews: place.reviews || [],
   };
 }
 
@@ -104,7 +114,6 @@ export async function searchGooglePlaces(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  // Corrected fieldMask to include location
   const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location";
 
   const requestBody = {
@@ -165,12 +174,12 @@ export async function getGooglePlaceDetails(placeId: string): Promise<PlaceResul
       throw new Error("Server configuration error: Google API Key is missing.");
     }
   
-    // Correct fieldMask for the details endpoint. Note the camelCase and corrected opening hours fields.
-    const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,currentOpeningHours,regularOpeningHours";
+    // Add 'reviews' to the fieldMask
+    const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,regularOpeningHours,reviews";
     const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
-      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}" with fieldMask: "${fieldMask}"`);
+      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -188,7 +197,7 @@ export async function getGooglePlaceDetails(placeId: string): Promise<PlaceResul
           throw new Error(`Google Places Details API request failed with status ${response.status}. Details: ${detailedError}`);
       }
   
-      console.log(`[GoogleMapsService] Successfully fetched details for ${rawData.id}.`);
+      console.log(`[GoogleMapsService] Successfully fetched details for ${rawData.displayName?.text}.`);
       return {
           normalizedData: normalizePlace(rawData),
           rawData: rawData

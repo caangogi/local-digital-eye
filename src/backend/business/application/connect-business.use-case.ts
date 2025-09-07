@@ -1,4 +1,4 @@
-import type { Business } from '../domain/business.entity';
+import type { Business, Review } from '../domain/business.entity';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
 import { getGooglePlaceDetails, type Place } from '@/services/googleMapsService';
 
@@ -41,7 +41,6 @@ export class ConnectBusinessUseCase {
     if (existingBusiness) {
       if (existingBusiness.userId === userId) {
           console.log(`[ConnectBusinessUseCase] Business ${placeId} is already connected to user ${userId}.`);
-          // Even if existing, we might want to return the raw data from a fresh API call for debugging.
           const gmbDataResult = await getGooglePlaceDetails(placeId);
           return { business: existingBusiness, rawData: gmbDataResult?.rawData || null };
       } else {
@@ -58,36 +57,49 @@ export class ConnectBusinessUseCase {
 
     const gmbData = gmbDataResult.normalizedData;
     
+    // Filter for top reviews (4 or 5 stars)
+    const topReviews: Review[] = (gmbData.reviews || [])
+      .filter(review => review.rating && review.rating >= 4)
+      .map(review => ({
+        authorName: review.authorAttribution?.displayName || 'Anónimo',
+        profilePhotoUrl: review.authorAttribution?.photoUri,
+        rating: review.rating,
+        text: review.text?.text,
+        publishTime: review.publishTime ? new Date(review.publishTime) : undefined,
+      }));
+
+
     // Create a new Business entity from the enriched data
-    // The normalized data from the service already handles null values.
     const businessToSave: Business = {
       id: placeId,
       userId: userId,
-      ownerId: null, // Initialize ownerId as null
+      ownerId: null,
       placeId: placeId,
-      name: gmbData.name, // Name is guaranteed by the check above
+      name: gmbData.name,
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
       
-      // Add all the enriched public data from our normalized Place object
       address: gmbData.formattedAddress,
       phone: gmbData.internationalPhoneNumber,
       website: gmbData.websiteUri,
       rating: gmbData.rating,
       reviewCount: gmbData.userRatingCount,
-      category: gmbData.types?.[0] || null, // Take the first category as primary
+      category: gmbData.types?.[0] || null, 
       gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeId}`,
+
+      // Add the new enriched fields
       businessStatus: gmbData.businessStatus,
       location: gmbData.location,
       photos: gmbData.photos,
       openingHours: gmbData.regularOpeningHours,
+      topReviews: topReviews,
 
-      // Initialize CRM fields with default values
+      // Initialize CRM fields
       salesStatus: 'new',
       leadScore: null,
       customTags: [],
       nextContactDate: null,
       notes: null,
-      gmbStatus: 'unlinked', // GMB connection is initially unlinked
+      gmbStatus: 'unlinked',
     };
 
     // Save the business to our database
