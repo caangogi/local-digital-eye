@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useToast } from "@/hooks/use-toast"
@@ -21,9 +22,9 @@ export function Toaster() {
             <div className="grid gap-1 w-full">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
-                <ToastDescription className="text-xs max-w-xs break-words">
+                <ToastDescription>
                   {typeof description === 'string' ? (
-                     <pre className="whitespace-pre-wrap font-sans">{description}</pre>
+                     <pre className="whitespace-pre-wrap font-sans text-xs">{description}</pre>
                   ) : (
                      description
                   )}

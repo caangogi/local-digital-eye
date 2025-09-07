@@ -69,7 +69,7 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
 
   return {
     placeId: placeData.id,
-    extractedName: placeData.name,
+    extractedName: placeData.name, // Use the already-normalized name
     address: placeData.formattedAddress,
     phone: placeData.internationalPhoneNumber,
     website: placeData.websiteUri,
@@ -77,7 +77,7 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
     reviewCount: placeData.userRatingCount,
     category: placeData.types?.[0], 
     businessStatus: placeData.businessStatus,
-    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query_id=${placeData.id}`,
+    gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${placeData.name}&query_place_id=${placeData.id}`,
     briefReviewSummary: summary,
     
     // Mapping new fields

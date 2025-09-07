@@ -97,13 +97,17 @@ export default function AddBusinessPage() {
       
       setDebugSearchData(results?.rawData);
 
+      if (!results || !results.mappedData) {
+        throw new Error("No results were returned from the search flow.");
+      }
+
       const existingPlaceIds = new Set(prospects.map(p => p.placeId));
-      const newUniqueProspects = (results?.mappedData || []).filter(p => !existingPlaceIds.has(p.placeId));
+      const newUniqueProspects = (results.mappedData).filter(p => !existingPlaceIds.has(p.placeId));
 
       if (newUniqueProspects.length > 0) {
           toast({ title: `${newUniqueProspects.length} ${t('newProspectsToast')}` });
           setProspects(prev => [...prev, ...newUniqueProspects]);
-      } else if (results?.mappedData) {
+      } else if (results.mappedData.length > 0) {
           toast({ title: t('noNewProspectsToast') });
       } else {
           toast({ title: t('notFound'), variant: "destructive" });
