@@ -13,7 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchGooglePlaces, type Place } from '@/services/googleMapsService'; // Updated import
+import { searchGooglePlaces, type Place } from '@/services/googleMapsService'; 
 
 // Updated input schema to be a single query string
 const GmbDataExtractionInputSchema = z.object({
@@ -24,7 +24,7 @@ export type GmbDataExtractionInput = z.infer<typeof GmbDataExtractionInputSchema
 // Expanded output schema to include all the new fields
 const GmbDataExtractionOutputSchema = z.object({
   placeId: z.string().optional().describe('Google Place ID of the business.'),
-  extractedName: z.string().describe('The official name of the business found.'),
+  extractedName: z.string().optional().describe('The official name of the business found.'),
   address: z.string().optional().describe('Full address of the business.'),
   phone: z.string().optional().describe('Primary phone number.'),
   website: z.string().url().optional().describe('Official website URL.'),
@@ -83,7 +83,7 @@ function mapPlaceToOutput(placeData: Place | null): GmbDataExtractionOutput | nu
     // Mapping new fields
     location: placeData.location,
     photos: placeData.photos,
-    openingHours: placeData.regularOpeningHours || placeData.currentOpeningHours,
+    openingHours: placeData.regularOpeningHours,
   };
 }
 
@@ -97,7 +97,7 @@ const extractGmbDataFlow = ai.defineFlow(
   async (input) => {
     // Step 1: Search for the business to get the place ID and basic info
     console.log(`Flow: Searching Google Place for "${input.query}"`);
-    const searchResults = await searchGooglePlaces(input.query); // Use the new plural function
+    const searchResults = await searchGooglePlaces(input.query);
 
     if (!searchResults || !searchResults.normalizedData || searchResults.normalizedData.length === 0) {
       console.log("Flow: No data returned from searchGooglePlaces service.");

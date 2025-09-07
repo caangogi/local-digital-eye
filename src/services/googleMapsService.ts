@@ -78,6 +78,7 @@ interface PlaceListResult {
 function normalizePlace(place: any): Place {
   if (!place) return place;
 
+  // Handle new displayName structure from Google API
   const displayName = place.displayName?.text ?? place.name;
 
   return {
@@ -114,7 +115,8 @@ export async function searchGooglePlaces(
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
-  const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location";
+  // Adjusted the field mask to request displayName, as name is obsolete for this endpoint.
+  const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location,places.websiteUri,places.businessStatus";
 
   const requestBody = {
     textQuery: query,
@@ -136,9 +138,9 @@ export async function searchGooglePlaces(
     const rawData = await response.json();
 
     if (!response.ok) {
-        const detailedError = rawData.error ? JSON.stringify(rawData.error) : 'No details';
-        console.error(`[GoogleMapsService] Search API Error: ${response.status} - ${detailedError}`);
-        throw new Error(`Google Places Search API request failed with status ${response.status}. Details: ${detailedError}`);
+        const errorMessage = rawData.error?.message || `Status: ${response.status}`;
+        console.error(`[GoogleMapsService] Search API Error: ${errorMessage}`);
+        throw new Error(`Google Places Search API request failed. ${errorMessage}`);
     }
 
     const validatedData = GooglePlacesNewTextSearchResponseSchema.safeParse(rawData);
@@ -192,9 +194,9 @@ export async function getGooglePlaceDetails(placeId: string): Promise<PlaceResul
       const rawData = await response.json();
 
       if (!response.ok) {
-          const detailedError = rawData.error ? JSON.stringify(rawData.error) : `Status: ${response.status}`;
-          console.error(`[GoogleMapsService] Details API Error: ${detailedError}`);
-          throw new Error(`Google Places Details API request failed with status ${response.status}. Details: ${detailedError}`);
+          const errorMessage = rawData.error?.message || `Status: ${response.status}`;
+          console.error(`[GoogleMapsService] Details API Error: ${errorMessage}`);
+          throw new Error(`Google Places Details API request failed. ${errorMessage}`);
       }
   
       console.log(`[GoogleMapsService] Successfully fetched details for ${rawData.displayName?.text}.`);
