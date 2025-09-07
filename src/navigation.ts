@@ -1,5 +1,4 @@
 
-
 import {
   createLocalizedPathnamesNavigation,
   Pathnames
@@ -24,7 +23,7 @@ export const pathnames = {
   
   '/dashboard': {
     en: '/dashboard',
-    es: '/panel'
+    es: '/dashboard'
   },
   '/businesses': {
     en: '/businesses',
