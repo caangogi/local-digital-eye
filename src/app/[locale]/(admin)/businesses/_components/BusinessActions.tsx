@@ -5,7 +5,7 @@ import { useState } from 'react';
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Share2, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy } from "lucide-react";
+import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy } from "lucide-react";
 import { Link } from "@/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
@@ -102,7 +102,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     }
   };
   
-  const actionButtonClasses = "w-full justify-start p-4 text-sm sm:text-base h-auto";
+  const actionButtonClasses = "w-full justify-start p-3 h-auto";
 
   return (
     <>
@@ -112,40 +112,39 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
       </Button>
 
       <Dialog open={isActionsModalOpen} onOpenChange={setIsActionsModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-xs">
           <DialogHeader>
-            <DialogTitle>Acciones para &quot;{business.name}&quot;</DialogTitle>
-            <DialogDescription>Selecciona una acción para gestionar este negocio.</DialogDescription>
+            <DialogTitle>Acciones</DialogTitle>
+            <DialogDescription>¿Qué quieres hacer con &quot;{business.name}&quot;?</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Button asChild variant="outline" className={actionButtonClasses}>
-                      <Link href={profileLink} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> Ir al perfil público</Link>
-                  </Button>
-                  <Button variant="outline" className={actionButtonClasses} onClick={() => copyToClipboard(profileLink, "El enlace al perfil público se ha copiado.")}>
-                    <Link2 className="mr-2 h-4 w-4" /> Copiar enlace público
-                  </Button>
-                   <Button variant="outline" className={actionButtonClasses} onClick={handleOpenQrModal}>
-                      <QrCode className="mr-2 h-4 w-4" /> Generar QR de reseñas
-                  </Button>
-                   <Button variant="outline" className={actionButtonClasses} onClick={handleConnectGoogle} disabled={isConnecting}>
-                       {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
-                       Verificar Google
-                  </Button>
-              </div>
-              <Separator />
-               <Button variant="default" className={cn(actionButtonClasses, "bg-green-600 hover:bg-green-700 text-white")} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
+          <div className="flex flex-col space-y-2 py-4">
+              <Button asChild variant="outline" className={actionButtonClasses}>
+                  <Link href={profileLink} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> Ir al perfil público</Link>
+              </Button>
+              <Button variant="outline" className={actionButtonClasses} onClick={() => copyToClipboard(profileLink, "El enlace al perfil público se ha copiado.")}>
+                <Link2 className="mr-2 h-4 w-4" /> Copiar enlace público
+              </Button>
+               <Button variant="outline" className={actionButtonClasses} onClick={handleOpenQrModal}>
+                  <QrCode className="mr-2 h-4 w-4" /> Generar QR de reseñas
+              </Button>
+               <Button variant="outline" className={actionButtonClasses} onClick={handleConnectGoogle} disabled={isConnecting}>
+                   {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
+                   Verificar Google
+              </Button>
+              
+              <Separator className="my-2" />
+
+               <Button variant="default" className={actionButtonClasses} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
                    {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
                    Invitar al Dueño
               </Button>
-              <Separator />
-               <Button variant="destructive" className={cn(actionButtonClasses, "w-full")}>
+              
+              <Separator className="my-2" />
+
+               <Button variant="destructive" className={cn(actionButtonClasses, "text-red-500 hover:bg-red-500/10 hover:text-red-500")} onClick={() => console.log('disconnect')}>
                   <Trash2 className="mr-2 h-4 w-4" /> Desconectar negocio
               </Button>
           </div>
-          <DialogFooter>
-            <DialogClose asChild><Button type="button" variant="secondary">Cerrar</Button></DialogClose>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       
