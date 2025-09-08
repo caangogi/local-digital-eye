@@ -39,7 +39,7 @@ export default function OnboardingPage({
   const year = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
        {/* Decorative gradient */}
        <div className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-15"
             style={{
@@ -48,7 +48,7 @@ export default function OnboardingPage({
             }}>
       </div>
       
-      <div className="absolute top-8 left-8">
+      <header className="w-full py-8 px-4 sm:px-8 flex justify-center items-center relative z-10">
          <Link href="/">
              <Image 
                 src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Fds.png?alt=media&token=d12ae2c6-310e-4044-bc9b-77d60b6fe4cf"
@@ -67,9 +67,9 @@ export default function OnboardingPage({
                 className="hidden dark:block"
             />
         </Link>
-      </div>
+      </header>
       
-      <main className="w-full max-w-2xl z-10 my-auto py-12">
+      <main className="w-full max-w-2xl z-10 flex-grow flex items-center justify-center px-4 py-8">
         <Suspense fallback={<p>Loading...</p>}>
            {searchParams.token ? (
                 <OnboardingView token={searchParams.token} />
@@ -79,7 +79,7 @@ export default function OnboardingPage({
         </Suspense>
       </main>
 
-       <footer className="w-full text-center text-muted-foreground text-sm z-10 pb-8">
+       <footer className="w-full text-center text-muted-foreground text-sm z-10 py-8 px-4">
         <p>&copy; {year} Local Digital Eye. Tu socio en crecimiento digital.</p>
       </footer>
     </div>
