@@ -4,8 +4,27 @@
 import { useState } from 'react';
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy } from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogClose 
+} from "@/components/ui/dialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle } from "lucide-react";
 import { Link } from "@/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
@@ -102,6 +121,16 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     }
   };
   
+  const handleDisconnectBusiness = () => {
+    // Here you would call the server action to disconnect the business
+    console.log(`Disconnecting business ${business.id}`);
+    toast({
+        title: "Negocio Desconectado",
+        description: `"${business.name}" ha sido eliminado de tu lista.`,
+        variant: "destructive"
+    });
+  }
+
   const actionButtonClasses = "w-full justify-start p-3 h-auto";
 
   return (
@@ -112,38 +141,65 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
       </Button>
 
       <Dialog open={isActionsModalOpen} onOpenChange={setIsActionsModalOpen}>
-        <DialogContent className="sm:max-w-xs">
-          <DialogHeader>
-            <DialogTitle>Acciones</DialogTitle>
-            <DialogDescription>¿Qué quieres hacer con &quot;{business.name}&quot;?</DialogDescription>
+        <DialogContent className="sm:max-w-xs p-2">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>Acciones para {business.name}</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col space-y-2 py-4">
-              <Button asChild variant="outline" className={actionButtonClasses}>
-                  <Link href={profileLink} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> Ir al perfil público</Link>
-              </Button>
-              <Button variant="outline" className={actionButtonClasses} onClick={() => copyToClipboard(profileLink, "El enlace al perfil público se ha copiado.")}>
-                <Link2 className="mr-2 h-4 w-4" /> Copiar enlace público
-              </Button>
-               <Button variant="outline" className={actionButtonClasses} onClick={handleOpenQrModal}>
-                  <QrCode className="mr-2 h-4 w-4" /> Generar QR de reseñas
-              </Button>
-               <Button variant="outline" className={actionButtonClasses} onClick={handleConnectGoogle} disabled={isConnecting}>
-                   {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
-                   Verificar Google
-              </Button>
-              
-              <Separator className="my-2" />
+          <div className="flex flex-col space-y-1 p-2">
+            {/* Standard Actions */}
+            <Button asChild variant="outline" className={cn(actionButtonClasses, "text-base p-4")}>
+                <Link href={profileLink} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> Ir al perfil público</Link>
+            </Button>
+            <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={() => copyToClipboard(profileLink, "El enlace al perfil público se ha copiado.")}>
+              <Link2 className="mr-2 h-4 w-4" /> Copiar enlace público
+            </Button>
+             <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleOpenQrModal}>
+                <QrCode className="mr-2 h-4 w-4" /> Generar QR de reseñas
+            </Button>
+             <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleConnectGoogle} disabled={isConnecting}>
+                 {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
+                 Verificar Google
+            </Button>
+            
+            <Separator className="my-2" />
 
-               <Button variant="default" className={actionButtonClasses} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
-                   {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                   Invitar al Dueño
-              </Button>
-              
-              <Separator className="my-2" />
+            {/* Main Action */}
+             <Button variant="default" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
+                 {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                 Invitar al Dueño
+            </Button>
+            
+            <Separator className="my-2" />
 
-               <Button variant="destructive" className={cn(actionButtonClasses, "text-red-500 hover:bg-red-500/10 hover:text-red-500")} onClick={() => console.log('disconnect')}>
-                  <Trash2 className="mr-2 h-4 w-4" /> Desconectar negocio
-              </Button>
+            {/* Destructive Action */}
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button 
+                        variant="outline" 
+                        className={cn(
+                            actionButtonClasses, 
+                            "text-destructive border-destructive/50 hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground",
+                            "text-base p-4"
+                        )}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Desconectar negocio
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="text-destructive h-6 w-6"/>¿Estás absolutamente seguro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción es irreversible. Se eliminará el negocio <strong className="font-semibold text-foreground">{business.name}</strong> de tu pipeline y todos los datos asociados.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDisconnectBusiness} className="bg-destructive hover:bg-destructive/90">
+                           Sí, desconectar negocio
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
           </div>
         </DialogContent>
       </Dialog>
