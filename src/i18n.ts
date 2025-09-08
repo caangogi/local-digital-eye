@@ -16,10 +16,12 @@ export default getRequestConfig(async ({locale}) => {
     // A full namespace solution might involve loading on demand.
     const mainMessages = (await import(`../messages/${locale}.json`)).default;
     const homeMessages = (await import(`../messages/home.${locale}.json`)).default;
+    const onboardingMessages = (await import(`../messages/onboarding.${locale}.json`)).default;
     
     messages = {
         ...mainMessages,
-        Home: homeMessages.Home // Add the Home namespace
+        Home: homeMessages.Home,
+        OnboardingPage: onboardingMessages.OnboardingPage
     }
 
   } catch (error) {
