@@ -1,3 +1,4 @@
+
 import { Suspense } from 'react';
 import { OnboardingView } from "./_components/OnboardingView";
 import { getTranslations } from 'next-intl/server';
@@ -69,7 +70,7 @@ export default function OnboardingPage({
         </Link>
       </header>
       
-      <main className="w-full max-w-2xl z-10 flex-grow flex items-center justify-center px-4 py-8">
+      <main className="w-full max-w-2xl mx-auto z-10 flex-grow flex items-center justify-center px-4 py-8">
         <Suspense fallback={<p>Loading...</p>}>
            {searchParams.token ? (
                 <OnboardingView token={searchParams.token} />
