@@ -17,11 +17,20 @@ export default function AuthLayout({
       <div className="absolute top-8 left-8 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
             <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
+                src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Fds.png?alt=media&token=d12ae2c6-310e-4044-bc9b-77d60b6fe4cf"
                 alt="ConsultorIA Logo"
                 width={150}
                 height={40}
                 priority
+                className="dark:hidden"
+            />
+             <Image 
+                src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Flogo-consultoria.png?alt=media&token=f336b89c-4641-4b04-b90d-c6658b6bf773"
+                alt="ConsultorIA Logo"
+                width={150}
+                height={40}
+                priority
+                className="hidden dark:block"
             />
         </Link>
       </div>

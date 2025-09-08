@@ -39,20 +39,29 @@ export function AppSidebar() {
     <Sidebar side="left" variant="sidebar" collapsible="icon">
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-            {/* Full logo for expanded state */}
+            {/* Logo for expanded state */}
             <div className="group-data-[collapsible=icon]:hidden">
                 <Image 
-                    src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Flogo-consultoria.png?alt=media&token=c270a057-36ab-443c-b1cd-c98495cad4b7"
+                    src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Fds.png?alt=media&token=d12ae2c6-310e-4044-bc9b-77d60b6fe4cf"
                     alt="ConsultorIA Logo"
                     width={150}
                     height={40}
                     priority
+                    className="dark:hidden"
+                />
+                 <Image 
+                    src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Flogo-consultoria.png?alt=media&token=f336b89c-4641-4b04-b90d-c6658b6bf773"
+                    alt="ConsultorIA Logo"
+                    width={150}
+                    height={40}
+                    priority
+                    className="hidden dark:block"
                 />
             </div>
              {/* Icon logo for collapsed state */}
             <div className="hidden group-data-[collapsible=icon]:block">
                  <Image 
-                    src="https://firebasestorage.googleapis.com/v0/b/consultoria-e8a9c.appspot.com/o/Images%2Ficono-consultoria.png?alt=media&token=b8070931-c56e-4559-82d4-0a763e98b92d"
+                    src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Ficono-consultoria.png?alt=media&token=f73788e5-953d-4cde-8c28-ab749253406a"
                     alt="ConsultorIA Icon"
                     width={32}
                     height={32}

@@ -10,10 +10,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, AlertTriangle, Building } from "lucide-react";
+import { Loader2, AlertTriangle, Building, Eye, EyeOff, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Business } from '@/backend/business/domain/business.entity';
 import { validateOnboardingToken } from '@/actions/onboarding.actions';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface OnboardingViewProps {
   token: string;
@@ -23,10 +25,14 @@ const signUpSchema = z.object({
   name: z.string().min(2, { message: "Tu nombre debe tener al menos 2 caracteres." }),
   email: z.string().email({ message: "Introduce una dirección de email válida." }),
   password: z.string().min(8, { message: "La contraseña debe tener al menos 8 caracteres." }),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+    message: "Las contraseñas no coinciden.",
+    path: ["confirmPassword"],
 });
+
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-// A more specific loading state component
 const LoadingState = () => (
     <Card className="w-full max-w-lg text-center shadow-2xl animate-pulse">
         <CardHeader>
@@ -44,7 +50,6 @@ const LoadingState = () => (
     </Card>
 );
 
-// A more specific error state component
 const ErrorState = ({ message }: { message: string }) => (
     <Card className="w-full max-w-lg text-center shadow-2xl">
         <CardHeader>
@@ -58,12 +63,13 @@ const ErrorState = ({ message }: { message: string }) => (
 
 
 export function OnboardingView({ token }: OnboardingViewProps) {
-  const { signUpWithEmail, isLoading: isAuthLoading } = useAuth();
+  const { signUpWithEmail, signInWithGoogle, isLoading: isAuthLoading } = useAuth();
   const t = useTranslations('OnboardingPage');
   
   const [validationState, setValidationState] = useState<'loading' | 'valid' | 'invalid'>('loading');
   const [business, setBusiness] = useState<Business | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const validateToken = async () => {
@@ -81,7 +87,7 @@ export function OnboardingView({ token }: OnboardingViewProps) {
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { name: "", email: "", password: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
   const onSubmit = (data: SignUpFormValues) => {
@@ -111,6 +117,12 @@ export function OnboardingView({ token }: OnboardingViewProps) {
              </div>
           </CardHeader>
           <CardContent className="space-y-4">
+             <Alert variant="default" className="border-primary/30">
+                <Info className="h-4 w-4 text-primary" />
+                <AlertDescription className="text-xs text-muted-foreground">
+                    Para una conexión más rápida, usa el mismo email con el que gestionas tu Perfil de Negocio en Google.
+                </AlertDescription>
+            </Alert>
             <FormField
               control={form.control}
               name="name"
@@ -139,7 +151,40 @@ export function OnboardingView({ token }: OnboardingViewProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('form.passwordLabel')}</FormLabel>
-                  <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                   <div className="relative">
+                        <FormControl>
+                            <Input 
+                                type={showPassword ? "text" : "password"} 
+                                placeholder="••••••••" 
+                                {...field} 
+                             />
+                        </FormControl>
+                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground">
+                            {showPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                        </button>
+                   </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmar Contraseña</FormLabel>
+                   <div className="relative">
+                        <FormControl>
+                            <Input 
+                                type={showPassword ? "text" : "password"} 
+                                placeholder="••••••••" 
+                                {...field} 
+                             />
+                        </FormControl>
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground">
+                            {showPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                        </button>
+                   </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -150,7 +195,25 @@ export function OnboardingView({ token }: OnboardingViewProps) {
               {isAuthLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {t('form.button')}
             </Button>
-            <p className="text-xs text-muted-foreground">{t('form.terms')}</p>
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">O</span>
+              </div>
+            </div>
+            <Button variant="outline" onClick={signInWithGoogle} className="w-full" disabled={isAuthLoading} type="button">
+               {isAuthLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (
+                <>
+                  <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+                    <path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.86 2.25-4.82 2.25-3.64 0-6.55-3-6.55-6.6s2.91-6.6 6.55-6.6c1.98 0 3.22.78 4.25 1.75l2.43-2.33C17.4.9 15.22 0 12.48 0 5.88 0 .81 5.44.81 12.15s5.07 12.15 11.67 12.15c6.48 0 11.4-4.35 11.4-11.75 0-.79-.07-1.54-.19-2.25h-11.z" />
+                  </svg>
+                  <span>Crear cuenta con Google</span>
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-muted-foreground pt-2">{t('form.terms')}</p>
           </CardFooter>
         </form>
       </Form>
