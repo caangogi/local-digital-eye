@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck } from "lucide-react";
 import React from 'react';
 
 export async function generateMetadata() {
@@ -91,14 +91,25 @@ const phases = [
     description: "Introducir el rol de 'Dueño de Negocio' en la plataforma. Implementar el flujo de invitación seguro y la gestión de planes (Freemium y de pago con Stripe).",
     milestones: [
         {
+            title: "Hito 2.0: Verificación de Email Obligatoria para Todas las Cuentas",
+            icon: <MailCheck />,
+            tasks: [
+                { who: "bot", text: "Modificar la acción de servidor `createSession` para que compruebe el flag `emailVerified` del usuario de Firebase. Si es `false`, debe denegar la creación de la sesión y devolver un error específico." },
+                { who: "bot", text: "Actualizar el hook `useAuth` y el formulario de login para que, al recibir el error de 'email no verificado', muestren un estado en la UI informando al usuario y ocultando el formulario de login." },
+                { who: "bot", text: "Añadir un botón 'Reenviar email de verificación' en el nuevo estado de la UI. Este botón llamará a una nueva función en `useAuth` que, a su vez, utilizará `sendEmailVerification` de Firebase." },
+                { who: "user", text: "Personalizar la plantilla del email de verificación en la consola de Firebase para que incluya el logo y los textos de la marca." },
+                { who: "bot", text: "Aplicar esta lógica de verificación tanto en el flujo de registro público para Asistentes como en el flujo de Onboarding para Dueños de Negocio." }
+            ]
+        },
+        {
             title: "Hito 2.1: Flujo de Invitación y Onboarding Seguro (OAuth)",
             icon: <KeyRound />,
             tasks: [
-                { who: "bot", text: "Crear un Server Action `generateOnboardingLink(businessId)` que genere un enlace de invitación único y seguro para cada negocio." },
                 { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada para producción." },
+                { who: "bot", text: "Crear un Server Action `generateOnboardingLink(businessId)` que genere un JWT (JSON Web Token) de corta duración. Este token contendrá el `businessId` y un `type` ('freemium' o 'premium')." },
                 { who: "bot", text: "En la UI del Asistente, añadir un botón 'Invitar al Dueño' que llame a esta acción y permita copiar el enlace generado (ej: `app.com/onboarding?token=JWT`)." },
-                { who: "bot", text: "Crear una nueva página pública `/onboarding` que valide el JWT. Si es válido, mostrará al Dueño la información del negocio al que se le invita y un formulario para crear su cuenta (Nombre, Email, Contraseña)." },
-                { who: "bot", text: "Tras crear la cuenta, el flujo de OAuth de Google se iniciará automáticamente. El `state` del OAuth contendrá el `businessId`." },
+                { who: "bot", text: "Crear la página `/onboarding` que valida el JWT. Si es válido, muestra al Dueño la información del negocio y el formulario de registro (ya completado)." },
+                { who: "bot", text: "Tras crear la cuenta y verificar su email, el flujo de OAuth de Google se iniciará automáticamente. El `state` del OAuth contendrá el `businessId`." },
                 { who: "bot", text: "Ajustar el callback de OAuth (`/api/oauth/callback`) para que guarde los tokens de GMB, asocie el `userId` del nuevo dueño al negocio (`ownerId`) y cambie el `gmbStatus` a 'linked'." },
             ]
         },
@@ -232,3 +243,5 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
+    
