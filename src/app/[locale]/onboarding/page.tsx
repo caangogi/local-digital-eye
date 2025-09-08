@@ -1,4 +1,3 @@
-
 import { Suspense } from 'react';
 import { OnboardingView } from "./_components/OnboardingView";
 import { getTranslations } from 'next-intl/server';
@@ -70,7 +69,7 @@ export default function OnboardingPage({
         </Link>
       </div>
       
-      <main className="w-full max-w-2xl z-10">
+      <main className="w-full max-w-2xl z-10 my-auto py-12">
         <Suspense fallback={<p>Loading...</p>}>
            {searchParams.token ? (
                 <OnboardingView token={searchParams.token} />
@@ -80,7 +79,7 @@ export default function OnboardingPage({
         </Suspense>
       </main>
 
-       <footer className="absolute bottom-8 text-center text-muted-foreground text-sm z-10">
+       <footer className="w-full text-center text-muted-foreground text-sm z-10 pb-8">
         <p>&copy; {year} Local Digital Eye. Tu socio en crecimiento digital.</p>
       </footer>
     </div>

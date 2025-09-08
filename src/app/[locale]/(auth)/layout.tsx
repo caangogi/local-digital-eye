@@ -13,7 +13,7 @@ export default function AuthLayout({
   const year = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative">
       <div className="absolute top-8 left-8 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
             <Image 
@@ -41,7 +41,7 @@ export default function AuthLayout({
         {children}
       </main>
        <footer className="absolute bottom-8 text-center text-muted-foreground text-sm">
-        <p>&copy; {year} Local Digital Eye. Your partner in digital growth.</p>
+        <p>&copy; {year} Local Digital Eye. Tu socio en crecimiento digital.</p>
       </footer>
     </div>
   );
