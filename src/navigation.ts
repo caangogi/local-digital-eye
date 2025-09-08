@@ -57,6 +57,10 @@ export const pathnames = {
   '/dev/my-bussiness-road-map': {
     en: '/dev/my-bussiness-road-map',
     es: '/dev/my-bussiness-road-map'
+  },
+  '/onboarding': {
+    en: '/onboarding',
+    es: '/onboarding'
   }
 } satisfies Pathnames<typeof locales>;
 

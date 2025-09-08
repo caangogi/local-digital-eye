@@ -82,8 +82,37 @@
     "description": "Gestiona y revisa tus negocios analizados.",
     "addButton": "Añadir Nuevo Prospecto",
     "searchPlaceholder": "Buscar negocios...",
-    "filterButton": "Filtrar",
-    "sortButton": "Ordenar",
+    "filterButton": "Filtros",
+    "sortButton": "Ordenar por",
+    "filters": {
+      "salesStatus": "Estado de Venta",
+      "gmbStatus": "Estado GMB",
+      "rating": "Valoración",
+      "website": "Sitio Web",
+      "nextContact": "Próx. Contacto",
+      "all": "Todos",
+      "new": "Nuevo",
+      "contacted": "Contactado",
+      "follow_up": "Seguimiento",
+      "closed_won": "Ganado",
+      "closed_lost": "Perdido",
+      "linked": "Vinculado",
+      "unlinked": "No Vinculado",
+      "revoked": "Revocado",
+      "withWebsite": "Con Web",
+      "withoutWebsite": "Sin Web",
+      "scheduled": "Programado",
+      "notScheduled": "No Programado",
+      "clearFilters": "Limpiar Filtros"
+    },
+    "sorting": {
+      "nameAsc": "Nombre (A-Z)",
+      "nameDesc": "Nombre (Z-A)",
+      "connectedDateAsc": "Fecha (Antiguos)",
+      "connectedDateDesc": "Fecha (Nuevos)",
+      "ratingAsc": "Valoración (Baja a Alta)",
+      "ratingDesc": "Valoración (Alta a Baja)"
+    },
     "table": {
       "name": "Nombre",
       "status": "Estado",
@@ -126,5 +155,25 @@
     "noWebsite": "Sin Web",
     "noFilterResults": "No hay resultados que coincidan con tus filtros.",
     "noFilterResultsHint": "Intenta ajustar los filtros o realiza una nueva búsqueda."
+  },
+   "OnboardingPage": {
+    "title": "Reclama el Perfil de tu Negocio",
+    "form": {
+      "title": "Crea tu Cuenta de Propietario",
+      "subtitle": "Estás a un paso de tomar el control de tu presencia online.",
+      "nameLabel": "Tu Nombre Completo",
+      "namePlaceholder": "Ej: Juan Pérez",
+      "emailLabel": "Tu Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Elige una Contraseña",
+      "button": "Crear Cuenta y Conectar",
+      "terms": "Al crear una cuenta, aceptas nuestros Términos de Servicio."
+    },
+    "businessInfoLabel": "Has sido invitado a gestionar:",
+    "errors": {
+        "invalidLink": "Este enlace de invitación no es válido. Revisa la URL o solicita una nueva invitación.",
+        "expiredLink": "Este enlace de invitación ha caducado. Por favor, solicita uno nuevo a tu partner digital.",
+        "alreadyClaimed": "Este perfil de negocio ya ha sido reclamado. Si crees que es un error, contacta con soporte."
+    }
   }
 }

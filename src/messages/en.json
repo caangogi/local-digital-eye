@@ -224,8 +224,37 @@
     "description": "Manage and review your analyzed businesses.",
     "addButton": "Add New Prospect",
     "searchPlaceholder": "Search businesses...",
-    "filterButton": "Filter",
-    "sortButton": "Sort",
+    "filterButton": "Filters",
+    "sortButton": "Sort by",
+    "filters": {
+      "salesStatus": "Sales Status",
+      "gmbStatus": "GMB Status",
+      "rating": "Rating",
+      "website": "Website",
+      "nextContact": "Next Contact",
+      "all": "All",
+      "new": "New",
+      "contacted": "Contacted",
+      "follow_up": "Follow-up",
+      "closed_won": "Won",
+      "closed_lost": "Lost",
+      "linked": "Linked",
+      "unlinked": "Unlinked",
+      "revoked": "Revoked",
+      "withWebsite": "With Website",
+      "withoutWebsite": "Without Website",
+      "scheduled": "Scheduled",
+      "notScheduled": "Not Scheduled",
+      "clearFilters": "Clear Filters"
+    },
+    "sorting": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "connectedDateAsc": "Date (Oldest)",
+      "connectedDateDesc": "Date (Newest)",
+      "ratingAsc": "Rating (Low to High)",
+      "ratingDesc": "Rating (High to Low)"
+    },
     "table": {
       "name": "Name",
       "status": "Status",
@@ -268,5 +297,25 @@
     "noWebsite": "No Website",
     "noFilterResults": "No results match your current filters.",
     "noFilterResultsHint": "Try adjusting the filters or performing a new search."
+  },
+  "OnboardingPage": {
+    "title": "Claim Your Business Profile",
+    "form": {
+      "title": "Create Your Owner Account",
+      "subtitle": "You're just one step away from taking control of your online presence.",
+      "nameLabel": "Your Full Name",
+      "namePlaceholder": "e.g., John Doe",
+      "emailLabel": "Your Email Address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Choose a Password",
+      "button": "Create Account & Connect",
+      "terms": "By creating an account, you agree to our Terms of Service."
+    },
+    "businessInfoLabel": "You've been invited to manage:",
+    "errors": {
+        "invalidLink": "This invitation link is not valid. Please check the URL or request a new invitation.",
+        "expiredLink": "This invitation link has expired. Please request a new one from your digital partner.",
+        "alreadyClaimed": "This business profile has already been claimed. If you believe this is an error, please contact support."
+    }
   }
 }

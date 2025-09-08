@@ -9,6 +9,8 @@ import { z } from 'zod';
 import { auth } from '@/lib/firebase/firebase-admin-config';
 import { cookies } from 'next/headers';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
+import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
+import type { Business } from '@/backend/business/domain/business.entity';
 
 const OnboardingLinkInputSchema = z.object({
   businessId: z.string(),
@@ -67,4 +69,50 @@ export async function generateOnboardingLink(input: OnboardingLinkInput): Promis
   onboardingUrl.searchParams.set('token', token);
 
   return onboardingUrl.toString();
+}
+
+
+/**
+ * Validates an onboarding token and returns business details if valid.
+ * @param token The JWT from the onboarding link.
+ * @returns A promise that resolves to the business details or throws an error.
+ */
+export async function validateOnboardingToken(token: string): Promise<Business> {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        console.error('[OnboardingAction] JWT_SECRET is not set in environment variables.');
+        throw new Error('Server configuration error.');
+    }
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret) as { businessId: string, planType: string };
+        const { businessId } = decoded;
+
+        console.log(`[OnboardingAction] Token is valid. Fetching details for business ${businessId}`);
+        
+        const businessRepository = new FirebaseBusinessRepository();
+        const getBusinessDetails = new GetBusinessDetailsUseCase(businessRepository);
+        const business = await getBusinessDetails.execute(businessId);
+
+        if (!business) {
+            throw new Error("Business associated with this link not found.");
+        }
+        
+        // You might want to add a check here to see if the business already has an ownerId
+        if (business.ownerId) {
+            throw new Error("This business has already been claimed.");
+        }
+
+        return business;
+    } catch (error: any) {
+        console.error('[OnboardingAction] Token validation failed:', error.message);
+        // Provide user-friendly error messages
+        if (error.name === 'TokenExpiredError') {
+            throw new Error("This invitation link has expired. Please request a new one.");
+        }
+        if (error.name === 'JsonWebTokenError') {
+            throw new Error("This invitation link is invalid or has been tampered with.");
+        }
+        throw error; // Re-throw other errors
+    }
 }
