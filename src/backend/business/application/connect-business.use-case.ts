@@ -62,7 +62,7 @@ export class ConnectBusinessUseCase {
       .filter(review => review.rating && review.rating >= 4)
       .map(review => ({
         authorName: review.authorAttribution?.displayName || 'Anónimo',
-        profilePhotoUrl: review.authorAttribution?.photoUri,
+        profilePhotoUrl: review.authorAttribution?.photoUri || null,
         rating: review.rating,
         text: review.text?.text || null, // Ensure text is null if undefined
         // The publishTime from Google is a string, convert it to a Date object for our entity.
@@ -79,19 +79,19 @@ export class ConnectBusinessUseCase {
       name: gmbData.name,
       reviewLink: `https://search.google.com/local/writereview?placeid=${placeId}`,
       
-      address: gmbData.formattedAddress,
-      phone: gmbData.internationalPhoneNumber,
-      website: gmbData.websiteUri,
-      rating: gmbData.rating,
-      reviewCount: gmbData.userRatingCount,
+      address: gmbData.formattedAddress || null,
+      phone: gmbData.internationalPhoneNumber || null,
+      website: gmbData.websiteUri || null,
+      rating: gmbData.rating || null,
+      reviewCount: gmbData.userRatingCount || null,
       category: gmbData.types?.[0] || null, 
       gmbPageUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gmbData.name)}&query_place_id=${placeId}`,
 
       // Add the new enriched fields
-      businessStatus: gmbData.businessStatus,
-      location: gmbData.location,
+      businessStatus: gmbData.businessStatus || null,
+      location: gmbData.location || null,
       photos: gmbData.photos,
-      openingHours: gmbData.regularOpeningHours,
+      openingHours: gmbData.regularOpeningHours || null,
       topReviews: topReviews,
 
       // Initialize CRM fields

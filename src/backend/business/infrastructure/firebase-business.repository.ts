@@ -70,12 +70,22 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
       });
     }
 
-
     // Explicitly handle null values for optional fields to avoid Firestore errors
     dataToSave.ownerId = businessData.ownerId || null;
     dataToSave.gmbAccessToken = businessData.gmbAccessToken || null;
     dataToSave.gmbRefreshToken = businessData.gmbRefreshToken || null;
-    dataToSave.gmbTokenExpiryDate = businessData.gmbTokenExpiryDate || null;
+    dataToSave.gmbTokenExpiryDate = dataToSave.gmbTokenExpiryDate || null;
+    dataToSave.address = businessData.address || null;
+    dataToSave.phone = businessData.phone || null;
+    dataToSave.website = businessData.website || null;
+    dataToSave.category = businessData.category || null;
+    dataToSave.gmbPageUrl = businessData.gmbPageUrl || null;
+    dataToSave.businessStatus = businessData.businessStatus || null;
+    dataToSave.location = businessData.location || null;
+    dataToSave.openingHours = businessData.openingHours || null;
+    dataToSave.leadScore = businessData.leadScore || null;
+    dataToSave.nextContactDate = dataToSave.nextContactDate || null;
+    dataToSave.notes = businessData.notes || null;
 
 
     await this.collection.doc(id).set(dataToSave, { merge: true });
