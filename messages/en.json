@@ -1,5 +1,147 @@
 
 {
+  "LandingPage": {
+    "title": "Local Digital Eye",
+    "login": "Login",
+    "heroTitle": "Stop Juggling Digital Tasks. Hire an <accent>AI-Powered Digital Director</accent>.",
+    "heroSubtitle": "Our service isn't about 'managing your social media'. We act as your Digital Sales Director. Our sole objective is to generate a constant and predictable flow of high-quality client requests through Google, so your only worry is doing the work.",
+    "openDashboardButton": "Access Your Dashboard",
+    "ctaTitle": "Ready to Transform Your Business?",
+    "ctaSubtitle": "Stop losing customers and start winning with a professional digital strategy. Let's talk.",
+    "ctaButton": "Start Winning Customers",
+    "copyright": "&copy; {year} Local Digital Eye. All rights reserved.",
+    "services": {
+      "title": "A System Designed for Your Growth",
+      "reviewFunnel": {
+        "title": "Intelligent Review Funnel",
+        "description": "We implement a smart system to capture customer feedback, encouraging 5-star reviews on Google and allowing you to privately manage negative feedback."
+      },
+      "aiResponder": {
+        "title": "AI-Powered Review Responder",
+        "description": "Save time and maintain a professional image by generating intelligent, personalized responses to Google reviews in seconds."
+      },
+      "seoReports": {
+        "title": "Local SEO Monitoring",
+        "description": "We provide you with clear metrics on your local search visibility and performance, helping you make data-driven decisions."
+      }
+    },
+    "detailedServices": {
+      "title": "Our Individual Services",
+      "subtitle": "Each service is designed to solve a specific problem and strengthen your local online presence.",
+      "setupLabel": "Setup",
+      "monthlyLabel": "Monthly",
+      "setupFeaturesLabel": "Initial Setup Includes:",
+      "monthlyFeaturesLabel": "Monthly Management Includes:",
+      "gmb": {
+        "title": "Google Business Profile Management & Optimization",
+        "setupPrice": "€179",
+        "monthlyPrice": "€109/mo",
+        "setupFeatures": {
+          "f1": "Full profile audit and optimization.",
+          "f2": "Configuration of key data (hours, address, phone, website).",
+          "f3": "Optimization of categories and business description.",
+          "f4": "Upload of logo, cover photo, and up to 10 initial photos."
+        },
+        "monthlyFeatures": {
+          "f1": "Creation of 2-4 monthly posts (news, offers).",
+          "f2": "Upload of new photos/videos provided by the client.",
+          "f3": "Professional responses to new customer reviews.",
+          "f4": "Active monitoring of platform changes and competitor activity.",
+          "f5": "Monthly performance report with key metrics."
+        }
+      },
+      "reputation": {
+        "title": "Reputation & Review Filtering System",
+        "setupPrice": "€149",
+        "monthlyPrice": "€75/mo",
+        "setupFeatures": {
+          "f1": "Creation of the filtering system and landing page.",
+          "f2": "Design of custom QR code and graphic materials.",
+          "f3": "Setup of instant feedback notification alerts."
+        },
+        "monthlyFeatures": {
+          "f1": "Proactive strategy to request reviews from customers.",
+          "f2": "Satisfied customers (5 stars) are directed to Google; others to a private form.",
+          "f3": "Platform maintenance to ensure proper functioning."
+        }
+      },
+      "microsite": {
+        "title": "Local SEO Positioning Microsite",
+        "setupPrice": "€247",
+        "monthlyPrice": "€99/mo",
+        "setupFeatures": {
+          "f1": "Design and development of a modern, mobile-friendly single-page site.",
+          "f2": "SEO-optimized content writing for local keywords.",
+          "f3": "Perfect structure for Google (Schema, NAP).",
+          "f4": "Full integration with your Google Business Profile."
+        },
+        "monthlyFeatures": {
+          "f1": "High-speed web hosting and domain management included.",
+          "f2": "Technical maintenance, security updates, and backups.",
+          "f3": "Continuous content optimization based on performance."
+        }
+      }
+    },
+    "plans": {
+      "title": "Our Local Presence Plans",
+      "subtitle": "Choose the plan that best suits your needs. Combine services and save.",
+      "featureHeader": "Feature",
+      "setupHeader": "Setup Fee (One-time)",
+      "monthlyHeader": "Monthly Fee",
+      "ctaButton": "Sign Up",
+      "recommended": "Recommended",
+      "features": {
+        "gmb": "GBP Management & Optimization",
+        "reputation": "Reputation & Review System",
+        "microsite": "Local SEO Microsite"
+      },
+      "esencial": {
+        "title": "Essential Plan",
+        "setupPrice": "€179",
+        "monthlyPrice": "€109/mo"
+      },
+      "profesional": {
+        "title": "Professional Plan",
+        "setupPrice": "<s>€328</s><br><b>€279</b><br>(Save 15%)",
+        "monthlyPrice": "<s>€184</s><br><b>€159/mo</b><br>(Save 14%)"
+      },
+      "premium": {
+        "title": "Premium Plan",
+        "setupPrice": "<s>€585</s><br><b>€469</b><br>(Save 20%)",
+        "monthlyPrice": "<s>€283</s><br><b>€225/mo</b><br>(Save 21%)"
+      }
+    },
+    "promotions": {
+      "title": "Special Offers",
+      "subtitle": "Take advantage of our special offers to boost your hiring and maximize savings.",
+      "conditionsTitle": "Conditions:",
+      "launch": {
+        "title": "Launch Offer",
+        "description": "Pay for 6 months and we'll waive the setup fee!",
+        "details": {
+          "d1": "<b>Professional Plan (6 months):</b> Pay only the monthly fees (6 x €159 = €954) and <b>save €279</b> on the setup fee.",
+          "d2": "<b>Premium Plan (6 months):</b> Pay only the monthly fees (6 x €225 = €1350) and <b>save €469</b> on the setup fee."
+        },
+        "conditions": {
+          "c1": "Single upfront payment.",
+          "c2": "6-month service commitment."
+        }
+      },
+      "annual": {
+        "title": "Annual Offer (Maximum Savings)",
+        "description": "Sign up for 12 months and get FREE setup + 1 FREE month!",
+        "details": {
+          "d1": "<b>Premium Plan (Annual):</b> Pay for 11 months (11 x €225 = €2475) and we waive the setup fee (save €469) and give you one month free (save €225). <b>Total savings of €694!</b>"
+        }
+      },
+      "generalConditions": {
+        "title": "General Service Conditions",
+        "c1": "Recommended minimum contract: 3 months to see solid results.",
+        "c2": "Billing: Monthly in advance (except for single payment offers).",
+        "c3": "Requirements: The client must provide 'Administrator' access to their Google Business Profile."
+      }
+    }
+  },
   "Features": {
     "businessDiscovery": {
       "title": "Business Discovery",
@@ -82,8 +224,37 @@
     "description": "Manage and review your analyzed businesses.",
     "addButton": "Add New Prospect",
     "searchPlaceholder": "Search businesses...",
-    "filterButton": "Filter",
-    "sortButton": "Sort",
+    "filterButton": "Filters",
+    "sortButton": "Sort by",
+    "filters": {
+      "salesStatus": "Sales Status",
+      "gmbStatus": "GMB Status",
+      "rating": "Rating",
+      "website": "Website",
+      "nextContact": "Next Contact",
+      "all": "All",
+      "new": "New",
+      "contacted": "Contacted",
+      "follow_up": "Follow-up",
+      "closed_won": "Won",
+      "closed_lost": "Lost",
+      "linked": "Linked",
+      "unlinked": "Unlinked",
+      "revoked": "Revoked",
+      "withWebsite": "With Website",
+      "withoutWebsite": "Without Website",
+      "scheduled": "Scheduled",
+      "notScheduled": "Not Scheduled",
+      "clearFilters": "Clear Filters"
+    },
+    "sorting": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "connectedDateAsc": "Date (Oldest)",
+      "connectedDateDesc": "Date (Newest)",
+      "ratingAsc": "Rating (Low to High)",
+      "ratingDesc": "Rating (High to Low)"
+    },
     "table": {
       "name": "Name",
       "status": "Status",
