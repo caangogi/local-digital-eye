@@ -64,7 +64,7 @@ export class ConnectBusinessUseCase {
         authorName: review.authorAttribution?.displayName || 'Anónimo',
         profilePhotoUrl: review.authorAttribution?.photoUri,
         rating: review.rating,
-        text: review.text?.text,
+        text: review.text?.text || null, // Ensure text is null if undefined
         // The publishTime from Google is a string, convert it to a Date object for our entity.
         publishTime: review.publishTime ? new Date(review.publishTime) : undefined,
       }));
