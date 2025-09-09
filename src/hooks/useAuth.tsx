@@ -2,8 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { usePathname } from '@/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useToast } from './use-toast';
 import { 
   onAuthStateChanged, 
@@ -31,7 +30,7 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  firebaseUser: FirebaseUser | null; // Expose the raw Firebase user object
+  firebaseUser: FirebaseUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   isProviderPasswordEnabled: boolean;
@@ -59,9 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser) => {
+ const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser) => {
     console.log('[Auth] Handling auth success for', fbUser.uid);
-    const idToken = await fbUser.getIdToken();
+    const idToken = await fbUser.getIdToken(true); // Force refresh to get new claims
     const response = await createSession(idToken);
 
     if (response.success) {
@@ -70,22 +69,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: fbUser.email || '',
         name: fbUser.displayName || 'No Name',
         avatarUrl: fbUser.photoURL || undefined,
-        role: (response.claims?.role as User['role']) || 'owner',
+        role: response.claims?.role || 'owner', // Use role from claims
       };
       setUser(appUser);
       setFirebaseUser(fbUser);
       checkPasswordProvider(fbUser);
       setAuthAction({ status: 'idle' });
       
-      const nextUrl = searchParams.get('next');
-      if (nextUrl) {
-        console.log(`[Auth] Redirecting to saved nextUrl: ${nextUrl}`);
-        router.push(nextUrl as any);
-      } else {
-        console.log('[Auth] No nextUrl found, navigating to dashboard.');
-        router.push('/dashboard');
-      }
-
+      console.log('[Auth] User state set after success. Navigation will be handled by the page.');
+      // NO automatic redirection here anymore.
+      // The AdminLayout will handle redirection to protected routes.
+      
     } else {
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.reason === 'email_not_verified') {
@@ -93,9 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Login Failed", description: response.message, variant: "destructive" });
       }
-      await clientAuth.signOut(); // Ensure client state is clean
+      await clientAuth.signOut();
     }
-  }, [router, toast, searchParams]);
+  }, [toast]);
 
   const checkPasswordProvider = (fbUser: FirebaseUser | null) => {
       if (!fbUser) {
@@ -111,21 +105,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
-      if (fbUser) {
-        setFirebaseUser(fbUser);
+      if (fbUser && fbUser.emailVerified) { // Only proceed if email is verified
+        console.log('[Auth] User is verified. Handling auth success...');
+        await handleAuthSuccess(fbUser);
+      } else if (fbUser && !fbUser.emailVerified) {
+        console.log('[Auth] User detected, but email is not verified.');
         const idTokenResult = await fbUser.getIdTokenResult();
-        const appUser: User = {
-          id: fbUser.uid,
-          email: fbUser.email || '',
-          name: fbUser.displayName || 'No Name',
-          avatarUrl: fbUser.photoURL || undefined,
-          role: (idTokenResult.claims.role as User['role']) || 'owner',
-        };
-        setUser(appUser);
-        checkPasswordProvider(fbUser);
+        const isAdmin = idTokenResult.claims.role === 'admin' || idTokenResult.claims.role === 'super_admin';
+        if (isAdmin) {
+           console.log('[Auth] User is admin, proceeding with login despite unverified email.');
+           await handleAuthSuccess(fbUser);
+        } else {
+           setUser(null);
+           setFirebaseUser(fbUser);
+           setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
+        }
       } else {
         setUser(null);
         setFirebaseUser(null);
+        setAuthAction(null);
         checkPasswordProvider(null);
       }
       setIsLoading(false);
@@ -136,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, []);
+  }, [handleAuthSuccess]);
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -144,9 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Attempting to sign in with Google via popup...');
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(clientAuth, provider);
-      console.log('[Auth] Google Popup result found:', result.user.uid);
-      await handleAuthSuccess(result.user);
+      await signInWithPopup(clientAuth, provider);
+      // onAuthStateChanged will handle the rest
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
        if (error.code === 'auth/account-exists-with-different-credential') {
@@ -165,13 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(clientAuth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      await userCredential.user.reload();
-      const updatedUser = clientAuth.currentUser;
-      if (updatedUser) {
-        await handleAuthSuccess(updatedUser);
-      } else {
-        throw new Error("Failed to get updated user.");
-      }
+      // onAuthStateChanged will handle the rest after creation
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
       if (error.code === 'auth/email-already-in-use') {
@@ -188,8 +179,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setAuthAction(null);
     try {
-      const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
-      await handleAuthSuccess(userCredential.user);
+      await signInWithEmailAndPassword(clientAuth, email, password);
+      // onAuthStateChanged will handle the rest
     } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
@@ -197,8 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Make sure to stop loading on error
     }
   };
 
@@ -237,6 +227,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async (): Promise<void> => {
     console.log('[Auth] Attempting to sign out...');
+    const currentPath = currentPathname;
     try {
       await clientAuth.signOut();
       await clearSession();
@@ -245,7 +236,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsProviderPasswordEnabled(false);
       setAuthAction(null);
       console.log('[Auth] Firebase sign-out successful. Redirecting to login.');
-      router.push('/login');
+      // Instead of push, we use replace to prevent back button from going to a protected route
+      router.replace(`/login?next=${currentPath}`);
     } catch (error) {
       console.error("[Auth] Error signing out:", error);
     }

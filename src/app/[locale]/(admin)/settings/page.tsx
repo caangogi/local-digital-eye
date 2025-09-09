@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Bell, ListChecks, Palette, UserCircle, ShieldCheck, Bug } from "lucide-react";
+import { Bell, ListChecks, Palette, UserCircle, ShieldCheck, Bug, Users, Crown } from "lucide-react";
 import Image from "next/image";
 import {getTranslations} from 'next-intl/server';
 import { PasswordAuthForm } from "./_components/PasswordAuthForm";
 import { AuthDebugInfo } from "./_components/AuthDebugInfo";
+import { AdminTools } from "./_components/AdminTools";
+import { Link } from "@/navigation";
+
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AppSidebar'); 
@@ -74,38 +77,15 @@ export default function SettingsPage() {
             <PasswordAuthForm />
           </CardContent>
         </Card>
-
-
-        <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
+        
+        {/* Admin Tools Section */}
+        <Card className="lg:col-span-3 shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
           <CardHeader>
-            <CardTitle className="font-headline flex items-center"><ListChecks className="mr-2 h-5 w-5 text-primary"/>Service Catalog</CardTitle>
-            <CardDescription>(Admin) Configure available digital services.</CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-             <Image 
-                src="https://picsum.photos/300/200" 
-                alt="Service Catalog Placeholder" 
-                width={300} 
-                height={200}
-                className="rounded-md mx-auto mb-4 shadow-sm"
-                data-ai-hint="list settings"
-            />
-            <p className="text-sm text-muted-foreground mb-2">Service catalog configuration is under development.</p>
-            <Button variant="secondary" disabled>Manage Catalog</Button>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center"><Palette className="mr-2 h-5 w-5 text-primary"/>Appearance</CardTitle>
-            <CardDescription>Customize the look and feel.</CardDescription>
+            <CardTitle className="font-headline flex items-center"><Crown className="mr-2 h-5 w-5 text-primary"/>Admin Tools</CardTitle>
+            <CardDescription>Manage users and system settings. (Only visible to Super Admins)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="dark-mode" className="flex-grow">Dark Mode</Label>
-              <Switch id="dark-mode" defaultChecked disabled/> {/* Assuming dark mode is now default */}
-            </div>
-             <p className="text-sm text-muted-foreground">More appearance settings coming soon.</p>
+             <AdminTools/>
           </CardContent>
         </Card>
         

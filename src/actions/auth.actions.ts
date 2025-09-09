@@ -21,7 +21,7 @@ const createOrUpdateUserUseCase = new CreateOrUpdateUserUseCase(userRepository);
  * It also creates or updates the user profile in Firestore and sets their custom role claim.
  * @param idToken The Firebase ID token from the client.
  */
-export async function createSession(idToken: string): Promise<{ success: boolean; message:string; reason?: string }> {
+export async function createSession(idToken: string): Promise<{ success: boolean; message:string; reason?: string, claims?: any }> {
   try {
     // Verify the ID token and get user data
     const decodedIdToken = await adminAuth.verifyIdToken(idToken, true);
@@ -30,11 +30,20 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     const userRecord = await adminAuth.getUser(decodedIdToken.uid);
     const customClaims = (userRecord.customClaims || {}) as { role?: string };
     
-    let newRole = customClaims.role || 'owner'; // Default to 'owner' for new users
-    if (decodedIdToken.email === 'caaangogi@gmail.com' && newRole !== 'super_admin') {
-      newRole = 'super_admin';
-    }
+    let newRole = customClaims.role;
+    let claimsChanged = false;
 
+    // If user has no role, assign one.
+    if (!newRole) {
+      if (decodedIdToken.email === 'caangogi@gmail.com') {
+        newRole = 'super_admin';
+      } else {
+        // Default role for any new user signing up via public forms
+        newRole = 'owner';
+      }
+      claimsChanged = true;
+    }
+    
     // --- Email Verification Logic ---
     // Administrators are exempt from email verification to prevent lockouts.
     const isAdmin = newRole === 'admin' || newRole === 'super_admin';
@@ -47,10 +56,10 @@ export async function createSession(idToken: string): Promise<{ success: boolean
         };
     }
     
-    // Set custom claim `role` if it's different or not present.
-    if (customClaims.role !== newRole) {
+    // Set custom claim `role` if it's different or wasn't present.
+    if (claimsChanged) {
         await adminAuth.setCustomUserClaims(decodedIdToken.uid, { role: newRole });
-        console.log(`[AuthAction] Set custom claim 'role: ${newRole}' for user ${decodedIdToken.uid}`);
+        console.log(`[AuthAction] Set new custom claim 'role: ${newRole}' for user ${decodedIdToken.uid}`);
     }
 
     // Create or update user in our database
@@ -58,7 +67,7 @@ export async function createSession(idToken: string): Promise<{ success: boolean
       id: decodedIdToken.uid,
       email: decodedIdToken.email || '',
       name: decodedIdToken.name || '',
-      role: newRole as 'admin' | 'owner' | 'super_admin',
+      role: newRole as User['role'],
     };
 
     if (decodedIdToken.picture) {
@@ -66,12 +75,19 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     }
 
     await createOrUpdateUserUseCase.execute(userToSave as User);
+    
+    // If claims were changed, we need the client to get a new token with the updated claims
+    if (claimsChanged) {
+        console.log(`[AuthAction] Claims were changed for ${decodedIdToken.uid}. Forcing token refresh on client.`);
+    }
 
     // Call the dedicated function to create the session cookie
     await createSessionCookie(idToken);
+    
+    const finalClaims = (await adminAuth.getUser(decodedIdToken.uid)).customClaims;
 
-    console.log(`[AuthAction] Session created successfully for user ${decodedIdToken.uid}`);
-    return { success: true, message: 'Session created successfully.' };
+    console.log(`[AuthAction] Session created successfully for user ${decodedIdToken.uid} with role ${finalClaims?.role}`);
+    return { success: true, message: 'Session created successfully.', claims: { role: newRole } };
 
   } catch (error: any) {
     console.error('Error creating session:', error);
