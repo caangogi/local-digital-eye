@@ -282,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await firebaseSendPasswordResetEmail(clientAuth, targetEmail);
       toast({ title: "Email Enviado", description: `Se ha enviado un enlace de restablecimiento de contraseña a ${targetEmail}.` });
-    } catch (error: any)
+    } catch (error: any) {
       console.error("[Auth] Error sending password reset email:", error);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
