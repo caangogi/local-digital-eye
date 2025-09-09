@@ -11,6 +11,7 @@ import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/fi
 import { ConnectBusinessUseCase } from '@/backend/business/application/connect-business.use-case';
 import { ListUserBusinessesUseCase } from '@/backend/business/application/list-user-businesses.use-case';
 import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
+import { GetOwnedBusinessUseCase } from '@/backend/business/application/get-owned-business.use-case';
 import { UpdateBusinessStatusUseCase } from '@/backend/business/application/update-business-status.use-case';
 import { UpdateBusinessDetailsUseCase } from '@/backend/business/application/update-business-details.use-case';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
@@ -25,6 +26,7 @@ function getBusinessUseCases() {
         connectBusinessUseCase: new ConnectBusinessUseCase(businessRepository),
         listUserBusinessesUseCase: new ListUserBusinessesUseCase(businessRepository),
         getBusinessDetailsUseCase: new GetBusinessDetailsUseCase(businessRepository),
+        getOwnedBusinessUseCase: new GetOwnedBusinessUseCase(businessRepository),
         updateBusinessStatusUseCase: new UpdateBusinessStatusUseCase(businessRepository),
         updateBusinessDetailsUseCase: new UpdateBusinessDetailsUseCase(businessRepository),
     };
@@ -82,7 +84,7 @@ export async function connectBusiness(searchResult: GmbDataExtractionOutput): Pr
 
 
 /**
- * Lists all businesses connected to the currently authenticated user.
+ * Lists all businesses connected to the currently authenticated user (admin).
  * @returns A promise that resolves to an array of Business objects.
  */
 export async function listUserBusinesses(): Promise<Business[]> {
@@ -107,6 +109,35 @@ export async function listUserBusinesses(): Promise<Business[]> {
         }
         console.error('Error listing user businesses:', error);
         return []; // Return empty array on error to prevent page crashes
+    }
+}
+
+/**
+ * Gets the business owned by the currently authenticated user (owner).
+ * @returns A promise that resolves to a Business object or null.
+ */
+export async function getOwnedBusiness(): Promise<Business | null> {
+    try {
+        const sessionCookie = cookies().get('session')?.value;
+        if (!sessionCookie) {
+            console.log('[BusinessAction] No session cookie found for getOwnedBusiness. Returning null.');
+            return null;
+        }
+        const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+        const ownerId = decodedToken.uid;
+
+        console.log(`[BusinessAction] Fetching owned business for owner ${ownerId}`);
+        const { getOwnedBusinessUseCase } = getBusinessUseCases();
+        const business = await getOwnedBusinessUseCase.execute(ownerId);
+        return business;
+
+    } catch (error: any) {
+         if (error.code === 'auth/session-cookie-expired' || error.code === 'auth/session-cookie-revoked') {
+            console.log('[BusinessAction] Session cookie invalid for getOwnedBusiness. Returning null.');
+            return null;
+        }
+        console.error('Error getting owned business:', error);
+        return null;
     }
 }
 

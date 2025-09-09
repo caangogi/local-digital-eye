@@ -9,23 +9,33 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth.tsx';
 import { Toaster } from '@/components/ui/toaster';
 import { usePathname, useRouter } from '@/navigation'; 
-import { useLocale } from 'next-intl';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-       console.log(`[Auth Guard] Not authenticated on admin route. Redirecting to /login from ${pathname}`);
+    if (isLoading) return; // Wait until auth state is determined
+
+    if (!isAuthenticated) {
+       console.log(`[Auth Guard] Not authenticated. Redirecting to /login from ${pathname}`);
        router.push(`/login`);
+       return;
     }
-  }, [isAuthenticated, isLoading, router, pathname]);
+
+    // --- Role-based Route Protection ---
+    const isAdminRoute = pathname.startsWith('/businesses') || pathname.startsWith('/map-search');
+    if (user?.role === 'owner' && isAdminRoute) {
+        console.warn(`[Auth Guard] Owner attempting to access admin route ${pathname}. Redirecting to dashboard.`);
+        router.replace('/dashboard');
+    }
+
+  }, [isAuthenticated, isLoading, router, pathname, user?.role]);
 
   if (isLoading || !isAuthenticated) {
     // Show a loading state or return null while checking auth

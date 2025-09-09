@@ -13,7 +13,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth.tsx";
-import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye, Map } from "lucide-react";
+import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye, Map, Building, Star } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 
@@ -25,15 +25,23 @@ export function AppSidebar() {
   // Remove locale prefix for isActive check if present
   const pathname = rawPathname.startsWith(`/${locale}`) ? rawPathname.substring(`/${locale}`.length) || '/' : rawPathname;
 
-  const navItems = [
+  const { signOut, user } = useAuth();
+  
+  const adminNavItems = [
     { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
     { href: "/businesses", label: t('businesses'), icon: <Briefcase /> },
     { href: "/map-search", label: t('mapSearch'), icon: <Map /> },
     { href: "/reports", label: t('reports'), icon: <FileText /> },
     { href: "/service-recommendations", label: t('aiServices'), icon: <Search /> },
   ];
-  
-  const { signOut, user } = useAuth();
+
+  const ownerNavItems = [
+    { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
+    { href: "/my-business", label: "Mi Negocio", icon: <Building /> }, // Example: To be translated
+    { href: "/my-business/reviews", label: "Reseñas", icon: <Star /> }, // Example: To be translated
+  ];
+
+  const navItems = user?.role === 'owner' ? ownerNavItems : adminNavItems;
 
   return (
     <Sidebar side="left" variant="sidebar" collapsible="icon">

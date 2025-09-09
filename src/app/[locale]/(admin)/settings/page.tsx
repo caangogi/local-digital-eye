@@ -4,14 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Bell, ListChecks, Palette, UserCircle, ShieldCheck, Bug, Users, Crown } from "lucide-react";
-import Image from "next/image";
-import {getTranslations} from 'next-intl/server';
+import { Bell, UserCircle, ShieldCheck, Bug, Crown } from "lucide-react";
+import { getTranslations } from 'next-intl/server';
 import { PasswordAuthForm } from "./_components/PasswordAuthForm";
 import { AuthDebugInfo } from "./_components/AuthDebugInfo";
 import { AdminTools } from "./_components/AdminTools";
-import { Link } from "@/navigation";
+import { cookies } from "next/headers";
+import { auth } from "@/lib/firebase/firebase-admin-config";
 
+async function getUserRole() {
+  const sessionCookie = cookies().get('session')?.value;
+  if (!sessionCookie) return null;
+  try {
+    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+    return decodedToken.role;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AppSidebar'); 
@@ -20,7 +30,10 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
   };
 }
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const userRole = await getUserRole();
+  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -78,27 +91,29 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         
-        {/* Admin Tools Section */}
-        <Card className="lg:col-span-3 shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center"><Crown className="mr-2 h-5 w-5 text-primary"/>Admin Tools</CardTitle>
-            <CardDescription>Manage users and system settings. (Only visible to Super Admins)</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <AdminTools/>
-          </CardContent>
-        </Card>
-        
-         <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300 lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center"><Bug className="mr-2 h-5 w-5 text-primary"/>Debug Information</CardTitle>
-            <CardDescription>Raw authentication and user data for debugging purposes.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <AuthDebugInfo />
-          </CardContent>
-        </Card>
-
+        {isAdmin && (
+          <>
+            <Card className="lg:col-span-3 shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center"><Crown className="mr-2 h-5 w-5 text-primary"/>Admin Tools</CardTitle>
+                <CardDescription>Manage users and system settings. (Only visible to Super Admins)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <AdminTools/>
+              </CardContent>
+            </Card>
+            
+             <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300 lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center"><Bug className="mr-2 h-5 w-5 text-primary"/>Debug Information</CardTitle>
+                <CardDescription>Raw authentication and user data for debugging purposes.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <AuthDebugInfo />
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );

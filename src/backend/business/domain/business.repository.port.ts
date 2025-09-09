@@ -21,11 +21,18 @@ export interface BusinessRepositoryPort {
   findById(id: string): Promise<Business | null>;
 
   /**
-   * Finds all businesses connected to a specific user.
+   * Finds all businesses connected to a specific user (admin/agent).
    * @param userId The ID of the user.
    * @returns A promise that resolves to an array of Business objects.
    */
   findByUserId(userId: string): Promise<Business[]>;
+
+  /**
+   * Finds all businesses owned by a specific user (owner).
+   * @param ownerId The ID of the business owner.
+   * @returns A promise that resolves to an array of Business objects. Should typically be one.
+   */
+  findByOwnerId(ownerId: string): Promise<Business[]>;
 
   /**
    * Deletes a business by its unique ID.

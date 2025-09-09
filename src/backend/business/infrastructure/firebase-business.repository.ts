@@ -115,7 +115,7 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
   }
 
   /**
-   * Finds all businesses connected to a specific user.
+   * Finds all businesses connected to a specific user (admin/agent).
    * It handles conversion of Firestore Timestamps to JS Date objects.
    * @param userId The ID of the user.
    * @returns A promise that resolves to an array of Business objects.
@@ -135,6 +135,28 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
             console.error(`[FirebaseBusinessRepository] Invalid data in findByUserId for doc ${doc.id}:`, error);
             return null;
         }
+    }).filter((b): b is Business => b !== null);
+  }
+
+  /**
+   * Finds all businesses owned by a specific user (owner).
+   * @param ownerId The ID of the business owner.
+   * @returns A promise that resolves to an array of Business objects.
+   */
+  async findByOwnerId(ownerId: string): Promise<Business[]> {
+    const snapshot = await this.collection.where('ownerId', '==', ownerId).get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => {
+      const data = this.fromFirestore(doc.data());
+      const rawData = { id: doc.id, ...data };
+      try {
+        return BusinessSchema.parse(rawData);
+      } catch (error) {
+        console.error(`[FirebaseBusinessRepository] Invalid data in findByOwnerId for doc ${doc.id}:`, error);
+        return null;
+      }
     }).filter((b): b is Business => b !== null);
   }
 
