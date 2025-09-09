@@ -138,17 +138,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (fbUser) {
         // User is signed in to Firebase.
         await fbUser.reload(); // Always get the latest user state from Firebase.
+        
+        // Check if the user has just verified their email
+        const justVerified = firebaseUser && !firebaseUser.emailVerified && fbUser.emailVerified;
+
         setFirebaseUser(fbUser);
         checkPasswordProvider(fbUser);
 
         if (fbUser.emailVerified) {
-          // If email is verified and they are not logged into our app session yet, log them in.
-          if (!user) {
-            handleAuthSuccess(fbUser);
-          }
+            // If they just verified OR they are already verified but not logged in our app
+            if (justVerified || !user) {
+                 handleAuthSuccess(fbUser);
+            }
         } else {
           // If email is not verified, put them in the 'awaiting_verification' state.
-          // This will show the verification screen.
            setAuthAction({ status: 'awaiting_verification', email: fbUser.email || undefined });
         }
       } else {
@@ -167,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [firebaseUser, user]);
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -279,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await firebaseSendPasswordResetEmail(clientAuth, targetEmail);
       toast({ title: "Email Enviado", description: `Se ha enviado un enlace de restablecimiento de contraseña a ${targetEmail}.` });
-    } catch (error: any) {
+    } catch (error: any)
       console.error("[Auth] Error sending password reset email:", error);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {

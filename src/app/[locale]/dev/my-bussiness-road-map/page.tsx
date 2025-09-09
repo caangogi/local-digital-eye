@@ -104,10 +104,10 @@ const phases = [
             tasks: [
                 { who: "bot", text: "Backend: Crear Server Action `generateOnboardingLink(businessId)` que genere un JWT seguro y de corta duración.", completed: true },
                 { who: "bot", text: "UI Asistente: Implementar botón 'Invitar al Dueño' que llama a la acción anterior y muestra el enlace en un modal.", completed: true },
-                { who: "bot", text: "Backend: Crear la Server Action `validateOnboardingToken(token)` para verificar la validez del token JWT.", completed: true },
                 { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que recibe el token, lo valida usando la nueva acción, y si es correcto, muestra el formulario de registro/login junto a los datos del negocio a reclamar.", completed: true },
+                { who: "bot", text: "Lógica de Registro: El formulario de registro llamará a `signUpWithEmail` o `signInWithGoogle`.", completed: true },
                 { who: "bot", text: "UI 'Verifica tu Email': Crear la UI que se mostrará al nuevo dueño del negocio justo después de registrarse, indicándole que revise su correo para continuar. Esta UI debe incluir un botón de 'Reenviar email'.", completed: true },
-                { who: "bot", text: "Gestión de Estado (localStorage): En la página de Onboarding, guardar el `businessId` en `localStorage` para no perder la referencia del negocio durante el proceso de verificación de email.", completed: false },
+                { who: "bot", text: "Gestión de Estado (localStorage): En la página de Onboarding, guardar el `businessId` en `localStorage` para no perder la referencia del negocio durante el proceso de verificación de email.", completed: true },
                 { who: "user", text: "Configuración Google Cloud: Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada con los scopes correctos.", completed: true },
                 { who: "bot", text: "Redirección a OAuth: Tras una verificación de email exitosa, el sistema debe comprobar el `localStorage`. Si encuentra el `businessId`, debe redirigir al usuario al flujo de OAuth de Google.", completed: false },
                 { who: "bot", text: "Callback y Finalización: El callback de OAuth (`/api/oauth/callback`) guardará los tokens, asociará el `ownerId` al negocio y actualizará el `gmbStatus` a 'linked', finalizando el flujo.", completed: false },
