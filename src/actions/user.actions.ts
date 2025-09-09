@@ -26,7 +26,8 @@ async function verifySuperAdmin(callerUid: string) {
  * @returns An array of user records.
  */
 export async function listAllUsers(): Promise<UserRecord[]> {
-    const sessionCookie = cookies().get('session')?.value;
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('session')?.value;
     if (!sessionCookie) {
         throw new Error('Authentication required.');
     }
@@ -51,7 +52,8 @@ export async function listAllUsers(): Promise<UserRecord[]> {
  * @returns An object indicating success or failure.
  */
 export async function setUserRole(uid: string, role: UserRole): Promise<{ success: boolean; message: string }> {
-    const sessionCookie = cookies().get('session')?.value;
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('session')?.value;
     if (!sessionCookie) {
         return { success: false, message: 'Authentication required.' };
     }
