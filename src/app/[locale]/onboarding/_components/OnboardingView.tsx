@@ -18,6 +18,9 @@ import { validateOnboardingToken } from '@/actions/onboarding.actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+const ONBOARDING_BUSINESS_ID_KEY = 'onboardingBusinessId';
+
+
 interface OnboardingViewProps {
   token: string;
 }
@@ -111,9 +114,13 @@ export function OnboardingView({ token }: OnboardingViewProps) {
       try {
         const businessDetails = await validateOnboardingToken(token);
         setBusiness(businessDetails);
+        // Save businessId to localStorage to persist the onboarding flow
+        localStorage.setItem(ONBOARDING_BUSINESS_ID_KEY, businessDetails.id);
+        console.log(`[OnboardingView] Business ID ${businessDetails.id} saved to localStorage.`);
         setValidationState('valid');
       } catch (e: any) {
         setErrorKey(e.message || 'invalidLink');
+        localStorage.removeItem(ONBOARDING_BUSINESS_ID_KEY);
         setValidationState('invalid');
       }
     };

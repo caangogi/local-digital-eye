@@ -22,6 +22,10 @@ import {
 } from "firebase/auth";
 import { auth as clientAuth } from '@/lib/firebase/firebase-client-config';
 import { createSession, clearSession } from '@/actions/auth.actions';
+import { getGoogleOAuthConsentUrl } from '@/actions/oauth.actions';
+
+const ONBOARDING_BUSINESS_ID_KEY = 'onboardingBusinessId';
+
 
 interface User {
   id: string;
@@ -66,7 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Handling auth success for', fbUser.uid);
     setIsLoading(true);
     
-    // This now only handles session creation. Email verification is handled elsewhere.
     const idToken = await fbUser.getIdToken(forceTokenRefresh);
     const response = await createSession(idToken);
 
@@ -83,7 +86,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         checkPasswordProvider(fbUser);
         setAuthAction({ status: 'idle' });
         
-        console.log('[Auth] User state set. Role:', response.claims.role, 'Redirecting...');
+        console.log('[Auth] User state set. Role:', response.claims.role, 'Checking for onboarding flow...');
+        
+        // Check for onboarding business ID in localStorage
+        const onboardingBusinessId = localStorage.getItem(ONBOARDING_BUSINESS_ID_KEY);
+        if (onboardingBusinessId) {
+            console.log(`[Auth] Onboarding detected for business ${onboardingBusinessId}. Redirecting to OAuth flow.`);
+            localStorage.removeItem(ONBOARDING_BUSINESS_ID_KEY); // Clean up
+            const oauthUrl = await getGoogleOAuthConsentUrl(onboardingBusinessId);
+            window.location.href = oauthUrl; // Full page redirect to Google
+            return; // Stop further execution
+        }
+
         const nextUrl = searchParams.get('next') || '/dashboard';
         router.push(nextUrl as any);
 
@@ -95,11 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.message.includes('Email not verified')) {
         setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.', email: fbUser.email || undefined });
-        toast({ title: "Verificación Requerida", description: "Te hemos enviado un email. Por favor, verifica tu cuenta para continuar.", variant: "default", duration: 8000 });
+        // Don't toast here, the UI will show the verification screen
       } else {
         toast({ title: "Login Failed", description: response.message || "Could not process your session.", variant: "destructive" });
       }
-      await clientAuth.signOut();
+      await clientAuth.signOut(); // Ensure Firebase state is cleared if our backend session fails
       setUser(null);
       setFirebaseUser(null);
     }
@@ -161,8 +175,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Attempting to sign in with Google via popup...');
     const provider = new GoogleAuthProvider();
     try {
-      const userCredential = await signInWithPopup(clientAuth, provider);
-      await handleAuthSuccess(userCredential.user);
+      // The onAuthStateChanged handler will pick up the successful sign-in
+      await signInWithPopup(clientAuth, provider);
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
        if (error.code === 'auth/account-exists-with-different-credential') {
@@ -170,8 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Error de inicio de sesión", description: error.message, variant: "destructive" });
       }
-    } finally {
-        setIsLoading(false);
+      setIsLoading(false); // Ensure loading is reset on error
     }
   };
 
@@ -187,6 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Verification email sent to new user.');
       
       // Set state to show the "check your email" screen.
+      // The onAuthStateChanged listener will handle the rest.
       setAuthAction({ status: 'awaiting_verification', email: userCredential.user.email || undefined });
       toast({ title: "¡Revisa tu Email!", description: "Te hemos enviado un enlace de verificación para activar tu cuenta.", duration: 8000 });
 
@@ -227,8 +241,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setAuthAction(null);
     try {
-      const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
-      // Let the onAuthStateChanged handler take care of the rest.
+      // The onAuthStateChanged handler will take care of the rest.
+      await signInWithEmailAndPassword(clientAuth, email, password);
     } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
