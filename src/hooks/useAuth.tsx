@@ -135,27 +135,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
       if (fbUser) {
+        // Always reload to get the latest state from Firebase servers
         await fbUser.reload();
         
-        const justVerified = firebaseUser && !firebaseUser.emailVerified && fbUser.emailVerified;
-        setFirebaseUser(fbUser);
-        checkPasswordProvider(fbUser);
-
-        if (fbUser.emailVerified) {
-            if (justVerified || !user) {
-                 handleAuthSuccess(fbUser);
-            }
-        } else {
+        const isVerifiedNow = fbUser.emailVerified;
+        
+        // This condition checks if the user is verified AND we don't have a session for them yet.
+        // This is the trigger for the automatic login after email verification.
+        if (isVerifiedNow && !user) {
+          console.log('[Auth] User is verified but no app session exists. Initiating handleAuthSuccess.');
+          handleAuthSuccess(fbUser);
+        } 
+        // If user is not verified, put them in the 'awaiting_verification' state.
+        else if (!isVerifiedNow) {
            setAuthAction({ status: 'awaiting_verification', email: fbUser.email || undefined });
+           setIsLoading(false);
         }
+        // If user is already logged in (user object exists), we don't need to do anything.
+        else {
+            setFirebaseUser(fbUser);
+            checkPasswordProvider(fbUser);
+            setIsLoading(false);
+        }
+
       } else {
+        // User is signed out
         setUser(null);
         setFirebaseUser(null);
         setAuthAction(null);
         checkPasswordProvider(null);
+        setIsLoading(false);
       }
-      setIsLoading(false);
-      console.log('[Auth] Auth state processing finished. Loading is false.');
+      console.log('[Auth] Auth state processing finished.');
     });
 
     return () => {
@@ -163,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]); // Depend on our app user state to re-trigger if needed.
+  }, [user]); // Rerun when app user state changes
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -172,6 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(clientAuth, provider);
+      // onAuthStateChanged will handle the success case
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
        if (error.code === 'auth/account-exists-with-different-credential') {
@@ -189,10 +201,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(clientAuth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      
+      // Manually send verification email ONCE on creation
       await sendEmailVerification(userCredential.user);
       console.log('[Auth] Verification email sent to new user.');
+      
+      // Directly transition to the verification view without trying to log in
       setAuthAction({ status: 'awaiting_verification', email: userCredential.user.email || undefined });
       toast({ title: "¡Revisa tu Email!", description: "Te hemos enviado un enlace de verificación para activar tu cuenta.", duration: 8000 });
+
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
       if (error.code === 'auth/email-already-in-use') {
@@ -227,21 +244,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const checkVerificationStatus = async (): Promise<void> => {
-    if (!clientAuth.currentUser) {
-        toast({ title: "Error", description: "No hay ningún usuario activo.", variant: "destructive" });
-        return;
-    }
-    setIsLoading(true);
-    await clientAuth.currentUser.reload();
-    setFirebaseUser(clientAuth.currentUser);
-
-    if (clientAuth.currentUser.emailVerified) {
-        toast({ title: "¡Verificado!", description: "Tu email ha sido verificado. Iniciando sesión...", variant: "default" });
-        await handleAuthSuccess(clientAuth.currentUser);
-    } else {
-        toast({ title: "Aún no verificado", description: "Por favor, revisa tu bandeja de entrada y la carpeta de spam.", variant: "destructive" });
-    }
-    setIsLoading(false);
+    // This is the simplest and most robust way to handle this.
+    // It forces the onAuthStateChanged listener to re-run with fresh server data.
+    window.location.reload();
   }
   
   const signInWithEmail = async (email: string, password: string): Promise<void> => {
@@ -249,6 +254,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthAction(null);
     try {
       await signInWithEmailAndPassword(clientAuth, email, password);
+      // onAuthStateChanged will handle the success case
     } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {

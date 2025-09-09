@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow, Timer } from "lucide-react";
 import React from 'react';
 
 export async function generateMetadata() {
@@ -95,8 +95,8 @@ const phases = [
   },
   {
     phase: "Fase 2",
-    title: "Onboarding del Dueño del Negocio y Conexión de Servicios",
-    description: "Implementar el flujo completo y seguro para que un dueño de negocio se registre, verifique su identidad y conecte su Perfil de Negocio de Google.",
+    title: "Onboarding del Dueño, Dashboard y Conexiones",
+    description: "Implementar el flujo completo y seguro para que un dueño de negocio se registre, conecte su Perfil de Google y obtenga un panel de control funcional.",
     milestones: [
         {
             title: "Hito 2.1: Flujo Completo de Invitación y Onboarding",
@@ -116,14 +116,25 @@ const phases = [
             ]
         },
         {
-            title: "Hito 2.2: Gestión de Planes y Suscripciones con Stripe",
+            title: "Hito 2.2: Dashboard del Dueño del Negocio",
+            icon: <UserCog />,
+            tasks: [
+                 { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`. Debería mostrar un mensaje de bienvenida por ahora.", completed: false },
+                 { who: "bot", text: "Implementar la lógica de `trialEndsAt`: al conectar un negocio, establecer una fecha de fin de prueba (ej: 7 días en el futuro) en la entidad `Business`.", completed: false },
+                 { who: "bot", text: "Añadir un componente de 'Banner de Cuenta Atrás' en el dashboard del dueño que muestre los días restantes de la prueba.", completed: false },
+                 { who: "bot", text: "En el futuro, este panel mostrará las métricas clave de GMB (vistas, búsquedas), el resumen de reseñas y el acceso a las herramientas de IA.", completed: false },
+            ]
+        },
+        {
+            title: "Hito 2.3: Gestión de Planes y Suscripciones con Stripe",
             icon: <DollarSign />,
             tasks: [
                  { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
-                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `subscriptionStatus`, `stripeCustomerId`, `stripeSubscriptionId` y `trialEndsAt`.", completed: false },
+                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `subscriptionStatus`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: false },
                  { who: "bot", text: "Si el token de onboarding es de tipo 'premium', después del OAuth, redirigir al usuario a una sesión de Stripe Checkout para el pago.", completed: false },
                  { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore.", completed: false },
                  { who: "bot", text: "Crear un `cron job` diario que verifique los negocios en `freemium` cuya `trialEndsAt` haya expirado, cambie su estado y envíe notificaciones.", completed: false },
+                 { who: "bot", text: "Implementar un portal de cliente de Stripe para que el dueño pueda gestionar su suscripción (ej. actualizar método de pago, cancelar).", completed: false },
             ]
         }
     ]
@@ -131,7 +142,7 @@ const phases = [
     {
     phase: "Fase 3",
     title: "Automatización con IA y Expansión de la Plataforma",
-    description: "Aprovechar los permisos de GMB para ofrecer servicios de valor añadido, como la respuesta automática a reseñas, y construir el dashboard para el Dueño del Negocio.",
+    description: "Aprovechar los permisos de GMB para ofrecer servicios de valor añadido, como la respuesta automática a reseñas, y enriquecer el dashboard del Dueño del Negocio.",
     milestones: [
         {
             title: "Hito 3.1: Asistente de IA para Responder Reseñas",
@@ -142,15 +153,6 @@ const phases = [
                  { who: "bot", text: "En el dashboard del Dueño del Negocio, crear una nueva sección 'Reseñas' que liste las reseñas obtenidas de Google.", completed: false },
                  { who: "bot", text: "Añadir un botón 'Generar Respuesta con IA' junto a cada reseña. Al pulsarlo, se llamará al flujo de Genkit y se mostrará la sugerencia en un área de texto editable.", completed: false },
                  { who: "bot", text: "Añadir un botón 'Publicar Respuesta' que use el `GmbAdapter` para enviar la respuesta final a Google.", completed: false },
-            ]
-        },
-        {
-            title: "Hito 3.2: Dashboard del Dueño del Negocio",
-            icon: <UserCog />,
-            tasks: [
-                 { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner'.", completed: false },
-                 { who: "bot", text: "Este panel mostrará las métricas clave de GMB (vistas, búsquedas), el resumen de reseñas y el acceso a las herramientas de IA.", completed: false },
-                 { who: "bot", text: "Implementar un portal de cliente de Stripe para que el dueño pueda gestionar su suscripción (ej. actualizar método de pago, cancelar).", completed: false },
             ]
         }
     ]
@@ -244,6 +246,7 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
 
 
 

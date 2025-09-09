@@ -67,6 +67,16 @@ export const BusinessSchema = z.object({
   customTags: z.array(z.string()).optional().default([]).describe("Custom tags for filtering and organization."),
   nextContactDate: z.date().optional().nullable().describe("Scheduled date for the next follow-up."),
   notes: z.string().optional().nullable().describe("Internal notes from the sales team."),
+  
+  // Subscription and Plan Management
+  subscriptionPlan: z.enum(['freemium', 'professional', 'premium']).default('freemium'),
+  subscriptionStatus: z.enum(['trialing', 'active', 'past_due', 'canceled', 'unpaid']).default('trialing'),
+  trialEndsAt: z.date().optional().nullable(),
+  stripeCustomerId: z.string().optional().nullable(),
+  stripeSubscriptionId: z.string().optional().nullable(),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;
+
+// SalesStatus is a type alias for the possible values of the salesStatus field.
+export type SalesStatus = z.infer<typeof BusinessSchema.shape.salesStatus>;
