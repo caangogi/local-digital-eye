@@ -90,6 +90,14 @@ const phases = [
             { who: "bot", text: "Implementar la lógica de 'Custom Claims' de Firebase para el rol 'super_admin'.", completed: true },
             { who: "bot", text: "Crear el panel de gestión de usuarios en `/settings/users` para que el 'super_admin' pueda asignar roles a otros usuarios.", completed: true },
         ]
+      },
+       {
+        title: "Hito 2.0: Verificación de Email para Nuevos Usuarios",
+        icon: <MailCheck />,
+        tasks: [
+           { who: "bot", text: "Backend: Modificar Server Action `createSession` para que omita la comprobación de `emailVerified` para roles 'admin' y 'super_admin'.", completed: true },
+           { who: "bot", text: "Frontend: Modificar el hook `useAuth.tsx` para que no redirija al detectar un fallo de verificación, sino que actualice un estado interno (ej: `authAction: 'awaiting_verification'`).", completed: true },
+        ]
       }
     ]
   },
@@ -104,8 +112,8 @@ const phases = [
             tasks: [
                 { who: "bot", text: "(HECHO) Backend: Crear Server Action `generateOnboardingLink(businessId)` que genere un JWT seguro y de corta duración.", completed: true },
                 { who: "bot", text: "(HECHO) UI Asistente: Implementar botón 'Invitar al Dueño' que llama a la acción anterior y muestra el enlace en un modal.", completed: true },
-                { who: "bot", text: "Backend: Crear la Server Action `validateOnboardingToken(token)` para verificar la validez del token JWT.", completed: false },
-                { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que recibe el token, lo valida usando la nueva acción, y si es correcto, muestra el formulario de registro/login junto a los datos del negocio a reclamar.", completed: false },
+                { who: "bot", text: "Backend: Crear la Server Action `validateOnboardingToken(token)` para verificar la validez del token JWT.", completed: true },
+                { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que recibe el token, lo valida usando la nueva acción, y si es correcto, muestra el formulario de registro/login junto a los datos del negocio a reclamar.", completed: true },
                 { who: "bot", text: "UI 'Verifica tu Email': Crear la UI que se mostrará al nuevo dueño del negocio justo después de registrarse, indicándole que revise su correo para continuar. Esta UI debe incluir un botón de 'Reenviar email'.", completed: false },
                 { who: "bot", text: "Gestión de Estado (localStorage): En la página de Onboarding, guardar el `businessId` en `localStorage` antes de iniciar el registro para no perder la referencia del negocio durante el proceso de verificación de email.", completed: false },
                 { who: "user", text: "Configuración Google Cloud: Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada con los scopes correctos.", completed: false },
@@ -248,3 +256,4 @@ export default function MyBusinessRoadMapPage() {
     
 
     
+
