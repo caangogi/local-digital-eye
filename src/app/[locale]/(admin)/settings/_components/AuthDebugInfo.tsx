@@ -3,9 +3,22 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { DebugCollapse } from '@/components/dev/DebugCollapse';
+import { useEffect, useState } from 'react';
 
 export function AuthDebugInfo() {
   const { user, firebaseUser } = useAuth();
+  const [claims, setClaims] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchClaims = async () => {
+      if (firebaseUser) {
+        const tokenResult = await firebaseUser.getIdTokenResult();
+        setClaims(tokenResult.claims);
+      }
+    };
+    fetchClaims();
+  }, [firebaseUser]);
+
 
   // Create a serializable version of the firebaseUser object
   const serializableFirebaseUser = firebaseUser ? {
@@ -29,8 +42,9 @@ export function AuthDebugInfo() {
 
   return (
     <div className="space-y-4">
-      <DebugCollapse title="Auth Profile (Firebase Auth)" data={serializableFirebaseUser} />
-      <DebugCollapse title="User Profile (Firestore)" data={user} />
+      <DebugCollapse title="User Profile (Firestore DB)" data={user} />
+      <DebugCollapse title="Auth Token Claims (Source of Truth for Roles)" data={claims} />
+      <DebugCollapse title="Raw Firebase Auth Object" data={serializableFirebaseUser} />
     </div>
   );
 }
