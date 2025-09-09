@@ -35,6 +35,17 @@
     "logOut": "Cerrar Sesión",
     "toggleSidebar": "Alternar barra lateral"
   },
+  "AppSidebar": {
+    "dashboard": "Panel",
+    "businesses": "Negocios",
+    "reports": "Informes",
+    "mapSearch": "Mapa de Cartera",
+    "aiServices": "Servicios IA",
+    "settings": "Configuración",
+    "logOut": "Cerrar Sesión",
+    "myBusiness": "Mi Negocio",
+    "reviews": "Reseñas"
+  },
   "AuthLayout": {
     "title": "Local Digital Eye",
     "footer": "&copy; {year} Local Digital Eye. Tu socio en crecimiento digital."

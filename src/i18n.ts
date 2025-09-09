@@ -13,28 +13,26 @@ export default getRequestConfig(async ({locale}) => {
 
   let messages: AbstractIntlMessages;
   try {
-    // We'll load the main messages and merge home messages for now.
-    // A full namespace solution might involve loading on demand.
+    // Load all messages from a single file per locale.
     const mainMessages = (await import(`../messages/${locale}.json`)).default;
     const homeMessages = (await import(`../messages/home.${locale}.json`)).default;
     const onboardingMessages = (await import(`../messages/onboarding.${locale}.json`)).default;
-    const sidebarMessages = (await import(`../messages/sidebar.${locale}.json`)).default;
-    
+
+    // Merge all message namespaces into one object.
     messages = {
         ...mainMessages,
         Home: homeMessages.Home,
         OnboardingPage: onboardingMessages.OnboardingPage,
-        AppSidebar: sidebarMessages.AppSidebar,
     }
 
   } catch (error) {
     console.error(`Failed to load messages for locale ${locale}:`, error);
-    notFound(); // Or handle differently, e.g., fallback to defaultLocale messages
+    notFound();
   }
   
   return {
     locale,
     messages,
-    timeZone: 'Europe/London' // Example, can be configured
+    timeZone: 'Europe/London'
   };
 });
