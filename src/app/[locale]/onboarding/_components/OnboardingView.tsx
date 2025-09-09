@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, AlertTriangle, Building, Eye, EyeOff, Info, MailCheck } from "lucide-react";
+import { Loader2, AlertTriangle, Building, Eye, EyeOff, Info, MailCheck, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Business } from '@/backend/business/domain/business.entity';
 import { validateOnboardingToken } from '@/actions/onboarding.actions';
@@ -27,7 +27,7 @@ interface OnboardingViewProps {
 
 const EmailVerificationView = () => {
     const t = useTranslations('OnboardingPage');
-    const { authAction, resendVerificationEmail, isLoading } = useAuth();
+    const { authAction, resendVerificationEmail, isLoading, checkVerificationStatus } = useAuth();
 
     return (
         <Card className="w-full max-w-lg text-center shadow-2xl">
@@ -41,10 +41,15 @@ const EmailVerificationView = () => {
                     <strong className="text-foreground">{authAction?.email}</strong>.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col items-center gap-4">
                 <p className="text-muted-foreground">Por favor, haz clic en el enlace de ese correo para activar tu cuenta. Si no lo encuentras, revisa tu carpeta de spam.</p>
+                
+                <Button onClick={checkVerificationStatus} disabled={isLoading} className="mt-4">
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                    Ya he verificado mi email
+                </Button>
             </CardContent>
-            <CardFooter className="flex-col gap-4">
+            <CardFooter className="flex-col gap-4 border-t pt-6">
                 <p className="text-xs text-muted-foreground">¿No has recibido el correo?</p>
                 <Button variant="outline" onClick={resendVerificationEmail} disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -114,7 +119,6 @@ export function OnboardingView({ token }: OnboardingViewProps) {
       try {
         const businessDetails = await validateOnboardingToken(token);
         setBusiness(businessDetails);
-        // Save businessId to localStorage to persist the onboarding flow
         localStorage.setItem(ONBOARDING_BUSINESS_ID_KEY, businessDetails.id);
         console.log(`[OnboardingView] Business ID ${businessDetails.id} saved to localStorage.`);
         setValidationState('valid');

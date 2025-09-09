@@ -100,6 +100,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
         description: "No se pudo iniciar la conexión con Google. " + error.message,
         variant: "destructive",
       });
+      setIsConnecting(false); // Reset on error
     }
   };
 
@@ -132,6 +133,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   }
 
   const actionButtonClasses = "w-full justify-start p-3 h-auto";
+  const gmbLinked = business.gmbStatus === 'linked';
 
   return (
     <>
@@ -156,18 +158,24 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
              <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleOpenQrModal}>
                 <QrCode className="mr-2 h-4 w-4" /> Generar QR de reseñas
             </Button>
-             <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleConnectGoogle} disabled={isConnecting}>
-                 {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
-                 Verificar Google
-            </Button>
+            
+            {/* Conditional Google Action */}
+            {!gmbLinked && (
+                 <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleConnectGoogle} disabled={isConnecting}>
+                     {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
+                     Verificar Google
+                </Button>
+            )}
             
             <Separator className="my-2" />
 
             {/* Main Action */}
-             <Button variant="default" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
-                 {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                 Invitar al Dueño
-            </Button>
+            {!business.ownerId && (
+              <Button variant="default" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
+                  {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                  Invitar al Dueño
+              </Button>
+            )}
             
             <Separator className="my-2" />
 

@@ -50,6 +50,7 @@ interface AuthState {
   linkEmailAndPassword: (password: string) => Promise<void>;
   unlinkPasswordProvider: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
+  checkVerificationStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -88,14 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         console.log('[Auth] User state set. Role:', response.claims.role, 'Checking for onboarding flow...');
         
-        // Check for onboarding business ID in localStorage
         const onboardingBusinessId = localStorage.getItem(ONBOARDING_BUSINESS_ID_KEY);
         if (onboardingBusinessId) {
             console.log(`[Auth] Onboarding detected for business ${onboardingBusinessId}. Redirecting to OAuth flow.`);
-            localStorage.removeItem(ONBOARDING_BUSINESS_ID_KEY); // Clean up
+            localStorage.removeItem(ONBOARDING_BUSINESS_ID_KEY);
             const oauthUrl = await getGoogleOAuthConsentUrl(onboardingBusinessId);
-            window.location.href = oauthUrl; // Full page redirect to Google
-            return; // Stop further execution
+            window.location.href = oauthUrl;
+            return; 
         }
 
         const nextUrl = searchParams.get('next') || '/dashboard';
@@ -109,11 +109,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.message.includes('Email not verified')) {
         setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.', email: fbUser.email || undefined });
-        // Don't toast here, the UI will show the verification screen
       } else {
         toast({ title: "Login Failed", description: response.message || "Could not process your session.", variant: "destructive" });
       }
-      await clientAuth.signOut(); // Ensure Firebase state is cleared if our backend session fails
+      await clientAuth.signOut();
       setUser(null);
       setFirebaseUser(null);
     }
@@ -136,26 +135,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
       if (fbUser) {
-        // User is signed in to Firebase.
-        await fbUser.reload(); // Always get the latest user state from Firebase.
+        await fbUser.reload();
         
-        // Check if the user has just verified their email
         const justVerified = firebaseUser && !firebaseUser.emailVerified && fbUser.emailVerified;
-
         setFirebaseUser(fbUser);
         checkPasswordProvider(fbUser);
 
         if (fbUser.emailVerified) {
-            // If they just verified OR they are already verified but not logged in our app
             if (justVerified || !user) {
                  handleAuthSuccess(fbUser);
             }
         } else {
-          // If email is not verified, put them in the 'awaiting_verification' state.
            setAuthAction({ status: 'awaiting_verification', email: fbUser.email || undefined });
         }
       } else {
-        // User is signed out from Firebase.
         setUser(null);
         setFirebaseUser(null);
         setAuthAction(null);
@@ -170,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseUser, user]);
+  }, [user]); // Depend on our app user state to re-trigger if needed.
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -178,7 +171,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Attempting to sign in with Google via popup...');
     const provider = new GoogleAuthProvider();
     try {
-      // The onAuthStateChanged handler will pick up the successful sign-in
       await signInWithPopup(clientAuth, provider);
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
@@ -187,7 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Error de inicio de sesión", description: error.message, variant: "destructive" });
       }
-      setIsLoading(false); // Ensure loading is reset on error
+      setIsLoading(false);
     }
   };
 
@@ -197,16 +189,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(clientAuth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      
-      // Send verification email ONCE on creation
       await sendEmailVerification(userCredential.user);
       console.log('[Auth] Verification email sent to new user.');
-      
-      // Set state to show the "check your email" screen.
-      // The onAuthStateChanged listener will handle the rest.
       setAuthAction({ status: 'awaiting_verification', email: userCredential.user.email || undefined });
       toast({ title: "¡Revisa tu Email!", description: "Te hemos enviado un enlace de verificación para activar tu cuenta.", duration: 8000 });
-
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
       if (error.code === 'auth/email-already-in-use') {
@@ -239,12 +225,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     }
   }
+
+  const checkVerificationStatus = async (): Promise<void> => {
+    if (!clientAuth.currentUser) {
+        toast({ title: "Error", description: "No hay ningún usuario activo.", variant: "destructive" });
+        return;
+    }
+    setIsLoading(true);
+    await clientAuth.currentUser.reload();
+    setFirebaseUser(clientAuth.currentUser);
+
+    if (clientAuth.currentUser.emailVerified) {
+        toast({ title: "¡Verificado!", description: "Tu email ha sido verificado. Iniciando sesión...", variant: "default" });
+        await handleAuthSuccess(clientAuth.currentUser);
+    } else {
+        toast({ title: "Aún no verificado", description: "Por favor, revisa tu bandeja de entrada y la carpeta de spam.", variant: "destructive" });
+    }
+    setIsLoading(false);
+  }
   
   const signInWithEmail = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     setAuthAction(null);
     try {
-      // The onAuthStateChanged handler will take care of the rest.
       await signInWithEmailAndPassword(clientAuth, email, password);
     } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
@@ -253,7 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
-      setIsLoading(false); // Manually set loading to false on error
+      setIsLoading(false);
     }
   };
 
@@ -263,13 +266,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const credential = EmailAuthProvider.credential(clientAuth.currentUser.email, password);
     await linkWithCredential(clientAuth.currentUser, credential);
-    checkPasswordProvider(clientAuth.currentUser); // Re-check after linking
+    checkPasswordProvider(clientAuth.currentUser);
   };
 
   const unlinkPasswordProvider = async () => {
     if (!clientAuth.currentUser) throw new Error("No user signed in.");
     await unlink(clientAuth.currentUser, EmailAuthProvider.PROVIDER_ID);
-    checkPasswordProvider(clientAuth.currentUser); // Re-check after unlinking
+    checkPasswordProvider(clientAuth.currentUser);
   };
 
   const sendPasswordResetEmail = async (email?: string): Promise<void> => {
@@ -324,6 +327,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     linkEmailAndPassword,
     unlinkPasswordProvider,
     resendVerificationEmail,
+    checkVerificationStatus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
