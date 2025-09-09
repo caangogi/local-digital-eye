@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
-import { useRouter } from '@/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname } from '@/navigation';
 import { useToast } from './use-toast';
 import { 
   onAuthStateChanged, 
@@ -25,13 +26,16 @@ interface User {
   email: string;
   name: string;
   avatarUrl?: string;
+  role: 'admin' | 'owner' | 'super_admin';
 }
 
 interface AuthState {
   user: User | null;
+  firebaseUser: FirebaseUser | null; // Expose the raw Firebase user object
   isAuthenticated: boolean;
   isLoading: boolean;
   isProviderPasswordEnabled: boolean;
+  authAction: { status: 'idle' | 'awaiting_verification'; message?: string } | null;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (name: string, email: string, password: string) => Promise<void>;
@@ -45,61 +49,83 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start as true
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isProviderPasswordEnabled, setIsProviderPasswordEnabled] = useState(false);
+  const [authAction, setAuthAction] = useState<AuthState['authAction']>(null);
+
   const router = useRouter();
+  const currentPathname = usePathname();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  const handleAuthSuccess = useCallback(async (firebaseUser: FirebaseUser) => {
-    console.log('[Auth] Handling auth success for', firebaseUser.uid);
-    const idToken = await firebaseUser.getIdToken();
+  const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser) => {
+    console.log('[Auth] Handling auth success for', fbUser.uid);
+    const idToken = await fbUser.getIdToken();
     const response = await createSession(idToken);
 
     if (response.success) {
       const appUser: User = {
-        id: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        name: firebaseUser.displayName || 'No Name',
-        avatarUrl: firebaseUser.photoURL || undefined,
+        id: fbUser.uid,
+        email: fbUser.email || '',
+        name: fbUser.displayName || 'No Name',
+        avatarUrl: fbUser.photoURL || undefined,
+        role: (response.claims?.role as User['role']) || 'owner',
       };
       setUser(appUser);
-      checkPasswordProvider(firebaseUser);
-      console.log('[Auth] User state set after success.');
-      router.push('/dashboard');
+      setFirebaseUser(fbUser);
+      checkPasswordProvider(fbUser);
+      setAuthAction({ status: 'idle' });
+      
+      const nextUrl = searchParams.get('next');
+      if (nextUrl) {
+        console.log(`[Auth] Redirecting to saved nextUrl: ${nextUrl}`);
+        router.push(nextUrl as any);
+      } else {
+        console.log('[Auth] No nextUrl found, navigating to dashboard.');
+        router.push('/dashboard');
+      }
+
     } else {
       console.error("[Auth] Backend session creation failed:", response.message);
-      await clientAuth.signOut();
-      setUser(null);
-      toast({ title: "Login Failed", description: response.message, variant: "destructive" });
+      if (response.reason === 'email_not_verified') {
+        setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
+      } else {
+        toast({ title: "Login Failed", description: response.message, variant: "destructive" });
+      }
+      await clientAuth.signOut(); // Ensure client state is clean
     }
-  }, [router, toast]);
+  }, [router, toast, searchParams]);
 
-  const checkPasswordProvider = (firebaseUser: FirebaseUser | null) => {
-      if (!firebaseUser) {
+  const checkPasswordProvider = (fbUser: FirebaseUser | null) => {
+      if (!fbUser) {
         setIsProviderPasswordEnabled(false);
         return;
       }
-      const isEnabled = firebaseUser.providerData.some(
+      const isEnabled = fbUser.providerData.some(
           (provider) => provider.providerId === EmailAuthProvider.PROVIDER_ID
       );
       setIsProviderPasswordEnabled(isEnabled);
   };
 
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(clientAuth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
-      if (firebaseUser) {
+      if (fbUser) {
+        setFirebaseUser(fbUser);
+        const idTokenResult = await fbUser.getIdTokenResult();
         const appUser: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || 'No Name',
-          avatarUrl: firebaseUser.photoURL || undefined,
+          id: fbUser.uid,
+          email: fbUser.email || '',
+          name: fbUser.displayName || 'No Name',
+          avatarUrl: fbUser.photoURL || undefined,
+          role: (idTokenResult.claims.role as User['role']) || 'owner',
         };
         setUser(appUser);
-        checkPasswordProvider(firebaseUser);
+        checkPasswordProvider(fbUser);
       } else {
         setUser(null);
+        setFirebaseUser(null);
         checkPasswordProvider(null);
       }
       setIsLoading(false);
@@ -112,10 +138,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
   
-  const isAuthenticated = !isLoading && !!user;
-
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
+    setAuthAction(null);
     console.log('[Auth] Attempting to sign in with Google via popup...');
     const provider = new GoogleAuthProvider();
     try {
@@ -136,11 +161,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUpWithEmail = async (name: string, email: string, password: string): Promise<void> => {
     setIsLoading(true);
+    setAuthAction(null);
     try {
       const userCredential = await createUserWithEmailAndPassword(clientAuth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      // Reload user to get the updated profile
-      await userCredential.user.reload(); 
+      await userCredential.user.reload();
       const updatedUser = clientAuth.currentUser;
       if (updatedUser) {
         await handleAuthSuccess(updatedUser);
@@ -154,24 +179,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Fallo en el Registro", description: error.message, variant: "destructive" });
       }
+    } finally {
       setIsLoading(false);
     }
-    // setIsLoading(false) is handled in handleAuthSuccess or the catch block
   };
   
   const signInWithEmail = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
+    setAuthAction(null);
     try {
       const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
       await handleAuthSuccess(userCredential.user);
-    } catch (error: any)
-{
+    } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
          toast({ title: "Credenciales Inválidas", description: "El email o la contraseña que ingresaste son incorrectos. Si te registraste con Google, por favor usa ese método.", variant: "destructive" });
       } else {
         toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -209,14 +235,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   const signOut = async (): Promise<void> => {
     console.log('[Auth] Attempting to sign out...');
     try {
       await clientAuth.signOut();
       await clearSession();
       setUser(null);
+      setFirebaseUser(null);
       setIsProviderPasswordEnabled(false);
+      setAuthAction(null);
       console.log('[Auth] Firebase sign-out successful. Redirecting to login.');
       router.push('/login');
     } catch (error) {
@@ -226,9 +253,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value: AuthState = {
     user,
-    isAuthenticated,
+    firebaseUser,
+    isAuthenticated: !isLoading && !!user,
     isLoading,
     isProviderPasswordEnabled,
+    authAction,
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,

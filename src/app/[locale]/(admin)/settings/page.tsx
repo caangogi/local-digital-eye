@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Bell, ListChecks, Palette, UserCircle, ShieldCheck } from "lucide-react";
+import { Bell, ListChecks, Palette, UserCircle, ShieldCheck, Bug } from "lucide-react";
 import Image from "next/image";
 import {getTranslations} from 'next-intl/server';
 import { PasswordAuthForm } from "./_components/PasswordAuthForm";
+import { AuthDebugInfo } from "./_components/AuthDebugInfo";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   const t = await getTranslations('AppSidebar'); 
@@ -105,6 +106,16 @@ export default function SettingsPage() {
               <Switch id="dark-mode" defaultChecked disabled/> {/* Assuming dark mode is now default */}
             </div>
              <p className="text-sm text-muted-foreground">More appearance settings coming soon.</p>
+          </CardContent>
+        </Card>
+        
+         <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.1)] transition-all duration-300 lg:col-span-3">
+          <CardHeader>
+            <CardTitle className="font-headline flex items-center"><Bug className="mr-2 h-5 w-5 text-primary"/>Debug Information</CardTitle>
+            <CardDescription>Raw authentication and user data for debugging purposes.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <AuthDebugInfo />
           </CardContent>
         </Card>
 
