@@ -17,12 +17,14 @@ export default getRequestConfig(async ({locale}) => {
     const mainMessages = (await import(`../messages/${locale}.json`)).default;
     const homeMessages = (await import(`../messages/home.${locale}.json`)).default;
     const onboardingMessages = (await import(`../messages/onboarding.${locale}.json`)).default;
+    const sidebarMessages = (await import(`../messages/sidebar.${locale}.json`)).default;
 
     // Merge all message namespaces into one object.
     messages = {
         ...mainMessages,
-        Home: homeMessages.Home,
+        ...homeMessages,
         OnboardingPage: onboardingMessages.OnboardingPage,
+        AppSidebar: sidebarMessages.AppSidebar,
     }
 
   } catch (error) {

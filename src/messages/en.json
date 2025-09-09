@@ -46,17 +46,6 @@
     "logOut": "Log out",
     "toggleSidebar": "Toggle sidebar"
   },
-  "AppSidebar": {
-    "dashboard": "Dashboard",
-    "businesses": "Businesses",
-    "reports": "Reports",
-    "mapSearch": "Portfolio Map",
-    "aiServices": "AI Services",
-    "settings": "Settings",
-    "logOut": "Log Out",
-    "myBusiness": "My Business",
-    "reviews": "Reviews"
-  },
   "AuthLayout": {
     "title": "Local Digital Eye",
     "footer": "&copy; {year} Local Digital Eye. Your partner in digital growth."
