@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick } from "lucide-react";
 import React from 'react';
 
 export async function generateMetadata() {
@@ -90,15 +90,24 @@ const phases = [
     description: "Introducir el rol de 'Dueño de Negocio' en la plataforma. Implementar el flujo de invitación seguro y la gestión de planes (Freemium y de pago con Stripe).",
     milestones: [
         {
+            title: "Hito 2.0: Verificación de Email Obligatoria y Robusta",
+            icon: <MailCheck />,
+            tasks: [
+                { who: "bot", text: "Backend: Modificar Server Action `createSession` para que omita la comprobación de `emailVerified` para roles `admin` y `super_admin`, mientras la exige para el resto. Devolver un error claro (`email_not_verified`) si falla.", completed: true },
+                { who: "bot", text: "Frontend (useAuth.tsx): Modificar el hook para que no redirija al detectar un fallo de verificación, sino que actualice un estado interno (ej: `authAction: 'awaiting_verification'`).", completed: true },
+                { who: "bot", text: "UI (Login/Onboarding): Mostrar una UI de 'Verifica tu email' con botón de reenvío y sondeo en segundo plano cuando `authAction` sea `awaiting_verification`." },
+            ]
+        },
+        {
             title: "Hito 2.1: Flujo de Invitación y Onboarding Seguro (OAuth)",
             icon: <KeyRound />,
             tasks: [
-                { who: "bot", text: "Crear un Server Action `generateOnboardingLink(businessId)` que genere un enlace de invitación único y seguro para cada negocio." },
-                { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada para producción." },
-                { who: "bot", text: "En la UI del Asistente, añadir un botón 'Invitar al Dueño' que llame a esta acción y permita copiar el enlace generado (ej: `app.com/onboarding?token=JWT`)." },
-                { who: "bot", text: "Crear una nueva página pública `/onboarding` que valide el JWT. Si es válido, mostrará al Dueño la información del negocio al que se le invita y un formulario para crear su cuenta (Nombre, Email, Contraseña)." },
-                { who: "bot", text: "Tras crear la cuenta, el flujo de OAuth de Google se iniciará automáticamente. El `state` del OAuth contendrá el `businessId`." },
-                { who: "bot", text: "Ajustar el callback de OAuth (`/api/oauth/callback`) para que guarde los tokens de GMB, asocie el `userId` del nuevo dueño al negocio (`ownerId`) y cambie el `gmbStatus` a 'linked'." },
+                { who: "bot", text: "Backend: Crear Server Action `generateOnboardingLink(businessId)` que genere un JWT seguro y de corta duración.", completed: true },
+                { who: "bot", text: "UI Asistente: Implementar botón 'Invitar al Dueño' que llama a la acción anterior y muestra el enlace en un modal.", completed: true },
+                { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada.", completed: true },
+                { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que valida el token y muestra el formulario de registro. Integrar la lógica de verificación de email del Hito 2.0." },
+                { who: "bot", text: "Frontend/Backend (Post-verificación): Usar `localStorage` para guardar el estado del onboarding. Tras la verificación, comprobar `localStorage` y redirigir al flujo de OAuth de Google con el `businessId`." },
+                { who: "bot", text: "Ajustar el callback de OAuth (`/api/oauth/callback`) para que guarde los tokens, asocie el `ownerId` al negocio y actualice el `gmbStatus` a 'linked'.", completed: true },
             ]
         },
         {
@@ -106,10 +115,9 @@ const phases = [
             icon: <DollarSign />,
             tasks: [
                  { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe." },
-                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan` ('freemium', 'profesional', 'premium'), `subscriptionStatus` ('active', 'canceled', 'past_due'), `stripeCustomerId`, `stripeSubscriptionId` y `trialEndsAt`." },
+                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `subscriptionStatus`, `stripeCustomerId`, `stripeSubscriptionId` y `trialEndsAt`." },
                  { who: "bot", text: "Si el token de onboarding es de tipo 'premium', después del OAuth, redirigir al usuario a una sesión de Stripe Checkout para el pago." },
-                 { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe (`checkout.session.completed`, `customer.subscription.deleted`, `customer.subscription.updated`)." },
-                 { who: "bot", text: "Implementar la lógica del webhook para actualizar el estado de la suscripción del negocio en Firestore basándose en los eventos recibidos." },
+                 { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore." },
                  { who: "bot", text: "Crear un `cron job` diario que verifique los negocios en `freemium` cuya `trialEndsAt` haya expirado, cambie su estado y envíe notificaciones." },
             ]
         }
@@ -231,5 +239,7 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
+    
 
     

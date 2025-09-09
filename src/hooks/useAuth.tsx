@@ -12,6 +12,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  sendEmailVerification,
   updateProfile,
   linkWithCredential,
   EmailAuthProvider,
@@ -62,6 +63,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser, forceTokenRefresh = false) => {
     console.log('[Auth] Handling auth success for', fbUser.uid);
     setIsLoading(true);
+    
+    // Send verification email if it's a new user who signed up with email/password and is not verified
+    if (fbUser.metadata.creationTime === fbUser.metadata.lastSignInTime && !fbUser.emailVerified) {
+        try {
+            await sendEmailVerification(fbUser);
+            console.log('[Auth] Verification email sent to new user.');
+        } catch (error) {
+            console.error('[Auth] Failed to send verification email:', error);
+        }
+    }
+
     const idToken = await fbUser.getIdToken(forceTokenRefresh);
     const response = await createSession(idToken);
 
@@ -81,20 +93,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('[Auth] User state set. Role:', response.claims.role, 'Redirecting...');
         const nextUrl = searchParams.get('next') || '/dashboard';
         router.push(nextUrl as any);
+
+    } else if (response.message === 'User role assigned. Token refresh required.') {
+        console.log("[Auth] Claims assigned on backend. Forcing token refresh and re-calling auth handler.");
+        return handleAuthSuccess(fbUser, true);
+
     } else {
-      if (response.message === 'User role assigned. Token refresh required.') {
-         console.log("[Auth] Claims assigned on backend. Forcing token refresh and re-calling auth handler.");
-         return handleAuthSuccess(fbUser, true);
-      }
-      
       console.error("[Auth] Backend session creation failed:", response.message);
-      if (response.reason === 'email_not_verified') {
+      if (response.message.includes('Email not verified')) {
+        // This is our new state for unverified 'owner' roles
         setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
+        toast({ title: "Verificación Requerida", description: "Te hemos enviado un email. Por favor, verifica tu cuenta para continuar.", variant: "default", duration: 8000 });
       } else {
         toast({ title: "Login Failed", description: response.message || "Could not process your session.", variant: "destructive" });
-        await clientAuth.signOut(); // Sign out from client if backend fails
       }
+      // In either failure case after a successful Firebase login, sign out to clear the bad state.
+      await clientAuth.signOut();
+      setUser(null);
+      setFirebaseUser(null);
     }
+    
     setIsLoading(false);
   }, [toast, router, searchParams]);
 
@@ -113,14 +131,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
       if (fbUser) {
-        // Now that claims are read from token, we don't need to fetch user profile separately
         const idTokenResult = await fbUser.getIdTokenResult();
         const appUser: User = {
             id: fbUser.uid,
             email: fbUser.email || '',
             name: fbUser.displayName || 'No Name',
             avatarUrl: fbUser.photoURL || undefined,
-            role: (idTokenResult.claims.role as User['role']) || 'owner', // Default to owner if no role
+            role: (idTokenResult.claims.role as User['role']) || 'owner',
         };
         setUser(appUser);
         setFirebaseUser(fbUser);
@@ -176,7 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast({ title: "Fallo en el Registro", description: error.message, variant: "destructive" });
       }
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
   
