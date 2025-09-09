@@ -66,7 +66,7 @@ export const pathnames = {
     en: '/onboarding',
     es: '/onboarding'
   },
-  '/my-business': {
+   '/mi-negocio': {
     en: '/my-business',
     es: '/mi-negocio'
   },
