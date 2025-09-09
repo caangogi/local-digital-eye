@@ -50,18 +50,19 @@ export function TrialCountdownBanner({ trialEndsAt }: TrialCountdownBannerProps)
     }
 
     const hasExpired = isPast(trialEndsAt);
-    const isEndingSoon = timeLeft.days < 1;
 
     if (hasExpired) {
         return (
             <Alert variant="destructive">
                 <Timer className="h-4 w-4" />
-                <AlertTitle className="font-bold">Tu periodo de prueba ha finalizado</AlertTitle>
-                <div className="flex items-center justify-between">
-                    <AlertDescription>
-                        Para seguir disfrutando de todas las funcionalidades, por favor, actualiza a un plan superior.
-                    </AlertDescription>
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <AlertTitle className="font-bold">Tu periodo de prueba ha finalizado</AlertTitle>
+                        <AlertDescription>
+                            Para seguir disfrutando de todas las funcionalidades, por favor, actualiza a un plan superior.
+                        </AlertDescription>
+                    </div>
+                    <div className="flex items-center gap-4 self-end sm:self-center">
                         <Button asChild size="sm">
                             <Link href="/settings/billing">Ver Planes <ArrowRight className="ml-2 h-4 w-4"/></Link>
                         </Button>
@@ -77,20 +78,22 @@ export function TrialCountdownBanner({ trialEndsAt }: TrialCountdownBannerProps)
     return (
         <Alert className="bg-primary/10 border-primary/30 text-primary-foreground">
              <Timer className="h-4 w-4 text-primary" />
-            <AlertTitle className="font-bold text-primary">¡Bienvenido a tu prueba gratuita!</AlertTitle>
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                    <AlertDescription className="text-primary/90">
-                        Tu prueba finaliza el {format(trialEndsAt, "dd 'de' MMMM 'de' yyyy", { locale: es })}.
-                    </AlertDescription>
-                    <div className="flex items-center gap-2 font-mono text-sm text-primary/90 font-semibold mt-1 sm:mt-0">
-                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.days).padStart(2, '0')}</span><span className="text-xs opacity-70">días</span></div>
-                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.hours).padStart(2, '0')}</span><span className="text-xs opacity-70">hrs</span></div>
-                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.minutes).padStart(2, '0')}</span><span className="text-xs opacity-70">min</span></div>
-                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.seconds).padStart(2, '0')}</span><span className="text-xs opacity-70">seg</span></div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex-grow space-y-2">
+                    <AlertTitle className="font-bold text-primary">¡Bienvenido a tu prueba gratuita!</AlertTitle>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                        <AlertDescription className="text-primary/90">
+                            Tu prueba finaliza el {format(trialEndsAt, "dd 'de' MMMM 'de' yyyy", { locale: es })}.
+                        </AlertDescription>
+                        <div className="flex items-center gap-2 font-mono text-sm text-primary/90 font-semibold mt-1 sm:mt-0">
+                            <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.days).padStart(2, '0')}</span><span className="text-xs opacity-70">días</span></div>
+                            <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.hours).padStart(2, '0')}</span><span className="text-xs opacity-70">hrs</span></div>
+                            <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.minutes).padStart(2, '0')}</span><span className="text-xs opacity-70">min</span></div>
+                            <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.seconds).padStart(2, '0')}</span><span className="text-xs opacity-70">seg</span></div>
+                        </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-4 self-end sm:self-center">
                     <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
                         <Link href="/settings/billing">Actualizar Plan <ArrowRight className="ml-2 h-4 w-4"/></Link>
                     </Button>

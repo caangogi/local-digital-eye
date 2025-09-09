@@ -53,6 +53,10 @@ export const pathnames = {
     en: '/settings/users',
     es: '/settings/users'
   },
+  '/settings/billing': {
+    en: '/settings/billing',
+    es: '/settings/billing'
+  },
   // This is a dynamic route, we need to specify the slug part
   '/negocio/[businessId]': {
     en: '/business/[businessId]',
