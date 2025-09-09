@@ -1,7 +1,7 @@
 
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserList } from "./_components/UserList";
+import { UserList, type SerializableUser } from "./_components/UserList";
 import { listAllUsers } from "@/actions/user.actions";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -15,10 +15,23 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
 }
 
 export default async function UserManagementPage() {
-    let users = [];
+    let users: SerializableUser[] = [];
     let error: string | null = null;
     try {
-        users = await listAllUsers();
+        const userRecords = await listAllUsers();
+        // Convert complex UserRecord objects to plain, serializable objects
+        users = userRecords.map(u => ({
+            uid: u.uid,
+            email: u.email,
+            displayName: u.displayName,
+            photoURL: u.photoURL,
+            emailVerified: u.emailVerified,
+            // Ensure customClaims is serializable
+            customClaims: u.customClaims ? JSON.parse(JSON.stringify(u.customClaims)) : undefined,
+            metadata: {
+                creationTime: u.metadata.creationTime,
+            },
+        }));
     } catch (e: any) {
         error = e.message;
     }

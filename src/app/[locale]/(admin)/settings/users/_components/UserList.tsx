@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from 'react';
-import type { UserRecord } from 'firebase-admin/auth';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +18,21 @@ import { setUserRole } from '@/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from '@/backend/user/domain/user.entity';
 
+// Define a serializable user type that can be passed from Server to Client Components
+export interface SerializableUser {
+    uid: string;
+    email?: string;
+    displayName?: string;
+    photoURL?: string;
+    emailVerified: boolean;
+    customClaims?: { [key: string]: any };
+    metadata: {
+        creationTime: string;
+    };
+}
 
 interface UserListProps {
-    initialUsers: UserRecord[];
+    initialUsers: SerializableUser[];
 }
 
 export function UserList({ initialUsers }: UserListProps) {
