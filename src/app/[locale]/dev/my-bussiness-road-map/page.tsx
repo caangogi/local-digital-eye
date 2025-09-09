@@ -94,9 +94,9 @@ const phases = [
             title: "Hito 2.0: Verificación de Email Obligatoria y Robusta",
             icon: <MailCheck />,
             tasks: [
-                { who: "bot", text: "Backend: Fortalecer la Server Action `createSession` para que rechace la creación de sesión si `emailVerified` es `false` y devuelva un error claro." },
-                { who: "bot", text: "Frontend (useAuth.tsx): Modificar el hook para que gestione el estado 'awaiting_verification' sin redirigir, basándose en la respuesta del backend." },
-                { who: "bot", text: "UI (Login/Onboarding): Mostrar un mensaje de 'Verifica tu email' con un botón para reenviar el correo y un sistema de sondeo en segundo plano (`setInterval`) que detecte la verificación automáticamente para continuar el flujo." },
+                { who: "bot", text: "Backend: Modificar Server Action `createSession` para que omita la comprobación de `emailVerified` para roles `admin` y `super_admin`, mientras la exige para el resto. Devolver un error claro (`email_not_verified`) si falla." },
+                { who: "bot", text: "Frontend (useAuth.tsx): Modificar el hook para que no redirija al detectar un fallo de verificación, sino que actualice un estado interno (ej: `authAction: 'awaiting_verification'`)." },
+                { who: "bot", text: "UI (Login/Onboarding): Mostrar una UI de 'Verifica tu email' con botón de reenvío y sondeo en segundo plano cuando `authAction` sea `awaiting_verification`." },
             ]
         },
         {
@@ -240,7 +240,5 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
-
-    
 
     

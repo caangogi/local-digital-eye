@@ -21,21 +21,33 @@ const createOrUpdateUserUseCase = new CreateOrUpdateUserUseCase(userRepository);
  * It also creates or updates the user profile in Firestore and sets their custom role claim.
  * @param idToken The Firebase ID token from the client.
  */
-export async function createSession(idToken: string): Promise<{ success: boolean; message:string; }> {
+export async function createSession(idToken: string): Promise<{ success: boolean; message:string; reason?: string }> {
   try {
     // Verify the ID token and get user data
     const decodedIdToken = await adminAuth.verifyIdToken(idToken, true);
     
+    // --- User Record & Role Logic ---
     const userRecord = await adminAuth.getUser(decodedIdToken.uid);
     const customClaims = (userRecord.customClaims || {}) as { role?: string };
-
-    // Determine role - TEMPORARY LOGIC for super_admin
-    let newRole = customClaims.role || 'admin'; // Default to admin
-    if (decodedIdToken.email === 'caaangogi@gmail.com') {
+    
+    let newRole = customClaims.role || 'owner'; // Default to 'owner' for new users
+    if (decodedIdToken.email === 'caaangogi@gmail.com' && newRole !== 'super_admin') {
       newRole = 'super_admin';
     }
 
-    // Set custom claim `role` if it's different from the current one.
+    // --- Email Verification Logic ---
+    // Administrators are exempt from email verification to prevent lockouts.
+    const isAdmin = newRole === 'admin' || newRole === 'super_admin';
+    if (!decodedIdToken.email_verified && !isAdmin) {
+        console.warn(`[AuthAction] Session creation denied for ${decodedIdToken.email}. Reason: Email not verified.`);
+        return { 
+            success: false, 
+            message: 'Email not verified. Please check your inbox.', 
+            reason: 'email_not_verified' 
+        };
+    }
+    
+    // Set custom claim `role` if it's different or not present.
     if (customClaims.role !== newRole) {
         await adminAuth.setCustomUserClaims(decodedIdToken.uid, { role: newRole });
         console.log(`[AuthAction] Set custom claim 'role: ${newRole}' for user ${decodedIdToken.uid}`);
@@ -58,7 +70,7 @@ export async function createSession(idToken: string): Promise<{ success: boolean
     // Call the dedicated function to create the session cookie
     await createSessionCookie(idToken);
 
-    console.log(`[AuthAction] Session created for user ${decodedIdToken.uid}`);
+    console.log(`[AuthAction] Session created successfully for user ${decodedIdToken.uid}`);
     return { success: true, message: 'Session created successfully.' };
 
   } catch (error: any) {
