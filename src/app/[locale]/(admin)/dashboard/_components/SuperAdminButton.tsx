@@ -11,12 +11,17 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 export function SuperAdminButton() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  // This component will only render its content if the user is the designated one.
+  // This component will only render if the user is the designated one.
   if (!user || user.email !== 'caangogi@gmail.com') {
+    return null;
+  }
+  
+  // Also hide if the role is already set
+  if (user.role === 'super_admin') {
     return null;
   }
 
@@ -28,10 +33,13 @@ export function SuperAdminButton() {
       if (result.success) {
         toast({
           title: '¡Rol Asignado!',
-          description: "Rol de Super Admin asignado. Por favor, refresca la página para que los cambios tomen efecto en tu sesión.",
+          description: "Se han actualizado tus permisos. Serás desconectado para aplicar los cambios. Por favor, inicia sesión de nuevo.",
           duration: 8000,
         });
-        // A manual refresh by the user is required for the client to get the new session cookie with updated claims.
+        // Wait a bit for the user to read the toast, then sign out
+        setTimeout(() => {
+          signOut();
+        }, 4000);
       } else {
         throw new Error(result.message);
       }
@@ -41,7 +49,6 @@ export function SuperAdminButton() {
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -53,7 +60,7 @@ export function SuperAdminButton() {
         <AlertDescription>
            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <p className="text-foreground/90">
-                Tu cuenta principal no tiene un rol de administrador en tu sesión actual. Haz clic aquí para asignarte el rol de `super_admin` y desbloquear todas las funciones.
+                Tu cuenta principal no tiene los permisos de Super Administrador. Haz clic aquí para asignarte el rol y desbloquear todas las funciones.
             </p>
             <Button onClick={handleSetSuperAdmin} disabled={isLoading} variant="outline" className="bg-amber-500 hover:bg-amber-600 text-white w-full sm:w-auto flex-shrink-0">
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Crown className="mr-2 h-4 w-4" />}

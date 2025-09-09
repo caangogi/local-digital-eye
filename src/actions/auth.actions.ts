@@ -20,66 +20,53 @@ const createOrUpdateUserUseCase = new CreateOrUpdateUserUseCase(userRepository);
  * Creates a session cookie after verifying the Firebase ID token.
  * It also creates or updates the user profile in Firestore and sets their custom role claim if needed.
  * @param idToken The Firebase ID token from the client.
- * @returns An object indicating success, whether claims were changed, and the final claims.
+ * @returns An object indicating success and the user's claims.
  */
-export async function createSession(idToken: string): Promise<{ success: boolean; message: string; claimsChanged?: boolean; claims?: any }> {
+export async function createSession(idToken: string): Promise<{ success: boolean; message: string; claims?: any }> {
   try {
-    // Verify the ID token to get the user's UID and other basic info
     const decodedIdToken = await adminAuth.verifyIdToken(idToken, true);
-    
-    // --- User Record & Role Logic ---
-    // Fetch the full user record from Firebase Auth to get the current custom claims
-    const userRecord = await adminAuth.getUser(decodedIdToken.uid);
-    const customClaims = (userRecord.customClaims || {}) as { role?: string };
-    
-    let newRole = customClaims.role;
-    let claimsChanged = false;
+    const { uid, email, email_verified } = decodedIdToken;
 
-    // If user has no role, assign one. This logic runs on first sign-in.
-    if (!newRole) {
-      if (userRecord.email === 'caangogi@gmail.com') {
+    let customClaims = (decodedIdToken.role ? { role: decodedIdToken.role } : {}) as { role?: string };
+    
+    // If user has no role claim, assign one. This logic runs on first sign-in.
+    if (!customClaims.role) {
+      let newRole: User['role'] | null = null;
+      if (email === 'caangogi@gmail.com') {
         newRole = 'super_admin';
       } else {
-        // Default role for any new user signing up via public forms
-        newRole = 'owner';
+        newRole = 'owner'; // Default role for any new user
       }
-      claimsChanged = true;
+      
+      if (newRole) {
+        await adminAuth.setCustomUserClaims(uid, { role: newRole });
+        console.log(`[AuthAction] Set initial custom claim 'role: ${newRole}' for user ${uid}`);
+        // IMPORTANT: The current token is stale. The client MUST get a new token.
+        // We inform the client to force a refresh.
+        return { 
+            success: false, 
+            message: 'User role assigned. Token refresh required.',
+        };
+      }
     }
     
     // --- Email Verification Logic ---
-    const isAdmin = newRole === 'admin' || newRole === 'super_admin';
-    if (!decodedIdToken.email_verified && !isAdmin) {
-        console.warn(`[AuthAction] Session creation denied for ${userRecord.email}. Reason: Email not verified.`);
+    const isAdmin = customClaims.role === 'admin' || customClaims.role === 'super_admin';
+    if (!email_verified && !isAdmin) {
+        console.warn(`[AuthAction] Session creation denied for ${email}. Reason: Email not verified.`);
         return { 
             success: false, 
-            message: 'Email not verified. Please check your inbox.', 
+            message: 'Email not verified. Please check your inbox.',
         };
     }
     
-    // If we determined a new role should be set, apply it now.
-    if (claimsChanged) {
-        await adminAuth.setCustomUserClaims(userRecord.uid, { role: newRole });
-        console.log(`[AuthAction] Set new custom claim 'role: ${newRole}' for user ${userRecord.uid}`);
-        
-        // IMPORTANT: Because claims were changed, the current idToken is now stale.
-        // The client needs to be informed so it can get a new token with the updated claims
-        // and call createSession again.
-        return { 
-            success: true, 
-            message: 'Claims updated. A new token is required.', 
-            claimsChanged: true, 
-            claims: { role: newRole } 
-        };
-    }
-
-    // --- If claims are already correct, proceed to create the session cookie ---
-
-    // Create or update user in our Firestore database (this is for profile data, not auth roles)
+    // --- Create or Update User in Firestore ---
+    const userRecord = await adminAuth.getUser(uid);
     const userToSave: Omit<User, 'avatarUrl'> & { avatarUrl?: string } = {
-      id: userRecord.uid,
-      email: userRecord.email || '',
+      id: uid,
+      email: email || '',
       name: userRecord.displayName || '',
-      role: newRole as User['role'], // The role is now definitive
+      role: customClaims.role as User['role'],
     };
 
     if (userRecord.photoURL) {
@@ -88,15 +75,14 @@ export async function createSession(idToken: string): Promise<{ success: boolean
 
     await createOrUpdateUserUseCase.execute(userToSave as User);
     
-    // Call the dedicated function to create the session cookie with the valid token
+    // --- Create Session Cookie ---
     await createSessionCookie(idToken);
     
-    console.log(`[AuthAction] Session cookie created successfully for user ${userRecord.uid} with role ${newRole}`);
+    console.log(`[AuthAction] Session cookie created successfully for user ${uid} with role ${customClaims.role}`);
     return { 
         success: true, 
         message: 'Session created successfully.', 
-        claimsChanged: false, 
-        claims: { role: newRole } 
+        claims: customClaims
     };
 
   } catch (error: any) {
@@ -110,7 +96,6 @@ export async function createSession(idToken: string): Promise<{ success: boolean
  * Clears the session cookie.
  */
 export async function clearSession(): Promise<void> {
-  // Call the dedicated function to clear the session cookie
   await clearSessionCookie();
   console.log('[AuthAction] Session cleared.');
 }

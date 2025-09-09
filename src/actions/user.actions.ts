@@ -45,7 +45,7 @@ export async function listAllUsers(): Promise<UserRecord[]> {
 }
 
 /**
- * Sets a specific role for a user.
+ * Sets a specific role for a user and revokes their existing sessions.
  * This action is restricted to super_admins, with a special exception for the initial setup.
  * @param uid The UID of the user to update.
  * @param role The new role to set.
@@ -60,15 +60,12 @@ export async function setUserRole(uid: string, role: UserRole): Promise<{ succes
     const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
     const callerUid = decodedToken.uid;
     
-    // Special condition for the first-time super admin setup.
-    // This allows the designated user to self-assign the super_admin role without already having it.
     const isBootstrapCall = 
         uid === callerUid &&
         decodedToken.email === 'caangogi@gmail.com' &&
         role === 'super_admin';
 
     if (!isBootstrapCall) {
-        // For all other cases, the caller MUST be a super admin.
         try {
             await verifySuperAdmin(callerUid);
         } catch (error: any) {
@@ -76,15 +73,13 @@ export async function setUserRole(uid: string, role: UserRole): Promise<{ succes
         }
     }
 
-    // Optional: Prevent a super_admin from demoting themselves, though not strictly necessary.
-    if (uid === callerUid && role !== 'super_admin' && (decodedToken as any).role === 'super_admin') {
-       // return { success: false, message: "Super admins cannot demote themselves." };
-    }
-
     try {
         await auth.setCustomUserClaims(uid, { role });
-        console.log(`[UserActions] Action by ${callerUid}: set role '${role}' for user ${uid}`);
-        return { success: true, message: `Role '${role}' has been set for the user.` };
+        // After setting claims, revoke tokens to force re-authentication with new claims.
+        await auth.revokeRefreshTokens(uid);
+
+        console.log(`[UserActions] Action by ${callerUid}: set role '${role}' for user ${uid}. Tokens revoked.`);
+        return { success: true, message: `Role '${role}' has been set for the user. All active sessions have been logged out to apply the new role.` };
     } catch (error: any) {
         console.error(`Error setting role for user ${uid}:`, error);
         return { success: false, message: 'Failed to set user role.' };

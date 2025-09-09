@@ -61,16 +61,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
  const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser, forceTokenRefresh = false) => {
     console.log('[Auth] Handling auth success for', fbUser.uid);
+    setIsLoading(true);
     const idToken = await fbUser.getIdToken(forceTokenRefresh);
     const response = await createSession(idToken);
 
-    if (response.success) {
-        if (response.claimsChanged) {
-            // If claims were changed, we need to get a new token with the updated claims
-            console.log("[Auth] Claims changed. Forcing token refresh and re-creating session.");
-            return handleAuthSuccess(fbUser, true); // Recursive call with force refresh
-        }
-
+    if (response.success && response.claims) {
         const appUser: User = {
             id: fbUser.uid,
             email: fbUser.email || '',
@@ -86,16 +81,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('[Auth] User state set. Role:', response.claims.role, 'Redirecting...');
         const nextUrl = searchParams.get('next') || '/dashboard';
         router.push(nextUrl as any);
-      
     } else {
+      if (response.message === 'User role assigned. Token refresh required.') {
+         console.log("[Auth] Claims assigned on backend. Forcing token refresh and re-calling auth handler.");
+         return handleAuthSuccess(fbUser, true);
+      }
+      
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.reason === 'email_not_verified') {
         setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
       } else {
         toast({ title: "Login Failed", description: response.message || "Could not process your session.", variant: "destructive" });
+        await clientAuth.signOut(); // Sign out from client if backend fails
       }
-      await clientAuth.signOut();
     }
+    setIsLoading(false);
   }, [toast, router, searchParams]);
 
   const checkPasswordProvider = (fbUser: FirebaseUser | null) => {
@@ -113,7 +113,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
       if (fbUser) {
-        await handleAuthSuccess(fbUser);
+        // Now that claims are read from token, we don't need to fetch user profile separately
+        const idTokenResult = await fbUser.getIdTokenResult();
+        const appUser: User = {
+            id: fbUser.uid,
+            email: fbUser.email || '',
+            name: fbUser.displayName || 'No Name',
+            avatarUrl: fbUser.photoURL || undefined,
+            role: (idTokenResult.claims.role as User['role']) || 'owner', // Default to owner if no role
+        };
+        setUser(appUser);
+        setFirebaseUser(fbUser);
+        checkPasswordProvider(fbUser);
       } else {
         setUser(null);
         setFirebaseUser(null);
@@ -128,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, [handleAuthSuccess]);
+  }, []);
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -136,8 +147,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Attempting to sign in with Google via popup...');
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(clientAuth, provider);
-      // onAuthStateChanged will handle the rest
+      const userCredential = await signInWithPopup(clientAuth, provider);
+      await handleAuthSuccess(userCredential.user);
     } catch (error: any) {
       console.error("[Auth] Error during Google sign-in popup:", error);
        if (error.code === 'auth/account-exists-with-different-credential') {
@@ -156,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(clientAuth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      // onAuthStateChanged will handle the rest after creation
+      await handleAuthSuccess(userCredential.user);
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
       if (error.code === 'auth/email-already-in-use') {
@@ -173,8 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setAuthAction(null);
     try {
-      await signInWithEmailAndPassword(clientAuth, email, password);
-      // onAuthStateChanged will handle the rest
+      const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
+      await handleAuthSuccess(userCredential.user);
     } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
