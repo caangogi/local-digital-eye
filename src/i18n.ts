@@ -18,11 +18,13 @@ export default getRequestConfig(async ({locale}) => {
     const mainMessages = (await import(`../messages/${locale}.json`)).default;
     const homeMessages = (await import(`../messages/home.${locale}.json`)).default;
     const onboardingMessages = (await import(`../messages/onboarding.${locale}.json`)).default;
+    const sidebarMessages = (await import(`../messages/sidebar.${locale}.json`)).default;
     
     messages = {
         ...mainMessages,
         Home: homeMessages.Home,
-        OnboardingPage: onboardingMessages.OnboardingPage
+        OnboardingPage: onboardingMessages.OnboardingPage,
+        AppSidebar: sidebarMessages.AppSidebar,
     }
 
   } catch (error) {
