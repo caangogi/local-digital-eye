@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow } from "lucide-react";
 import React from 'react';
 
 export async function generateMetadata() {
@@ -82,43 +82,45 @@ const phases = [
           { who: "bot", text: "Crear la entidad y el repositorio para `Feedback` y el `SubmitNegativeFeedbackUseCase` que guarda el feedback y notifica al Asistente de Ventas (por ahora).", completed: true },
         ]
       },
+      {
+        title: "Hito 1.4: Gestión de Permisos de Administrador",
+        icon: <ShieldCheck />,
+        tasks: [
+            { who: "bot", text: "Implementar la lógica de 'Custom Claims' de Firebase para el rol 'super_admin'.", completed: true },
+            { who: "bot", text: "Crear el panel de gestión de usuarios en `/settings/users` para que el 'super_admin' pueda asignar roles a otros usuarios.", completed: true },
+        ]
+      }
     ]
   },
   {
     phase: "Fase 2",
-    title: "Onboarding del Dueño del Negocio y Gestión de Suscripciones",
-    description: "Introducir el rol de 'Dueño de Negocio' en la plataforma. Implementar el flujo de invitación seguro y la gestión de planes (Freemium y de pago con Stripe).",
+    title: "Onboarding del Dueño del Negocio y Conexión de Servicios",
+    description: "Implementar el flujo completo y seguro para que un dueño de negocio se registre, verifique su identidad y conecte su Perfil de Negocio de Google.",
     milestones: [
         {
-            title: "Hito 2.0: Verificación de Email Obligatoria y Robusta",
-            icon: <MailCheck />,
+            title: "Hito 2.1: Flujo Completo de Invitación y Onboarding",
+            icon: <Workflow />,
             tasks: [
-                { who: "bot", text: "Backend: Modificar Server Action `createSession` para que omita la comprobación de `emailVerified` para roles `admin` y `super_admin`, mientras la exige para el resto. Devolver un error claro (`email_not_verified`) si falla.", completed: true },
-                { who: "bot", text: "Frontend (useAuth.tsx): Modificar el hook para que no redirija al detectar un fallo de verificación, sino que actualice un estado interno (ej: `authAction: 'awaiting_verification'`).", completed: true },
-                { who: "bot", text: "UI (Login/Onboarding): Mostrar una UI de 'Verifica tu email' con botón de reenvío y sondeo en segundo plano cuando `authAction` sea `awaiting_verification`." },
-            ]
-        },
-        {
-            title: "Hito 2.1: Flujo de Invitación y Onboarding Seguro (OAuth)",
-            icon: <KeyRound />,
-            tasks: [
-                { who: "bot", text: "Backend: Crear Server Action `generateOnboardingLink(businessId)` que genere un JWT seguro y de corta duración.", completed: true },
-                { who: "bot", text: "UI Asistente: Implementar botón 'Invitar al Dueño' que llama a la acción anterior y muestra el enlace en un modal.", completed: true },
-                { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada." },
-                { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que valida el token y muestra el formulario de registro. Integrar la lógica de verificación de email del Hito 2.0." },
-                { who: "bot", text: "Frontend/Backend (Post-verificación): Usar `localStorage` para guardar el estado del onboarding. Tras la verificación, comprobar `localStorage` y redirigir al flujo de OAuth de Google con el `businessId`." },
-                { who: "bot", text: "Ajustar el callback de OAuth (`/api/oauth/callback`) para que guarde los tokens, asocie el `ownerId` al negocio y actualice el `gmbStatus` a 'linked'." },
+                { who: "bot", text: "(HECHO) Backend: Crear Server Action `generateOnboardingLink(businessId)` que genere un JWT seguro y de corta duración.", completed: true },
+                { who: "bot", text: "(HECHO) UI Asistente: Implementar botón 'Invitar al Dueño' que llama a la acción anterior y muestra el enlace en un modal.", completed: true },
+                { who: "bot", text: "Backend: Crear la Server Action `validateOnboardingToken(token)` para verificar la validez del token JWT.", completed: false },
+                { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que recibe el token, lo valida usando la nueva acción, y si es correcto, muestra el formulario de registro/login junto a los datos del negocio a reclamar.", completed: false },
+                { who: "bot", text: "UI 'Verifica tu Email': Crear la UI que se mostrará al nuevo dueño del negocio justo después de registrarse, indicándole que revise su correo para continuar. Esta UI debe incluir un botón de 'Reenviar email'.", completed: false },
+                { who: "bot", text: "Gestión de Estado (localStorage): En la página de Onboarding, guardar el `businessId` en `localStorage` antes de iniciar el registro para no perder la referencia del negocio durante el proceso de verificación de email.", completed: false },
+                { who: "user", text: "Configuración Google Cloud: Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada con los scopes correctos.", completed: false },
+                { who: "bot", text: "Redirección a OAuth: Tras una verificación de email exitosa, el sistema debe comprobar el `localStorage`. Si encuentra el `businessId`, debe redirigir al usuario al flujo de OAuth de Google.", completed: false },
+                { who: "bot", text: "Callback y Finalización: El callback de OAuth (`/api/oauth/callback`) guardará los tokens, asociará el `ownerId` al negocio y actualizará el `gmbStatus` a 'linked', finalizando el flujo.", completed: false },
             ]
         },
         {
             title: "Hito 2.2: Gestión de Planes y Suscripciones con Stripe",
             icon: <DollarSign />,
             tasks: [
-                 { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe." },
-                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `subscriptionStatus`, `stripeCustomerId`, `stripeSubscriptionId` y `trialEndsAt`." },
-                 { who: "bot", text: "Si el token de onboarding es de tipo 'premium', después del OAuth, redirigir al usuario a una sesión de Stripe Checkout para el pago." },
-                 { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore." },
-                 { who: "bot", text: "Crear un `cron job` diario que verifique los negocios en `freemium` cuya `trialEndsAt` haya expirado, cambie su estado y envíe notificaciones." },
+                 { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
+                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `subscriptionStatus`, `stripeCustomerId`, `stripeSubscriptionId` y `trialEndsAt`.", completed: false },
+                 { who: "bot", text: "Si el token de onboarding es de tipo 'premium', después del OAuth, redirigir al usuario a una sesión de Stripe Checkout para el pago.", completed: false },
+                 { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore.", completed: false },
+                 { who: "bot", text: "Crear un `cron job` diario que verifique los negocios en `freemium` cuya `trialEndsAt` haya expirado, cambie su estado y envíe notificaciones.", completed: false },
             ]
         }
     ]
@@ -132,20 +134,20 @@ const phases = [
             title: "Hito 3.1: Asistente de IA para Responder Reseñas",
             icon: <Sparkles />,
             tasks: [
-                 { who: "bot", text: "Crear un servicio (`GmbAdapter`) que use los tokens guardados para leer las reseñas de un negocio desde la Google Business Profile API." },
-                 { who: "bot", text: "Crear un flujo de Genkit (`generateReviewResponseFlow`) que reciba el texto de una reseña y genere una respuesta profesional y personalizada." },
-                 { who: "bot", text: "En el dashboard del Dueño del Negocio, crear una nueva sección 'Reseñas' que liste las reseñas obtenidas de Google." },
-                 { who: "bot", text: "Añadir un botón 'Generar Respuesta con IA' junto a cada reseña. Al pulsarlo, se llamará al flujo de Genkit y se mostrará la sugerencia en un área de texto editable." },
-                 { who: "bot", text: "Añadir un botón 'Publicar Respuesta' que use el `GmbAdapter` para enviar la respuesta final a Google." },
+                 { who: "bot", text: "Crear un servicio (`GmbAdapter`) que use los tokens guardados para leer las reseñas de un negocio desde la Google Business Profile API.", completed: false },
+                 { who: "bot", text: "Crear un flujo de Genkit (`generateReviewResponseFlow`) que reciba el texto de una reseña y genere una respuesta profesional y personalizada.", completed: false },
+                 { who: "bot", text: "En el dashboard del Dueño del Negocio, crear una nueva sección 'Reseñas' que liste las reseñas obtenidas de Google.", completed: false },
+                 { who: "bot", text: "Añadir un botón 'Generar Respuesta con IA' junto a cada reseña. Al pulsarlo, se llamará al flujo de Genkit y se mostrará la sugerencia en un área de texto editable.", completed: false },
+                 { who: "bot", text: "Añadir un botón 'Publicar Respuesta' que use el `GmbAdapter` para enviar la respuesta final a Google.", completed: false },
             ]
         },
         {
             title: "Hito 3.2: Dashboard del Dueño del Negocio",
             icon: <UserCog />,
             tasks: [
-                 { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner'." },
-                 { who: "bot", text: "Este panel mostrará las métricas clave de GMB (vistas, búsquedas), el resumen de reseñas y el acceso a las herramientas de IA." },
-                 { who: "bot", text: "Implementar un portal de cliente de Stripe para que el dueño pueda gestionar su suscripción (ej. actualizar método de pago, cancelar)." },
+                 { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner'.", completed: false },
+                 { who: "bot", text: "Este panel mostrará las métricas clave de GMB (vistas, búsquedas), el resumen de reseñas y el acceso a las herramientas de IA.", completed: false },
+                 { who: "bot", text: "Implementar un portal de cliente de Stripe para que el dueño pueda gestionar su suscripción (ej. actualizar método de pago, cancelar).", completed: false },
             ]
         }
     ]
@@ -244,3 +246,4 @@ export default function MyBusinessRoadMapPage() {
 
     
 
+    
