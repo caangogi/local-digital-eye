@@ -29,6 +29,7 @@ export function SuperAdminButton() {
         toast({
           title: '¡Rol Asignado!',
           description: "Ahora eres Super Admin. Refresca la página para ver todos los cambios.",
+          duration: 5000,
         });
         // You might want to force a page reload or a re-authentication to update the user's claims on the client.
         // For now, a manual refresh is okay.
