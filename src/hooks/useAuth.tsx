@@ -59,36 +59,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
- const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser) => {
+ const handleAuthSuccess = useCallback(async (fbUser: FirebaseUser, forceTokenRefresh = false) => {
     console.log('[Auth] Handling auth success for', fbUser.uid);
-    const idToken = await fbUser.getIdToken(true); // Force refresh to get new claims
+    const idToken = await fbUser.getIdToken(forceTokenRefresh);
     const response = await createSession(idToken);
 
-    if (response.success && response.claims?.role) {
-      const appUser: User = {
-        id: fbUser.uid,
-        email: fbUser.email || '',
-        name: fbUser.displayName || 'No Name',
-        avatarUrl: fbUser.photoURL || undefined,
-        role: response.claims.role, // Use role from claims
-      };
-      setUser(appUser);
-      setFirebaseUser(fbUser);
-      checkPasswordProvider(fbUser);
-      setAuthAction({ status: 'idle' });
-      
-      console.log('[Auth] User state set after success. Navigation will be handled by the page.');
-      // NO automatic redirection here anymore.
-      // The AdminLayout will handle redirection to protected routes.
-       const nextUrl = searchParams.get('next') || '/dashboard';
-       router.push(nextUrl as any);
+    if (response.success) {
+        if (response.claimsChanged) {
+            // If claims were changed, we need to get a new token with the updated claims
+            console.log("[Auth] Claims changed. Forcing token refresh and re-creating session.");
+            return handleAuthSuccess(fbUser, true); // Recursive call with force refresh
+        }
+
+        const appUser: User = {
+            id: fbUser.uid,
+            email: fbUser.email || '',
+            name: fbUser.displayName || 'No Name',
+            avatarUrl: fbUser.photoURL || undefined,
+            role: response.claims.role,
+        };
+        setUser(appUser);
+        setFirebaseUser(fbUser);
+        checkPasswordProvider(fbUser);
+        setAuthAction({ status: 'idle' });
+        
+        console.log('[Auth] User state set. Role:', response.claims.role, 'Redirecting...');
+        const nextUrl = searchParams.get('next') || '/dashboard';
+        router.push(nextUrl as any);
       
     } else {
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.reason === 'email_not_verified') {
         setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
       } else {
-        toast({ title: "Login Failed", description: response.message || "Could not retrieve user role.", variant: "destructive" });
+        toast({ title: "Login Failed", description: response.message || "Could not process your session.", variant: "destructive" });
       }
       await clientAuth.signOut();
     }
@@ -179,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
     } finally {
-        setIsLoading(false); // This ensures the loading state is always reset.
+        setIsLoading(false);
     }
   };
 
@@ -227,10 +231,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsProviderPasswordEnabled(false);
       setAuthAction(null);
       console.log('[Auth] Firebase sign-out successful. Redirecting to login.');
-      // Instead of push, we use replace to prevent back button from going to a protected route
       router.replace(`/login?next=${currentPath}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("[Auth] Error signing out:", error);
+    } finally {
+        setIsLoading(false);
     }
   };
 
