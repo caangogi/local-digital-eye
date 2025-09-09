@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
@@ -121,31 +122,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
       if (fbUser) {
-        // If the user has just verified their email, this will trigger.
-        // We force a token refresh to get the `email_verified: true` claim.
-        if (!fbUser.emailVerified) {
-          await fbUser.reload();
-        }
+        // User is signed in to Firebase.
+        await fbUser.reload(); // Always get the latest user state from Firebase.
+        setFirebaseUser(fbUser);
+        checkPasswordProvider(fbUser);
 
-        if(fbUser.emailVerified) {
-            const idTokenResult = await fbUser.getIdTokenResult();
-            const appUser: User = {
-                id: fbUser.uid,
-                email: fbUser.email || '',
-                name: fbUser.displayName || 'No Name',
-                avatarUrl: fbUser.photoURL || undefined,
-                role: (idTokenResult.claims.role as User['role']) || 'owner',
-            };
-            setUser(appUser);
-            setFirebaseUser(fbUser);
-            checkPasswordProvider(fbUser);
-            setAuthAction({ status: 'idle' });
-        } else if (authAction?.status !== 'awaiting_verification') {
-            // User is logged into Firebase but not verified, and we are not already in the verification flow.
-            // This happens on page reload for an unverified user.
-             setAuthAction({ status: 'awaiting_verification', email: fbUser.email || undefined });
+        if (fbUser.emailVerified) {
+          // If email is verified and they are not logged into our app session yet, log them in.
+          if (!user) {
+            handleAuthSuccess(fbUser);
+          }
+        } else {
+          // If email is not verified, put them in the 'awaiting_verification' state.
+          // This will show the verification screen.
+           setAuthAction({ status: 'awaiting_verification', email: fbUser.email || undefined });
         }
       } else {
+        // User is signed out from Firebase.
         setUser(null);
         setFirebaseUser(null);
         setAuthAction(null);
@@ -159,7 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, [authAction?.status]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -234,7 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthAction(null);
     try {
       const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
-      await handleAuthSuccess(userCredential.user);
+      // Let the onAuthStateChanged handler take care of the rest.
     } catch (error: any) {
       console.error("[Auth] Error signing in:", error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
@@ -242,8 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
-    } finally {
-        setIsLoading(false);
+      setIsLoading(false); // Manually set loading to false on error
     }
   };
 
@@ -302,7 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthState = {
     user,
     firebaseUser,
-    isAuthenticated: !isLoading && !!user,
+    isAuthenticated: !isLoading && !!user && !!user.id,
     isLoading,
     isProviderPasswordEnabled,
     authAction,
@@ -326,5 +319,3 @@ export function useAuth(): AuthState {
   }
   return context;
 }
-
-    

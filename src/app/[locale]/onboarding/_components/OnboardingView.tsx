@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,7 +23,9 @@ interface OnboardingViewProps {
 }
 
 const EmailVerificationView = () => {
+    const t = useTranslations('OnboardingPage');
     const { authAction, resendVerificationEmail, isLoading } = useAuth();
+
     return (
         <Card className="w-full max-w-lg text-center shadow-2xl">
             <CardHeader className="items-center">
@@ -46,8 +49,9 @@ const EmailVerificationView = () => {
                 </Button>
             </CardFooter>
         </Card>
-    )
-}
+    );
+};
+
 
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Tu nombre debe tener al menos 2 caracteres." }),
@@ -254,5 +258,3 @@ export function OnboardingView({ token }: OnboardingViewProps) {
     </Card>
   );
 }
-
-    
