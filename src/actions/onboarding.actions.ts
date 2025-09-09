@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/firebase/firebase-admin-config';
 import { cookies } from 'next/headers';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
+import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
 import type { Business } from '@/backend/business/domain/business.entity';
 
 const OnboardingLinkInputSchema = z.object({
@@ -28,7 +29,7 @@ export async function generateOnboardingLink(input: OnboardingLinkInput): Promis
   const { businessId, planType } = OnboardingLinkInputSchema.parse(input);
 
   // 2. Authorize the action (ensure the user is an admin and owns the business)
-  const sessionCookie = cookies().get('session')?.value;
+  const sessionCookie = (await cookies()).get('session')?.value;
   if (!sessionCookie) {
     throw new Error('Authentication required.');
   }
@@ -90,8 +91,8 @@ export async function validateOnboardingToken(token: string): Promise<Business> 
         console.log(`[OnboardingAction] Token is valid. Fetching details for business ${businessId}`);
         
         const businessRepository = new FirebaseBusinessRepository();
-        const getBusinessDetails = new GetBusinessDetailsUseCase(businessRepository);
-        const business = await getBusinessDetails.execute(businessId);
+        const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
+        const business = await getBusinessDetailsUseCase.execute(businessId);
 
         if (!business) {
             throw new Error("Business associated with this link not found.");
@@ -99,7 +100,8 @@ export async function validateOnboardingToken(token: string): Promise<Business> 
         
         // You might want to add a check here to see if the business already has an ownerId
         if (business.ownerId) {
-            throw new Error("This business has already been claimed.");
+            // "This business has already been claimed."
+            throw new Error("alreadyClaimed");
         }
 
         return business;
@@ -107,10 +109,12 @@ export async function validateOnboardingToken(token: string): Promise<Business> 
         console.error('[OnboardingAction] Token validation failed:', error.message);
         // Provide user-friendly error messages
         if (error.name === 'TokenExpiredError') {
-            throw new Error("This invitation link has expired. Please request a new one.");
+            // "This invitation link has expired. Please request a new one."
+            throw new Error("expiredLink");
         }
         if (error.name === 'JsonWebTokenError') {
-            throw new Error("This invitation link is invalid or has been tampered with.");
+             // "This invitation link is invalid or has been tampered with."
+            throw new Error("invalidLink");
         }
         throw error; // Re-throw other errors
     }

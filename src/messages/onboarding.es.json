@@ -1,0 +1,23 @@
+
+{
+  "OnboardingPage": {
+    "title": "Reclama el Perfil de tu Negocio",
+    "form": {
+      "title": "Crea tu Cuenta de Propietario",
+      "subtitle": "Estás a un paso de tomar el control de tu presencia online.",
+      "nameLabel": "Tu Nombre Completo",
+      "namePlaceholder": "Ej: Juan Pérez",
+      "emailLabel": "Tu Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Elige una Contraseña",
+      "button": "Crear Cuenta y Conectar",
+      "terms": "Al crear una cuenta, aceptas nuestros Términos de Servicio."
+    },
+    "businessInfoLabel": "Has sido invitado a gestionar:",
+    "errors": {
+      "invalidLink": "Este enlace de invitación no es válido. Revisa la URL o solicita una nueva invitación.",
+      "expiredLink": "Este enlace de invitación ha caducado. Por favor, solicita uno nuevo a tu partner digital.",
+      "alreadyClaimed": "Este perfil de negocio ya ha sido reclamado. Si crees que es un error, contacta con soporte."
+    }
+  }
+}

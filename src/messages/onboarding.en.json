@@ -1,0 +1,23 @@
+
+{
+  "OnboardingPage": {
+    "title": "Claim Your Business Profile",
+    "form": {
+      "title": "Create Your Owner Account",
+      "subtitle": "You're just one step away from taking control of your online presence.",
+      "nameLabel": "Your Full Name",
+      "namePlaceholder": "e.g., John Doe",
+      "emailLabel": "Your Email Address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Choose a Password",
+      "button": "Create Account & Connect",
+      "terms": "By creating an account, you agree to our Terms of Service."
+    },
+    "businessInfoLabel": "You've been invited to manage:",
+    "errors": {
+        "invalidLink": "This invitation link is not valid. Please check the URL or request a new invitation.",
+        "expiredLink": "This invitation link has expired. Please request a new one from your digital partner.",
+        "alreadyClaimed": "This business profile has already been claimed. If you believe this is an error, please contact support."
+    }
+  }
+}

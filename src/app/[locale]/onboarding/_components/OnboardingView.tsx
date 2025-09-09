@@ -50,16 +50,19 @@ const LoadingState = () => (
     </Card>
 );
 
-const ErrorState = ({ message }: { message: string }) => (
-    <Card className="w-full max-w-lg text-center shadow-2xl">
-        <CardHeader>
-            <CardTitle className="flex items-center justify-center gap-2 text-destructive"><AlertTriangle/> Error de Invitación</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p className="text-muted-foreground">{message}</p>
-        </CardContent>
-    </Card>
-);
+const ErrorState = ({ messageKey }: { messageKey: string }) => {
+    const t = useTranslations('OnboardingPage.errors');
+    return (
+        <Card className="w-full max-w-lg text-center shadow-2xl">
+            <CardHeader>
+                <CardTitle className="flex items-center justify-center gap-2 text-destructive"><AlertTriangle/> Error de Invitación</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">{t(messageKey)}</p>
+            </CardContent>
+        </Card>
+    );
+};
 
 
 export function OnboardingView({ token }: OnboardingViewProps) {
@@ -68,7 +71,7 @@ export function OnboardingView({ token }: OnboardingViewProps) {
   
   const [validationState, setValidationState] = useState<'loading' | 'valid' | 'invalid'>('loading');
   const [business, setBusiness] = useState<Business | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string>('invalidLink');
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -78,7 +81,7 @@ export function OnboardingView({ token }: OnboardingViewProps) {
         setBusiness(businessDetails);
         setValidationState('valid');
       } catch (e: any) {
-        setError(e.message);
+        setErrorKey(e.message || 'invalidLink');
         setValidationState('invalid');
       }
     };
@@ -100,7 +103,7 @@ export function OnboardingView({ token }: OnboardingViewProps) {
   }
 
   if (validationState === 'invalid' || !business) {
-    return <ErrorState message={error || "Ha ocurrido un error desconocido."} />;
+    return <ErrorState messageKey={errorKey} />;
   }
 
   return (
