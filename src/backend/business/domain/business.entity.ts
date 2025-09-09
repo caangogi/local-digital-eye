@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 /**
@@ -33,6 +34,18 @@ export const ReviewSchema = z.object({
 
 export type Review = z.infer<typeof ReviewSchema>;
 
+// New schema for GMB Insights Cache
+export const GmbInsightsCacheSchema = z.object({
+    searchViews: z.number().optional().nullable(),
+    mapViews: z.number().optional().nullable(),
+    totalViews: z.number().optional().nullable(),
+    websiteActions: z.number().optional().nullable(),
+    phoneActions: z.number().optional().nullable(),
+    directionActions: z.number().optional().nullable(),
+    totalActions: z.number().optional().nullable(),
+    lastUpdateTime: z.date().optional().nullable(),
+});
+
 export const BusinessSchema = z.object({
   id: z.string().describe("Unique identifier for the business, typically the Google Place ID."),
   userId: z.string().describe("The ID of the user (sales agent) who connected this business."),
@@ -60,6 +73,9 @@ export const BusinessSchema = z.object({
   photos: z.array(PhotoSchema).optional().default([]),
   openingHours: OpeningHoursSchema.nullable().optional(),
   topReviews: z.array(ReviewSchema).optional().default([]).describe("A curated list of top reviews (4-5 stars)."),
+
+  // GMB Insights Cache
+  gmbInsightsCache: GmbInsightsCacheSchema.optional().nullable(),
 
   // CRM Fields for Sales Pipeline
   leadScore: z.number().min(0).max(10).optional().nullable().describe("A score from 0-10 indicating lead potential."),

@@ -43,6 +43,11 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
         });
     }
 
+    // Convert Timestamp in gmbInsightsCache
+    if (rawData.gmbInsightsCache?.lastUpdateTime && rawData.gmbInsightsCache.lastUpdateTime instanceof Timestamp) {
+        rawData.gmbInsightsCache.lastUpdateTime = rawData.gmbInsightsCache.lastUpdateTime.toDate();
+    }
+
     return rawData;
   }
 
@@ -77,6 +82,12 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
       });
     }
 
+    // Convert Date in gmbInsightsCache to Timestamp
+    if (businessData.gmbInsightsCache?.lastUpdateTime) {
+        dataToSave.gmbInsightsCache.lastUpdateTime = Timestamp.fromDate(businessData.gmbInsightsCache.lastUpdateTime);
+    }
+
+
     // Explicitly handle null values for optional fields to avoid Firestore errors
     dataToSave.ownerId = businessData.ownerId || null;
     dataToSave.gmbAccessToken = businessData.gmbAccessToken || null;
@@ -96,6 +107,7 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     dataToSave.trialEndsAt = dataToSave.trialEndsAt || null;
     dataToSave.stripeCustomerId = businessData.stripeCustomerId || null;
     dataToSave.stripeSubscriptionId = businessData.stripeSubscriptionId || null;
+    dataToSave.gmbInsightsCache = businessData.gmbInsightsCache || null;
 
     await this.collection.doc(id).set(dataToSave, { merge: true });
     return validatedBusiness;

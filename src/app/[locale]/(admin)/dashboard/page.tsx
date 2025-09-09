@@ -31,7 +31,7 @@ const AdminDashboard = () => (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h1 className="text-3xl font-bold tracking-tight font-headline">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here&apos;s an overview of your digital landscape.</p>
+        <p className="text-muted-foreground">Welcome back! Here's an overview of your digital landscape.</p>
       </div>
       <Link href="/businesses/add">
         <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
@@ -62,6 +62,12 @@ const AdminDashboard = () => (
 const OwnerDashboard = async () => {
     const business = await getOwnedBusiness();
     
+    // Default values for the cache in case it's null
+    const gmbInsights = business?.gmbInsightsCache || { totalViews: 0, totalActions: 0 };
+    const rating = business?.rating || 0;
+    const reviewCount = business?.reviewCount || 0;
+
+
     return (
       <>
         {business && business.subscriptionStatus === 'trialing' && business.trialEndsAt && (
@@ -79,9 +85,9 @@ const OwnerDashboard = async () => {
           </Button>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <StatCard title="Visibilidad en Búsquedas" value="1,234" icon={<Eye />} description="+15% este mes" className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />
-            <StatCard title="Valoración Media" value="4.8" icon={<Star />} description="Basado en 125 reseñas" className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />
-            <StatCard title="Nuevas Reseñas" value="8" icon={<MessageSquare />} description="3 esta semana" className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />
+            <StatCard title="Visibilidad Total" value={gmbInsights.totalViews?.toLocaleString() ?? 'N/A'} icon={<Eye />} description="Vistas en Búsqueda y Mapas" className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />
+            <StatCard title="Interacciones" value={gmbInsights.totalActions?.toLocaleString() ?? 'N/A'} icon={<Activity />} description="Clics a web, teléfono, cómo llegar" className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />
+            <StatCard title="Reputación" value={`${rating}/5`} icon={<Star />} description={`Basado en ${reviewCount} reseñas`} className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />
         </div>
          <Card className="shadow-md hover:shadow-[0_0_20px_8px_hsl(var(--accent)/0.15)] transition-all duration-300">
             <CardHeader>

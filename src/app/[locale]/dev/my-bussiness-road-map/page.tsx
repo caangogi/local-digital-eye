@@ -121,8 +121,8 @@ const phases = [
             tasks: [
                  { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`, separando su experiencia de la del administrador.", completed: true },
                  { who: "bot", text: "Implementar la lógica de `trialEndsAt`: al conectar un negocio, establecer una fecha de fin de prueba (ej: 7 días en el futuro) en la entidad `Business`.", completed: true },
-                 { who: "bot", text: "Añadir un componente de 'Banner de Cuenta Atrás' en el dashboard del dueño que muestre los días restantes de la prueba.", completed: false },
-                 { who: "bot", text: "Enriquecer el dashboard con métricas clave de GMB (vistas, búsquedas, valoraciones) obtenidas de nuestra caché de datos.", completed: false },
+                 { who: "bot", text: "Añadir un componente de 'Banner de Cuenta Atrás' en el dashboard del dueño que muestre los días restantes de la prueba.", completed: true },
+                 { who: "bot", text: "Enriquecer el dashboard con métricas clave de GMB (vistas, búsquedas, valoraciones) obtenidas de nuestra caché de datos.", completed: true },
                  { who: "bot", text: "Añadir una sección de 'Últimas Reseñas' al dashboard, leyendo desde la caché.", completed: false },
             ]
         },
@@ -142,8 +142,8 @@ const phases = [
             title: "Hito 2.4: Sistema de Caché de Datos de GMB",
             icon: <CloudCog />,
             tasks: [
+                 { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.).", completed: true },
                  { who: "bot", text: "Crear un nuevo servicio `GmbApiAdapter` que encapsule las llamadas a la API de Google Business Profile usando los tokens del dueño.", completed: false },
-                 { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.).", completed: false },
                  { who: "bot", text: "Crear un Cloud Function (o un cron job) que se ejecute diariamente y recorra todos los negocios con `gmbStatus: 'linked'`. ", completed: false },
                  { who: "bot", text: "Para cada negocio, el job usará su `refreshToken` para obtener un `accessToken` nuevo y llamará al `GmbApiAdapter` para obtener las métricas y las últimas reseñas.", completed: false },
                  { who: "bot", text: "Guardar los datos frescos en el campo `gmbInsightsCache` del negocio en Firestore. El dashboard del dueño leerá de aquí, no directamente de la API.", completed: false },
@@ -258,6 +258,7 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
 
 
 
