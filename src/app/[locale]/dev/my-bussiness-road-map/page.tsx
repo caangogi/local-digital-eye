@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow, Timer } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow, Timer, BarChart3, CloudCog } from "lucide-react";
 import React from 'react';
 
 export async function generateMetadata() {
@@ -119,10 +119,11 @@ const phases = [
             title: "Hito 2.2: Dashboard del Dueño del Negocio",
             icon: <UserCog />,
             tasks: [
-                 { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`. Debería mostrar un mensaje de bienvenida por ahora.", completed: false },
-                 { who: "bot", text: "Implementar la lógica de `trialEndsAt`: al conectar un negocio, establecer una fecha de fin de prueba (ej: 7 días en el futuro) en la entidad `Business`.", completed: false },
+                 { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`, separando su experiencia de la del administrador.", completed: true },
+                 { who: "bot", text: "Implementar la lógica de `trialEndsAt`: al conectar un negocio, establecer una fecha de fin de prueba (ej: 7 días en el futuro) en la entidad `Business`.", completed: true },
                  { who: "bot", text: "Añadir un componente de 'Banner de Cuenta Atrás' en el dashboard del dueño que muestre los días restantes de la prueba.", completed: false },
-                 { who: "bot", text: "En el futuro, este panel mostrará las métricas clave de GMB (vistas, búsquedas), el resumen de reseñas y el acceso a las herramientas de IA.", completed: false },
+                 { who: "bot", text: "Enriquecer el dashboard con métricas clave de GMB (vistas, búsquedas, valoraciones) obtenidas de nuestra caché de datos.", completed: false },
+                 { who: "bot", text: "Añadir una sección de 'Últimas Reseñas' al dashboard, leyendo desde la caché.", completed: false },
             ]
         },
         {
@@ -130,11 +131,22 @@ const phases = [
             icon: <DollarSign />,
             tasks: [
                  { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
-                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `subscriptionStatus`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: false },
+                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: true },
                  { who: "bot", text: "Si el token de onboarding es de tipo 'premium', después del OAuth, redirigir al usuario a una sesión de Stripe Checkout para el pago.", completed: false },
                  { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore.", completed: false },
                  { who: "bot", text: "Crear un `cron job` diario que verifique los negocios en `freemium` cuya `trialEndsAt` haya expirado, cambie su estado y envíe notificaciones.", completed: false },
                  { who: "bot", text: "Implementar un portal de cliente de Stripe para que el dueño pueda gestionar su suscripción (ej. actualizar método de pago, cancelar).", completed: false },
+            ]
+        },
+        {
+            title: "Hito 2.4: Sistema de Caché de Datos de GMB",
+            icon: <CloudCog />,
+            tasks: [
+                 { who: "bot", text: "Crear un nuevo servicio `GmbApiAdapter` que encapsule las llamadas a la API de Google Business Profile usando los tokens del dueño.", completed: false },
+                 { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.).", completed: false },
+                 { who: "bot", text: "Crear un Cloud Function (o un cron job) que se ejecute diariamente y recorra todos los negocios con `gmbStatus: 'linked'`. ", completed: false },
+                 { who: "bot", text: "Para cada negocio, el job usará su `refreshToken` para obtener un `accessToken` nuevo y llamará al `GmbApiAdapter` para obtener las métricas y las últimas reseñas.", completed: false },
+                 { who: "bot", text: "Guardar los datos frescos en el campo `gmbInsightsCache` del negocio en Firestore. El dashboard del dueño leerá de aquí, no directamente de la API.", completed: false },
             ]
         }
     ]
@@ -148,11 +160,11 @@ const phases = [
             title: "Hito 3.1: Asistente de IA para Responder Reseñas",
             icon: <Sparkles />,
             tasks: [
-                 { who: "bot", text: "Crear un servicio (`GmbAdapter`) que use los tokens guardados para leer las reseñas de un negocio desde la Google Business Profile API.", completed: false },
+                 { who: "bot", text: "Usar el `GmbApiAdapter` para leer las reseñas de un negocio desde la Google Business Profile API.", completed: false },
                  { who: "bot", text: "Crear un flujo de Genkit (`generateReviewResponseFlow`) que reciba el texto de una reseña y genere una respuesta profesional y personalizada.", completed: false },
                  { who: "bot", text: "En el dashboard del Dueño del Negocio, crear una nueva sección 'Reseñas' que liste las reseñas obtenidas de Google.", completed: false },
                  { who: "bot", text: "Añadir un botón 'Generar Respuesta con IA' junto a cada reseña. Al pulsarlo, se llamará al flujo de Genkit y se mostrará la sugerencia en un área de texto editable.", completed: false },
-                 { who: "bot", text: "Añadir un botón 'Publicar Respuesta' que use el `GmbAdapter` para enviar la respuesta final a Google.", completed: false },
+                 { who: "bot", text: "Añadir un botón 'Publicar Respuesta' que use el `GmbApiAdapter` para enviar la respuesta final a Google.", completed: false },
             ]
         }
     ]
@@ -246,6 +258,7 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
 
 
 
