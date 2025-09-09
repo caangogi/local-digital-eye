@@ -9,7 +9,6 @@ import { z } from 'zod';
 import { auth } from '@/lib/firebase/firebase-admin-config';
 import { cookies } from 'next/headers';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
-import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
 import type { Business } from '@/backend/business/domain/business.entity';
 
 const OnboardingLinkInputSchema = z.object({

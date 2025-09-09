@@ -104,10 +104,10 @@ const phases = [
             tasks: [
                 { who: "bot", text: "Backend: Crear Server Action `generateOnboardingLink(businessId)` que genere un JWT seguro y de corta duración.", completed: true },
                 { who: "bot", text: "UI Asistente: Implementar botón 'Invitar al Dueño' que llama a la acción anterior y muestra el enlace en un modal.", completed: true },
-                { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada.", completed: true },
+                { who: "user", text: "Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada." },
                 { who: "bot", text: "UI Onboarding: Construir la página `/onboarding` que valida el token y muestra el formulario de registro. Integrar la lógica de verificación de email del Hito 2.0." },
                 { who: "bot", text: "Frontend/Backend (Post-verificación): Usar `localStorage` para guardar el estado del onboarding. Tras la verificación, comprobar `localStorage` y redirigir al flujo de OAuth de Google con el `businessId`." },
-                { who: "bot", text: "Ajustar el callback de OAuth (`/api/oauth/callback`) para que guarde los tokens, asocie el `ownerId` al negocio y actualice el `gmbStatus` a 'linked'.", completed: true },
+                { who: "bot", text: "Ajustar el callback de OAuth (`/api/oauth/callback`) para que guarde los tokens, asocie el `ownerId` al negocio y actualice el `gmbStatus` a 'linked'." },
             ]
         },
         {
@@ -243,3 +243,4 @@ export default function MyBusinessRoadMapPage() {
     
 
     
+
