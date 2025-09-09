@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from '@/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useToast } from './use-toast';
 import { 
   onAuthStateChanged, 
@@ -63,13 +64,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const idToken = await fbUser.getIdToken(true); // Force refresh to get new claims
     const response = await createSession(idToken);
 
-    if (response.success) {
+    if (response.success && response.claims?.role) {
       const appUser: User = {
         id: fbUser.uid,
         email: fbUser.email || '',
         name: fbUser.displayName || 'No Name',
         avatarUrl: fbUser.photoURL || undefined,
-        role: response.claims?.role || 'owner', // Use role from claims
+        role: response.claims.role, // Use role from claims
       };
       setUser(appUser);
       setFirebaseUser(fbUser);
@@ -79,17 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] User state set after success. Navigation will be handled by the page.');
       // NO automatic redirection here anymore.
       // The AdminLayout will handle redirection to protected routes.
+       const nextUrl = searchParams.get('next') || '/dashboard';
+       router.push(nextUrl as any);
       
     } else {
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.reason === 'email_not_verified') {
         setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
       } else {
-        toast({ title: "Login Failed", description: response.message, variant: "destructive" });
+        toast({ title: "Login Failed", description: response.message || "Could not retrieve user role.", variant: "destructive" });
       }
       await clientAuth.signOut();
     }
-  }, [toast]);
+  }, [toast, router, searchParams]);
 
   const checkPasswordProvider = (fbUser: FirebaseUser | null) => {
       if (!fbUser) {
@@ -105,21 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
-      if (fbUser && fbUser.emailVerified) { // Only proceed if email is verified
-        console.log('[Auth] User is verified. Handling auth success...');
+      if (fbUser) {
         await handleAuthSuccess(fbUser);
-      } else if (fbUser && !fbUser.emailVerified) {
-        console.log('[Auth] User detected, but email is not verified.');
-        const idTokenResult = await fbUser.getIdTokenResult();
-        const isAdmin = idTokenResult.claims.role === 'admin' || idTokenResult.claims.role === 'super_admin';
-        if (isAdmin) {
-           console.log('[Auth] User is admin, proceeding with login despite unverified email.');
-           await handleAuthSuccess(fbUser);
-        } else {
-           setUser(null);
-           setFirebaseUser(fbUser);
-           setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
-        }
       } else {
         setUser(null);
         setFirebaseUser(null);
@@ -188,7 +178,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({ title: "Fallo en el Inicio de Sesión", description: error.message, variant: "destructive" });
       }
-      setIsLoading(false); // Make sure to stop loading on error
+    } finally {
+        setIsLoading(false); // This ensures the loading state is always reset.
     }
   };
 
