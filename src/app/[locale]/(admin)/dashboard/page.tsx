@@ -6,6 +6,7 @@ import { Briefcase, Users, BarChartBig, FileText, PlusCircle, Activity } from "l
 import { Link } from "@/navigation"; // Use next-intl's Link
 import Image from "next/image";
 import {getTranslations} from 'next-intl/server';
+import { SuperAdminButton } from "./_components/SuperAdminButton";
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}) {
   // Assuming you have a 'DashboardPage' namespace in your translation files
@@ -37,6 +38,9 @@ export default function DashboardPage() {
           </Button>
         </Link>
       </div>
+      
+      {/* Temporary Super Admin Button */}
+      <SuperAdminButton />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
