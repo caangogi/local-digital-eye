@@ -36,7 +36,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isProviderPasswordEnabled: boolean;
-  authAction: { status: 'idle' | 'awaiting_verification'; message?: string } | null;
+  authAction: { status: 'idle' | 'awaiting_verification'; message?: string, email?: string } | null;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (name: string, email: string, password: string) => Promise<void>;
@@ -44,6 +44,7 @@ interface AuthState {
   sendPasswordResetEmail: (email?: string) => Promise<void>;
   linkEmailAndPassword: (password: string) => Promise<void>;
   unlinkPasswordProvider: () => Promise<void>;
+  resendVerificationEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -64,16 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[Auth] Handling auth success for', fbUser.uid);
     setIsLoading(true);
     
-    // Send verification email if it's a new user who signed up with email/password and is not verified
-    if (fbUser.metadata.creationTime === fbUser.metadata.lastSignInTime && !fbUser.emailVerified) {
-        try {
-            await sendEmailVerification(fbUser);
-            console.log('[Auth] Verification email sent to new user.');
-        } catch (error) {
-            console.error('[Auth] Failed to send verification email:', error);
-        }
-    }
-
+    // This now only handles session creation. Email verification is handled elsewhere.
     const idToken = await fbUser.getIdToken(forceTokenRefresh);
     const response = await createSession(idToken);
 
@@ -101,13 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       console.error("[Auth] Backend session creation failed:", response.message);
       if (response.message.includes('Email not verified')) {
-        // This is our new state for unverified 'owner' roles
-        setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.' });
+        setAuthAction({ status: 'awaiting_verification', message: 'Please check your inbox to verify your email.', email: fbUser.email || undefined });
         toast({ title: "Verificación Requerida", description: "Te hemos enviado un email. Por favor, verifica tu cuenta para continuar.", variant: "default", duration: 8000 });
       } else {
         toast({ title: "Login Failed", description: response.message || "Could not process your session.", variant: "destructive" });
       }
-      // In either failure case after a successful Firebase login, sign out to clear the bad state.
       await clientAuth.signOut();
       setUser(null);
       setFirebaseUser(null);
@@ -131,17 +121,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser) => {
       console.log('[Auth] onAuthStateChanged triggered.');
       if (fbUser) {
-        const idTokenResult = await fbUser.getIdTokenResult();
-        const appUser: User = {
-            id: fbUser.uid,
-            email: fbUser.email || '',
-            name: fbUser.displayName || 'No Name',
-            avatarUrl: fbUser.photoURL || undefined,
-            role: (idTokenResult.claims.role as User['role']) || 'owner',
-        };
-        setUser(appUser);
-        setFirebaseUser(fbUser);
-        checkPasswordProvider(fbUser);
+        // If the user has just verified their email, this will trigger.
+        // We force a token refresh to get the `email_verified: true` claim.
+        if (!fbUser.emailVerified) {
+          await fbUser.reload();
+        }
+
+        if(fbUser.emailVerified) {
+            const idTokenResult = await fbUser.getIdTokenResult();
+            const appUser: User = {
+                id: fbUser.uid,
+                email: fbUser.email || '',
+                name: fbUser.displayName || 'No Name',
+                avatarUrl: fbUser.photoURL || undefined,
+                role: (idTokenResult.claims.role as User['role']) || 'owner',
+            };
+            setUser(appUser);
+            setFirebaseUser(fbUser);
+            checkPasswordProvider(fbUser);
+            setAuthAction({ status: 'idle' });
+        } else if (authAction?.status !== 'awaiting_verification') {
+            // User is logged into Firebase but not verified, and we are not already in the verification flow.
+            // This happens on page reload for an unverified user.
+             setAuthAction({ status: 'awaiting_verification', email: fbUser.email || undefined });
+        }
       } else {
         setUser(null);
         setFirebaseUser(null);
@@ -156,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Cleaning up onAuthStateChanged listener.');
       unsubscribe();
     };
-  }, []);
+  }, [authAction?.status]);
   
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
@@ -184,7 +187,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(clientAuth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      await handleAuthSuccess(userCredential.user);
+      
+      // Send verification email ONCE on creation
+      await sendEmailVerification(userCredential.user);
+      console.log('[Auth] Verification email sent to new user.');
+      
+      // Set state to show the "check your email" screen.
+      setAuthAction({ status: 'awaiting_verification', email: userCredential.user.email || undefined });
+      toast({ title: "¡Revisa tu Email!", description: "Te hemos enviado un enlace de verificación para activar tu cuenta.", duration: 8000 });
+
     } catch (error: any) {
       console.error("[Auth] Error signing up:", error);
       if (error.code === 'auth/email-already-in-use') {
@@ -196,6 +207,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     }
   };
+
+  const resendVerificationEmail = async (): Promise<void> => {
+    if (!clientAuth.currentUser) {
+        toast({ title: "Error", description: "No hay ningún usuario activo para reenviar el email.", variant: "destructive" });
+        return;
+    }
+    setIsLoading(true);
+    try {
+        await sendEmailVerification(clientAuth.currentUser);
+        toast({ title: "¡Email Reenviado!", description: "Hemos enviado un nuevo enlace de verificación a tu correo." });
+    } catch (error: any) {
+        if (error.code === 'auth/too-many-requests') {
+             toast({ title: "Demasiadas Solicitudes", description: "Por favor, espera un momento antes de volver a intentarlo.", variant: "destructive" });
+        } else {
+             toast({ title: "Error", description: "No se pudo reenviar el email de verificación.", variant: "destructive" });
+        }
+        console.error("[Auth] Error resending verification email:", error);
+    } finally {
+        setIsLoading(false);
+    }
+  }
   
   const signInWithEmail = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
@@ -280,7 +312,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     sendPasswordResetEmail,
     linkEmailAndPassword,
-    unlinkPasswordProvider
+    unlinkPasswordProvider,
+    resendVerificationEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -293,3 +326,5 @@ export function useAuth(): AuthState {
   }
   return context;
 }
+
+    

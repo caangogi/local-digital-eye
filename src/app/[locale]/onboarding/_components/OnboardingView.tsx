@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, AlertTriangle, Building, Eye, EyeOff, Info } from "lucide-react";
+import { Loader2, AlertTriangle, Building, Eye, EyeOff, Info, MailCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Business } from '@/backend/business/domain/business.entity';
 import { validateOnboardingToken } from '@/actions/onboarding.actions';
@@ -19,6 +19,34 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface OnboardingViewProps {
   token: string;
+}
+
+const EmailVerificationView = () => {
+    const { authAction, resendVerificationEmail, isLoading } = useAuth();
+    return (
+        <Card className="w-full max-w-lg text-center shadow-2xl">
+            <CardHeader className="items-center">
+                <div className="p-3 bg-primary/10 rounded-full mb-2">
+                    <MailCheck className="h-10 w-10 text-primary" />
+                </div>
+                <CardTitle className="text-2xl font-headline">¡Ya casi estamos!</CardTitle>
+                <CardDescription>
+                    Hemos enviado un enlace de verificación a <br/>
+                    <strong className="text-foreground">{authAction?.email}</strong>.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">Por favor, haz clic en el enlace de ese correo para activar tu cuenta. Si no lo encuentras, revisa tu carpeta de spam.</p>
+            </CardContent>
+            <CardFooter className="flex-col gap-4">
+                <p className="text-xs text-muted-foreground">¿No has recibido el correo?</p>
+                <Button variant="outline" onClick={resendVerificationEmail} disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Reenviar Email de Verificación
+                </Button>
+            </CardFooter>
+        </Card>
+    )
 }
 
 const signUpSchema = z.object({
@@ -66,7 +94,7 @@ const ErrorState = ({ messageKey }: { messageKey: string }) => {
 
 
 export function OnboardingView({ token }: OnboardingViewProps) {
-  const { signUpWithEmail, signInWithGoogle, isLoading: isAuthLoading } = useAuth();
+  const { signUpWithEmail, signInWithGoogle, isLoading: isAuthLoading, authAction } = useAuth();
   const t = useTranslations('OnboardingPage');
   
   const [validationState, setValidationState] = useState<'loading' | 'valid' | 'invalid'>('loading');
@@ -94,9 +122,12 @@ export function OnboardingView({ token }: OnboardingViewProps) {
   });
 
   const onSubmit = (data: SignUpFormValues) => {
-    // In a future step, we'll associate this new user with the business.
     signUpWithEmail(data.name, data.email, data.password);
   };
+  
+  if (authAction?.status === 'awaiting_verification') {
+    return <EmailVerificationView />;
+  }
 
   if (validationState === 'loading') {
     return <LoadingState />;
@@ -223,3 +254,5 @@ export function OnboardingView({ token }: OnboardingViewProps) {
     </Card>
   );
 }
+
+    
