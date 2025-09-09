@@ -184,7 +184,9 @@
     "mapSearch": "Portfolio Map",
     "aiServices": "AI Services",
     "settings": "Settings",
-    "logOut": "Log Out"
+    "logOut": "Log Out",
+    "myBusiness": "My Business",
+    "reviews": "Reviews"
   },
   "AuthLayout": {
     "title": "Local Digital Eye",

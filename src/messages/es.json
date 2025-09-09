@@ -42,7 +42,9 @@
     "mapSearch": "Mapa de Cartera",
     "aiServices": "Servicios IA",
     "settings": "Configuración",
-    "logOut": "Cerrar Sesión"
+    "logOut": "Cerrar Sesión",
+    "myBusiness": "Mi Negocio",
+    "reviews": "Reseñas"
   },
   "AuthLayout": {
     "title": "Local Digital Eye",

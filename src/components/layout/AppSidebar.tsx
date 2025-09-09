@@ -37,8 +37,8 @@ export function AppSidebar() {
 
   const ownerNavItems = [
     { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
-    { href: "/my-business", label: "Mi Negocio", icon: <Building /> }, // Example: To be translated
-    { href: "/my-business/reviews", label: "Reseñas", icon: <Star /> }, // Example: To be translated
+    { href: "/my-business", label: t('myBusiness'), icon: <Building /> },
+    // { href: "/my-business/reviews", label: t('reviews'), icon: <Star /> }, // Temporarily disabled
   ];
 
   const navItems = user?.role === 'owner' ? ownerNavItems : adminNavItems;

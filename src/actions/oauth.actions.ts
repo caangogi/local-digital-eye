@@ -2,6 +2,8 @@
 
 import { getGoogleOAuthClient } from '@/lib/google-oauth-client';
 import { z } from 'zod';
+import { cookies } from 'next/headers';
+import { auth } from '@/lib/firebase/firebase-admin-config';
 
 const GetConsentUrlInputSchema = z.object({
   businessId: z.string(),
@@ -15,6 +17,15 @@ const GetConsentUrlInputSchema = z.object({
 export async function getGoogleOAuthConsentUrl(businessId: string): Promise<string> {
   const { businessId: validatedBusinessId } = GetConsentUrlInputSchema.parse({ businessId });
 
+  // Get the current user's ID from their session cookie to pass in the state
+  const sessionCookie = cookies().get('session')?.value;
+  if (!sessionCookie) {
+    throw new Error('User is not authenticated.');
+  }
+  const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+  const userId = decodedToken.uid;
+
+
   const oauth2Client = getGoogleOAuthClient();
 
   const scopes = [
@@ -27,10 +38,10 @@ export async function getGoogleOAuthConsentUrl(businessId: string): Promise<stri
     prompt: 'consent', // Force the consent screen to be shown, which helps in getting a refresh token on re-authorization.
     scope: scopes,
     // The 'state' parameter is used to pass data through the OAuth flow.
-    // We'll encode the businessId here to retrieve it in the callback.
-    state: Buffer.from(JSON.stringify({ businessId: validatedBusinessId })).toString('base64'),
+    // We'll encode the businessId AND the userId here to retrieve them in the callback.
+    state: Buffer.from(JSON.stringify({ businessId: validatedBusinessId, userId: userId })).toString('base64'),
   });
 
-  console.log(`[OAuthAction] Generated consent URL for business ${validatedBusinessId}`);
+  console.log(`[OAuthAction] Generated consent URL for business ${validatedBusinessId} and user ${userId}`);
   return url;
 }

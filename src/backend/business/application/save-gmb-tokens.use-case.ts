@@ -7,6 +7,7 @@ import type { BusinessRepositoryPort } from '../domain/business.repository.port'
 
 interface SaveGmbTokensInput {
     businessId: string;
+    ownerId: string; // The ID of the user who owns the business.
     accessToken: string;
     refreshToken: string;
     expiryDate?: Date;
@@ -30,14 +31,21 @@ export class SaveGmbTokensUseCase {
       throw new Error(`Business with ID ${input.businessId} not found.`);
     }
 
-    // 2. Update the business object with the new token information
+    // 2. Update the business object with the new token and owner information
     business.gmbStatus = 'linked';
+    business.ownerId = input.ownerId; // Assign the owner
     business.gmbAccessToken = input.accessToken;
     business.gmbRefreshToken = input.refreshToken;
     business.gmbTokenExpiryDate = input.expiryDate;
+    business.subscriptionStatus = 'trialing'; // Start the trial on successful connection
+    // Set trial end date (e.g., 7 days from now)
+    const trialEnds = new Date();
+    trialEnds.setDate(trialEnds.getDate() + 7);
+    business.trialEndsAt = trialEnds;
+
 
     // 3. Save the updated business object back to the repository
     await this.businessRepository.save(business);
-    console.log(`[SaveGmbTokensUseCase] Successfully updated tokens for business ${input.businessId}`);
+    console.log(`[SaveGmbTokensUseCase] Successfully updated tokens and owner for business ${input.businessId}`);
   }
 }
