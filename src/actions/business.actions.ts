@@ -14,6 +14,7 @@ import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-bu
 import { GetOwnedBusinessUseCase } from '@/backend/business/application/get-owned-business.use-case';
 import { UpdateBusinessStatusUseCase } from '@/backend/business/application/update-business-status.use-case';
 import { UpdateBusinessDetailsUseCase } from '@/backend/business/application/update-business-details.use-case';
+import { ExtendTrialUseCase } from '@/backend/business/application/extend-trial.use-case'; // Import new use case
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
 import { revalidatePath } from 'next/cache';
@@ -29,6 +30,7 @@ function getBusinessUseCases() {
         getOwnedBusinessUseCase: new GetOwnedBusinessUseCase(businessRepository),
         updateBusinessStatusUseCase: new UpdateBusinessStatusUseCase(businessRepository),
         updateBusinessDetailsUseCase: new UpdateBusinessDetailsUseCase(businessRepository),
+        extendTrialUseCase: new ExtendTrialUseCase(businessRepository), // Add new use case
     };
 }
 
@@ -220,6 +222,7 @@ export async function updateBusinessCrmDetails(businessId: string, detailsToUpda
         });
         
         revalidatePath('/businesses');
+        revalidatePath('/mi-negocio');
 
         return { success: true, message: 'Business details updated successfully.' };
 
@@ -227,4 +230,38 @@ export async function updateBusinessCrmDetails(businessId: string, detailsToUpda
         console.error('Error updating business details:', error);
         return { success: false, message: error.message || 'An unexpected error occurred.' };
     }
+}
+
+
+/**
+ * Extends the trial period for a business.
+ * @param businessId The ID of the business.
+ * @param daysToAdd The number of days to add to the trial.
+ * @returns An object indicating success or failure.
+ */
+export async function extendBusinessTrial(businessId: string, daysToAdd: number): Promise<{ success: boolean; message: string }> {
+  try {
+    const sessionCookie = cookies().get('session')?.value;
+    if (!sessionCookie) {
+      return { success: false, message: 'Authentication required.' };
+    }
+    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+    const adminUserId = decodedToken.uid;
+    
+    const { extendTrialUseCase } = getBusinessUseCases();
+    await extendTrialUseCase.execute({
+      businessId,
+      adminUserId,
+      daysToAdd
+    });
+
+    revalidatePath('/businesses');
+    revalidatePath('/dashboard'); // To update owner's dashboard if they're viewing it
+
+    return { success: true, message: `Trial extended successfully by ${daysToAdd} days.` };
+
+  } catch (error: any) {
+    console.error('Error extending business trial:', error);
+    return { success: false, message: error.message || 'An unexpected error occurred.' };
+  }
 }

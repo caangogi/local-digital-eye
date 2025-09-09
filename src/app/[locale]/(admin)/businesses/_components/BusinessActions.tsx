@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle } from "lucide-react";
+import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus } from "lucide-react";
 import { Link } from "@/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ExtendTrialDialog } from './dialogs/ExtendTrialDialog';
 
 interface BusinessActionsProps {
   business: Business;
@@ -44,6 +45,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const [isActionsModalOpen, setIsActionsModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [isExtendTrialModalOpen, setIsExtendTrialModalOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
@@ -177,6 +179,12 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
               </Button>
             )}
             
+            {business.ownerId && (
+                <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={() => setIsExtendTrialModalOpen(true)}>
+                    <CalendarPlus className="mr-2 h-4 w-4" /> Extender Prueba
+                </Button>
+            )}
+            
             <Separator className="my-2" />
 
             {/* Destructive Action */}
@@ -251,6 +259,13 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ExtendTrialDialog 
+        businessId={business.id}
+        businessName={business.name}
+        isOpen={isExtendTrialModalOpen}
+        onOpenChange={setIsExtendTrialModalOpen}
+      />
     </>
   );
 }

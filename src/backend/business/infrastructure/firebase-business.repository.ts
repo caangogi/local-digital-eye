@@ -1,3 +1,4 @@
+
 import type { Business } from '../domain/business.entity';
 import { BusinessSchema } from '../domain/business.entity';
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
@@ -27,6 +28,9 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     }
     if (rawData.nextContactDate && rawData.nextContactDate instanceof Timestamp) {
       rawData.nextContactDate = rawData.nextContactDate.toDate();
+    }
+     if (rawData.trialEndsAt && rawData.trialEndsAt instanceof Timestamp) {
+      rawData.trialEndsAt = rawData.trialEndsAt.toDate();
     }
     
     // Convert Timestamps within the topReviews array
@@ -60,6 +64,9 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     if (businessData.nextContactDate) {
         dataToSave.nextContactDate = Timestamp.fromDate(businessData.nextContactDate);
     }
+     if (businessData.trialEndsAt) {
+      dataToSave.trialEndsAt = Timestamp.fromDate(businessData.trialEndsAt);
+    }
     // Convert JS Dates inside topReviews array to Timestamps
     if (Array.isArray(businessData.topReviews)) {
       dataToSave.topReviews = businessData.topReviews.map((review: any) => {
@@ -86,7 +93,9 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     dataToSave.leadScore = businessData.leadScore || null;
     dataToSave.nextContactDate = dataToSave.nextContactDate || null;
     dataToSave.notes = businessData.notes || null;
-
+    dataToSave.trialEndsAt = dataToSave.trialEndsAt || null;
+    dataToSave.stripeCustomerId = businessData.stripeCustomerId || null;
+    dataToSave.stripeSubscriptionId = businessData.stripeSubscriptionId || null;
 
     await this.collection.doc(id).set(dataToSave, { merge: true });
     return validatedBusiness;
