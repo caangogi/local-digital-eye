@@ -37,7 +37,13 @@ export class SaveGmbTokensUseCase {
     business.gmbAccessToken = input.accessToken;
     business.gmbRefreshToken = input.refreshToken;
     business.gmbTokenExpiryDate = input.expiryDate;
-    business.subscriptionStatus = 'trialing'; // Start the trial on successful connection
+    
+    // ** CRITICAL FIX **: Initialize subscription and trial status upon owner connection.
+    business.subscriptionPlan = 'freemium';
+    business.subscriptionStatus = 'trialing'; 
+    business.stripeCustomerId = null;
+    business.stripeSubscriptionId = null;
+
     // Set trial end date (e.g., 7 days from now)
     const trialEnds = new Date();
     trialEnds.setDate(trialEnds.getDate() + 7);
@@ -46,6 +52,6 @@ export class SaveGmbTokensUseCase {
 
     // 3. Save the updated business object back to the repository
     await this.businessRepository.save(business);
-    console.log(`[SaveGmbTokensUseCase] Successfully updated tokens and owner for business ${input.businessId}`);
+    console.log(`[SaveGmbTokensUseCase] Successfully updated tokens, owner, and initialized trial for business ${input.businessId}`);
   }
 }

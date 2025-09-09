@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { differenceInDays, format, isPast } from 'date-fns';
+import { differenceInDays, format, isPast, differenceInMilliseconds } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -13,16 +13,44 @@ interface TrialCountdownBannerProps {
     trialEndsAt: Date;
 }
 
+const calculateTimeLeft = (endDate: Date) => {
+    const difference = differenceInMilliseconds(endDate, new Date());
+    let timeLeft = {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+    };
+
+    if (difference > 0) {
+        timeLeft = {
+            days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+            minutes: Math.floor((difference / 1000 / 60) % 60),
+            seconds: Math.floor((difference / 1000) % 60),
+        };
+    }
+    return timeLeft;
+};
+
 export function TrialCountdownBanner({ trialEndsAt }: TrialCountdownBannerProps) {
     const [isVisible, setIsVisible] = useState(true);
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(trialEndsAt));
 
-    const now = new Date();
-    const daysRemaining = differenceInDays(trialEndsAt, now);
-    const hasExpired = isPast(trialEndsAt);
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft(trialEndsAt));
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [trialEndsAt]);
 
     if (!isVisible) {
         return null;
     }
+
+    const hasExpired = isPast(trialEndsAt);
+    const isEndingSoon = timeLeft.days < 1;
 
     if (hasExpired) {
         return (
@@ -51,10 +79,17 @@ export function TrialCountdownBanner({ trialEndsAt }: TrialCountdownBannerProps)
              <Timer className="h-4 w-4 text-primary" />
             <AlertTitle className="font-bold text-primary">¡Bienvenido a tu prueba gratuita!</AlertTitle>
             <div className="flex items-center justify-between">
-                <AlertDescription className="text-primary/90">
-                    {daysRemaining > 1 ? `Te quedan ${daysRemaining} días de prueba.` : '¡Tu prueba termina hoy!'}
-                    {' '}Tu prueba finaliza el {format(trialEndsAt, "dd 'de' MMMM 'de' yyyy", { locale: es })}.
-                </AlertDescription>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                    <AlertDescription className="text-primary/90">
+                        Tu prueba finaliza el {format(trialEndsAt, "dd 'de' MMMM 'de' yyyy", { locale: es })}.
+                    </AlertDescription>
+                    <div className="flex items-center gap-2 font-mono text-sm text-primary/90 font-semibold mt-1 sm:mt-0">
+                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.days).padStart(2, '0')}</span><span className="text-xs opacity-70">días</span></div>
+                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.hours).padStart(2, '0')}</span><span className="text-xs opacity-70">hrs</span></div>
+                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.minutes).padStart(2, '0')}</span><span className="text-xs opacity-70">min</span></div>
+                        <div className="flex flex-col items-center p-1 rounded-md min-w-[40px]"><span>{String(timeLeft.seconds).padStart(2, '0')}</span><span className="text-xs opacity-70">seg</span></div>
+                    </div>
+                </div>
                 <div className="flex items-center gap-4">
                     <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
                         <Link href="/settings/billing">Actualizar Plan <ArrowRight className="ml-2 h-4 w-4"/></Link>
