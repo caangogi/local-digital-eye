@@ -109,8 +109,8 @@ const phases = [
                 { who: "bot", text: "UI 'Verifica tu Email': Crear la UI que se mostrará al nuevo dueño del negocio justo después de registrarse, indicándole que revise su correo para continuar. Esta UI debe incluir un botón de 'Reenviar email'.", completed: true },
                 { who: "bot", text: "Gestión de Estado (localStorage): En la página de Onboarding, guardar el `businessId` en `localStorage` para no perder la referencia del negocio durante el proceso de verificación de email.", completed: true },
                 { who: "user", text: "Configuración Google Cloud: Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada con los scopes correctos.", completed: true },
-                { who: "bot", text: "Redirección a OAuth: Tras una verificación de email exitosa, el sistema debe comprobar el `localStorage`. Si encuentra el `businessId`, debe redirigir al usuario al flujo de OAuth de Google.", completed: false },
-                { who: "bot", text: "Callback y Finalización: El callback de OAuth (`/api/oauth/callback`) guardará los tokens, asociará el `ownerId` al negocio y actualizará el `gmbStatus` a 'linked', finalizando el flujo.", completed: false },
+                { who: "bot", text: "Redirección a OAuth: Tras una verificación de email exitosa, el sistema debe comprobar el `localStorage`. Si encuentra el `businessId`, debe redirigir al usuario al flujo de OAuth de Google.", completed: true },
+                { who: "bot", text: "Callback y Finalización: El callback de OAuth (`/api/oauth/callback`) guardará los tokens, asociará el `ownerId` al negocio y actualizará el `gmbStatus` a 'linked', finalizando el flujo.", completed: true },
             ]
         },
         {
@@ -242,6 +242,7 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
 
 
 
