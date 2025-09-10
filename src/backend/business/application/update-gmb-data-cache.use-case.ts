@@ -3,12 +3,24 @@
 
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
 import { getBusinessMetrics, getBusinessReviews } from '@/services/googleMapsService';
-import type { GmbPerformanceResponse } from '@/services/googleMapsService';
+import type { GmbPerformanceResponse, GmbReview } from '@/services/googleMapsService';
+import type { Review } from '../domain/business.entity';
 
 /**
  * @fileoverview Defines the use case for updating the GMB insights cache for businesses.
  * This use case is intended to be run by a scheduled job (e.g., a daily cron job).
  */
+
+const mapGmbRatingToNumber = (rating: GmbReview['starRating']): number => {
+    switch (rating) {
+        case 'FIVE': return 5;
+        case 'FOUR': return 4;
+        case 'THREE': return 3;
+        case 'TWO': return 2;
+        case 'ONE': return 1;
+        default: return 0;
+    }
+}
 
 export class UpdateGmbDataCacheUseCase {
   constructor(private readonly businessRepository: BusinessRepositoryPort) {}
@@ -63,9 +75,19 @@ export class UpdateGmbDataCacheUseCase {
             lastUpdateTime: new Date(),
         };
 
-        // Update reviews in the business entity (if needed, this could be separate)
-        // For now, let's assume we overwrite the topReviews with the latest from the API
-        business.topReviews = reviewsData;
+        // Map GMB API reviews to our domain's Review entity
+        const domainReviews: Review[] = reviewsData
+            .filter(review => review.starRating !== 'STAR_RATING_UNSPECIFIED')
+            .map(review => ({
+                authorName: review.reviewer.displayName,
+                profilePhotoUrl: review.reviewer.profilePhotoUrl,
+                rating: mapGmbRatingToNumber(review.starRating),
+                text: review.comment || null,
+                publishTime: new Date(review.createTime),
+            }));
+
+        business.topReviews = domainReviews;
+
 
         await this.businessRepository.save(business);
 

@@ -57,23 +57,6 @@ const GooglePlacesNewTextSearchResponseSchema = z.object({
 
 // --- SCHEMAS FOR GOOGLE BUSINESS PROFILE API (OAUTH) ---
 
-const GmbMetricValueSchema = z.object({
-  metric: z.string(),
-  totalValue: z.object({
-    value: z.string(),
-  }),
-});
-
-const GmbMetricSetSchema = z.object({
-  metric: z.string(),
-  timeSeries: z.object({
-    datedValues: z.array(z.object({
-      date: z.object({ year: z.number(), month: z.number(), day: z.number() }),
-      value: z.string(),
-    })),
-  }),
-});
-
 const GmbDailyMetricTimeSeriesSchema = z.object({
     dailyMetric: z.string(),
     timeSeries: z.object({
@@ -88,6 +71,35 @@ const GmbGetPerformanceResponseSchema = z.object({
   timeSeries: z.array(GmbDailyMetricTimeSeriesSchema).optional(),
 });
 export type GmbPerformanceResponse = z.infer<typeof GmbGetPerformanceResponseSchema>;
+
+
+const GmbReviewReplySchema = z.object({
+    comment: z.string(),
+    updateTime: z.string(),
+});
+
+const GmbReviewSchema = z.object({
+    name: z.string(),
+    reviewId: z.string(),
+    reviewer: z.object({
+        profilePhotoUrl: z.string().url().optional(),
+        displayName: z.string(),
+    }),
+    starRating: z.enum(['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE']),
+    comment: z.string().optional().nullable(),
+    createTime: z.string(),
+    updateTime: z.string(),
+    reviewReply: GmbReviewReplySchema.optional().nullable(),
+});
+export type GmbReview = z.infer<typeof GmbReviewSchema>;
+
+
+const GmbListReviewsResponseSchema = z.object({
+    reviews: z.array(GmbReviewSchema).optional(),
+    nextPageToken: z.string().optional(),
+    totalReviewCount: z.number().optional(),
+});
+
 
 // --- INTERFACES ---
 
@@ -248,5 +260,44 @@ export async function getBusinessMetrics(refreshToken: string, locationId: strin
     } catch (error: any) {
         console.error(`[GmbApiAdapter] Error fetching business metrics for ${locationId}:`, error);
         throw error;
+    }
+}
+
+/**
+ * Fetches the latest reviews for a business location.
+ * This is a simplified version and doesn't handle pagination.
+ * @param refreshToken The owner's refresh token.
+ * @param placeId The Place ID of the business (e.g., 'ChIJ...')
+ * @returns A promise resolving to an array of review objects.
+ */
+export async function getBusinessReviews(refreshToken: string, placeId: string): Promise<GmbReview[]> {
+    const apiClient = await getGmbApiClient(refreshToken);
+    const accessToken = (await apiClient.getAccessToken()).token;
+    
+    // The Business Profile APIs require the account and location ID in the format 'accounts/{accountId}/locations/{locationId}'
+    // For simplicity, we'll assume a method to get this, but in a real app, you'd list accounts first.
+    // For now, we will use a placeholder account ID. The API often works with '-' as a wildcard for the user's primary account.
+    const accountId = '-';
+    const locationName = `accounts/${accountId}/locations/${placeId}`;
+
+    const url = `https://mybusiness.googleapis.com/v4/${locationName}/reviews?pageSize=10&orderBy=updateTime desc`;
+
+    try {
+        const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`GMB Reviews API error: ${errorData.error?.message || response.statusText}`);
+        }
+
+        const rawData = await response.json();
+        const validatedData = GmbListReviewsResponseSchema.parse(rawData);
+        return validatedData.reviews || [];
+    } catch (error: any) {
+        console.error(`[GmbApiAdapter] Error fetching reviews for ${locationName}:`, error);
+        // Return empty array on error to not break the entire cache process
+        return [];
     }
 }
