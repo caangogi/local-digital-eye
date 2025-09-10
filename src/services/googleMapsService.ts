@@ -85,7 +85,7 @@ const GmbReviewSchema = z.object({
         profilePhotoUrl: z.string().url().optional(),
         displayName: z.string(),
     }),
-    starRating: z.enum(['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE']),
+    starRating: z.enum(['STAR_RATING_UNSPECIFIED', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE']),
     comment: z.string().optional().nullable(),
     createTime: z.string(),
     updateTime: z.string(),
@@ -227,15 +227,18 @@ export async function getBusinessMetrics(refreshToken: string, locationId: strin
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+    const dailyMetrics = [
+        'BUSINESS_IMPRESSIONS_DESKTOP_MAPS',
+        'BUSINESS_IMPRESSIONS_DESKTOP_SEARCH',
+        'BUSINESS_IMPRESSIONS_MOBILE_MAPS',
+        'BUSINESS_IMPRESSIONS_MOBILE_SEARCH',
+        'BUSINESS_CONVERSATIONS',
+        'BUSINESS_DIRECTION_REQUESTS',
+        'WEBSITE_CLICKS',
+        'CALL_CLICKS',
+    ];
+
     const params = new URLSearchParams({
-        'dailyMetric': 'BUSINESS_IMPRESSIONS_DESKTOP_MAPS',
-        'dailyMetric': 'BUSINESS_IMPRESSIONS_DESKTOP_SEARCH',
-        'dailyMetric': 'BUSINESS_IMPRESSIONS_MOBILE_MAPS',
-        'dailyMetric': 'BUSINESS_IMPRESSIONS_MOBILE_SEARCH',
-        'dailyMetric': 'BUSINESS_CONVERSATIONS',
-        'dailyMetric': 'BUSINESS_DIRECTION_REQUESTS',
-        'dailyMetric': 'WEBSITE_CLICKS',
-        'dailyMetric': 'CALL_CLICKS',
         'dailyRange.start_date.year': thirtyDaysAgo.getFullYear().toString(),
         'dailyRange.start_date.month': (thirtyDaysAgo.getMonth() + 1).toString(),
         'dailyRange.start_date.day': thirtyDaysAgo.getDate().toString(),
@@ -243,6 +246,8 @@ export async function getBusinessMetrics(refreshToken: string, locationId: strin
         'dailyRange.end_date.month': (new Date().getMonth() + 1).toString(),
         'dailyRange.end_date.day': new Date().getDate().toString(),
     });
+
+    dailyMetrics.forEach(metric => params.append('dailyMetric', metric));
     
     try {
         const response = await fetch(`${url}?${params.toString()}`, {
@@ -278,6 +283,7 @@ export async function getBusinessReviews(refreshToken: string, placeId: string):
     // For simplicity, we'll assume a method to get this, but in a real app, you'd list accounts first.
     // For now, we will use a placeholder account ID. The API often works with '-' as a wildcard for the user's primary account.
     const accountId = '-';
+    // NOTE: The `locations` endpoint in the GMB API uses the Place ID directly as the location identifier.
     const locationName = `accounts/${accountId}/locations/${placeId}`;
 
     const url = `https://mybusiness.googleapis.com/v4/${locationName}/reviews?pageSize=10&orderBy=updateTime desc`;

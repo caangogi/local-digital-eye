@@ -279,8 +279,8 @@ export async function refreshBusinessDataCache(businessId: string): Promise<{
     success: boolean; 
     message: string;
     rawData?: {
-        performanceData: GmbPerformanceResponse,
-        reviewsData: GmbReview[],
+        performanceData: GmbPerformanceResponse | null,
+        reviewsData: GmbReview[] | null,
     }
 }> {
     try {
@@ -302,6 +302,11 @@ export async function refreshBusinessDataCache(businessId: string): Promise<{
 
     } catch (error: any) {
         console.error(`Error refreshing cache for business ${businessId}:`, error);
-        return { success: false, message: error.message || 'An unexpected error occurred.' };
+        // The use case now throws an object with a message and optional rawData
+        return { 
+            success: false, 
+            message: error.message || 'An unexpected error occurred.',
+            rawData: error.rawData,
+        };
     }
 }

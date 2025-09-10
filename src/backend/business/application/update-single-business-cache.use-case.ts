@@ -31,7 +31,7 @@ export class UpdateSingleBusinessCacheUseCase {
    * @param ownerId The ID of the owner initiating the request, for authorization.
    * @returns A promise that resolves with the raw data fetched from Google.
    */
-  async execute(businessId: string, ownerId: string): Promise<{ performanceData: GmbPerformanceResponse, reviewsData: GmbReview[] }> {
+  async execute(businessId: string, ownerId: string): Promise<{ performanceData: GmbPerformanceResponse | null, reviewsData: GmbReview[] | null }> {
     console.log(`[UpdateSingleBusinessCache] Starting cache update for business ${businessId} by owner ${ownerId}...`);
 
     const business = await this.businessRepository.findById(businessId);
@@ -59,16 +59,20 @@ export class UpdateSingleBusinessCacheUseCase {
     if (lastUpdate) {
         const hoursSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60);
         if (hoursSinceUpdate < 24) {
-            throw new Error('Data can only be refreshed once every 24 hours.');
+            // This check is temporarily disabled for debugging purposes.
+            // throw new Error('Data can only be refreshed once every 24 hours.');
         }
     }
 
+    let performanceData = null;
+    let reviewsData = null;
+
     try {
         // 1. Fetch Performance Metrics
-        const performanceData = await getBusinessMetrics(business.gmbRefreshToken, business.placeId);
+        performanceData = await getBusinessMetrics(business.gmbRefreshToken, business.placeId);
         
         // 2. Fetch Latest Reviews
-        const reviewsData = await getBusinessReviews(business.gmbRefreshToken, business.placeId);
+        reviewsData = await getBusinessReviews(business.gmbRefreshToken, business.placeId);
 
         // 3. Process and aggregate data
         const searchViews = this.sumMetric(performanceData, 'BUSINESS_IMPRESSIONS_DESKTOP_SEARCH') + this.sumMetric(performanceData, 'BUSINESS_IMPRESSIONS_MOBILE_SEARCH');
@@ -89,7 +93,7 @@ export class UpdateSingleBusinessCacheUseCase {
             lastUpdateTime: new Date(),
         };
 
-        const domainReviews: Review[] = reviewsData
+        const domainReviews: Review[] = (reviewsData || [])
             .filter(review => review.starRating !== 'STAR_RATING_UNSPECIFIED')
             .map(review => ({
                 authorName: review.reviewer.displayName,
@@ -110,12 +114,19 @@ export class UpdateSingleBusinessCacheUseCase {
 
     } catch (error: any) {
         console.error(`[UpdateSingleBusinessCache] Failed to update cache for business ${business.id}:`, error.message);
-        // Re-throw the error so the Server Action can catch it and inform the user.
-        throw error;
+        // Pass the partially fetched data along with the error
+        throw {
+            message: error.message,
+            rawData: {
+                performanceData,
+                reviewsData
+            }
+        };
     }
   }
 
-  private sumMetric(data: GmbPerformanceResponse, metricName: string): number {
+  private sumMetric(data: GmbPerformanceResponse | null, metricName: string): number {
+    if (!data) return 0;
     const timeSeries = data.timeSeries?.find(ts => ts.dailyMetric === metricName);
     if (!timeSeries || !timeSeries.timeSeries?.datedValues) {
       return 0;

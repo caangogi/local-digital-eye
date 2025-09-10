@@ -34,16 +34,13 @@ export function RefreshCacheButton({ businessId, lastUpdateTime, onRefreshComple
                     description: result.message,
                     variant: "destructive",
                 });
-                 onRefreshComplete(null);
+                 onRefreshComplete(result.rawData || { error: result.message });
             }
         });
     };
 
     // Temporarily remove the time check for debugging purposes.
-    // const now = new Date();
-    // const hoursSinceLastUpdate = lastUpdateTime ? differenceInHours(now, lastUpdateTime) : 25;
-    // const canRefresh = hoursSinceLastUpdate >= 24;
-    const canRefresh = true; // Always allow refresh for now.
+    const canRefresh = true;
 
     return (
         <Button onClick={handleRefresh} disabled={isPending || !canRefresh} variant="outline" size="sm">
