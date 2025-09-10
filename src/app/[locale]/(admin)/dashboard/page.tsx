@@ -150,7 +150,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user?.role === 'owner') {
         const fetchBusiness = async () => {
-            setIsLoading(true);
             const business = await getOwnedBusiness();
             setOwnedBusiness(business);
             setIsLoading(false);
