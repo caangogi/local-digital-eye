@@ -1,6 +1,4 @@
 
-'use server';
-
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
 import { getBusinessMetrics, getBusinessReviews } from '@/services/googleMapsService';
 import type { GmbPerformanceResponse } from '@/services/googleMapsService';
