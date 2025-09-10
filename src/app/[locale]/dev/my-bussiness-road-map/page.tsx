@@ -2,8 +2,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow, Timer, BarChart3, CloudCog } from "lucide-react";
+import { Bot, UserCog, CheckCircle, ShieldCheck, Database, Layers, GitBranch, KeyRound, Lock, DollarSign, Sparkles, FolderSync, KanbanSquare, Table, MailCheck, MemoryStick, Link as LinkIcon, UserPlus, Workflow, Timer, BarChart3, CloudCog, AlertCircle } from "lucide-react";
 import React from 'react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
 
 export async function generateMetadata() {
   return {
@@ -108,7 +110,7 @@ const phases = [
                 { who: "bot", text: "Lógica de Registro: El formulario de registro llamará a `signUpWithEmail` o `signInWithGoogle`.", completed: true },
                 { who: "bot", text: "UI 'Verifica tu Email': Crear la UI que se mostrará al nuevo dueño del negocio justo después de registrarse, indicándole que revise su correo para continuar.", completed: true },
                 { who: "bot", text: "Gestión de Estado (localStorage): En la página de Onboarding, guardar el `businessId` para no perder la referencia del negocio durante la verificación de email.", completed: true },
-                { who: "user", text: "Configuración Google Cloud: Asegurar que la 'Google Business Profile API' está habilitada en Google Cloud y la pantalla de consentimiento de OAuth está configurada con los scopes correctos.", completed: true },
+                { who: "user", text: "Configuración Google Cloud: Asegurar que las APIs de Perfil de Negocio están habilitadas y la pantalla de consentimiento de OAuth está configurada con los scopes correctos.", completed: true },
                 { who: "bot", text: "Redirección a OAuth: Tras una verificación de email exitosa, el sistema debe comprobar el `localStorage`. Si encuentra el `businessId`, debe redirigir al usuario al flujo de OAuth de Google.", completed: true },
                 { who: "bot", text: "Callback y Finalización: El callback de OAuth (`/api/oauth/callback`) guardará los tokens, asociará el `ownerId` al negocio y actualizará el `gmbStatus` a 'linked', finalizando el flujo.", completed: true },
                 { who: "bot", text: "Mitigación de Estancamiento: Añadir un botón 'Continuar' en la pantalla de verificación de email para que el usuario pueda forzar la comprobación si el flujo automático falla.", completed: true },
@@ -142,11 +144,12 @@ const phases = [
             title: "Hito 2.4: Sistema de Caché de Datos de GMB",
             icon: <CloudCog />,
             tasks: [
-                 { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.).", completed: true },
-                 { who: "bot", text: "Crear un nuevo servicio `GmbApiAdapter` que encapsule las llamadas a la API de Google Business Profile usando los tokens del dueño.", completed: false },
-                 { who: "bot", text: "Crear un Cloud Function (o un cron job) que se ejecute diariamente y recorra todos los negocios con `gmbStatus: 'linked'`. ", completed: false },
-                 { who: "bot", text: "Para cada negocio, el job usará su `refreshToken` para obtener un `accessToken` nuevo y llamará al `GmbApiAdapter` para obtener las métricas y las últimas reseñas.", completed: false },
-                 { who: "bot", text: "Guardar los datos frescos en el campo `gmbInsightsCache` del negocio en Firestore. El dashboard del dueño leerá de aquí, no directamente de la API.", completed: false },
+                 { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.) y las últimas reseñas.", completed: true },
+                 { who: "user", text: "Habilitar las APIs `Business Profile Performance API`, `My Business Account Management API`, `Business Information API` y `Q&A API` en la consola de Google Cloud.", completed: false},
+                 { who: "bot", text: "Implementar el `GmbApiAdapter`, un servicio para encapsular las llamadas a la API de Google, incluyendo la lógica para refrescar tokens de acceso.", completed: false },
+                 { who: "bot", text: "Crear un Cloud Function (o un cron job) que se ejecute diariamente para actualizar el `gmbInsightsCache` de todos los negocios conectados, implementando retirada exponencial para las llamadas a la API.", completed: false },
+                 { who: "bot", text: "Implementar un botón de 'Refresco Manual' en el dashboard del dueño, limitado a una vez cada 24 horas, para forzar la actualización de su caché.", completed: false },
+                 { who: "bot", text: "Crear herramientas de gestión para el `super_admin` que permitan disparar el cron job manualmente y configurar su frecuencia.", completed: false },
             ]
         }
     ]
@@ -219,6 +222,13 @@ export default function MyBusinessRoadMapPage() {
         </div>
       </section>
 
+       <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          <span className="font-bold">Nota sobre las cuotas de API:</span> Las cuotas de la API de Google (ej. 300 QPM) son acumulativas para todo el proyecto, no por negocio individual. Nuestra estrategia de caché con un cron job diario es esencial para operar por debajo de estos límites y controlar costes.
+        </AlertDescription>
+      </Alert>
+
       <div className="space-y-16">
         {phases.map((phase, phaseIndex) => (
           <section key={phaseIndex}>
@@ -260,9 +270,4 @@ export default function MyBusinessRoadMapPage() {
 }
 
 
-
-
-
-
-
-
+    
