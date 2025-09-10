@@ -216,14 +216,16 @@ async function getGmbApiClient(refreshToken: string) {
 /**
  * Fetches performance metrics for a business location.
  * @param refreshToken The owner's refresh token.
- * @param locationId The ID of the business location (e.g., 'places/ChIJ...')
+ * @param placeId The Place ID of the business (e.g., 'ChIJ...') which serves as the location ID for this API.
  * @returns A promise resolving to the performance metrics response.
  */
-export async function getBusinessMetrics(refreshToken: string, locationId: string): Promise<GmbPerformanceResponse> {
+export async function getBusinessMetrics(refreshToken: string, placeId: string): Promise<GmbPerformanceResponse | null> {
     const apiClient = await getGmbApiClient(refreshToken);
     const accessToken = (await apiClient.getAccessToken()).token;
 
-    const url = `https://businessprofileperformance.googleapis.com/v1/locations/${locationId}:getDailyMetricsTimeSeries`;
+    // The Performance API uses `locations/{locationId}` where locationId is the Place ID.
+    const url = `https://businessprofileperformance.googleapis.com/v1/locations/${placeId}:getDailyMetricsTimeSeries`;
+    
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -246,9 +248,9 @@ export async function getBusinessMetrics(refreshToken: string, locationId: strin
         'dailyRange.end_date.month': (new Date().getMonth() + 1).toString(),
         'dailyRange.end_date.day': new Date().getDate().toString(),
     });
-
-    dailyMetrics.forEach(metric => params.append('dailyMetric', metric));
     
+    dailyMetrics.forEach(metric => params.append('dailyMetric', metric));
+
     try {
         const response = await fetch(`${url}?${params.toString()}`, {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -263,7 +265,7 @@ export async function getBusinessMetrics(refreshToken: string, locationId: strin
         const validatedData = GmbGetPerformanceResponseSchema.parse(rawData);
         return validatedData;
     } catch (error: any) {
-        console.error(`[GmbApiAdapter] Error fetching business metrics for ${locationId}:`, error);
+        console.error(`[GmbApiAdapter] Error fetching business metrics for ${placeId}:`, error);
         throw error;
     }
 }
@@ -279,12 +281,10 @@ export async function getBusinessReviews(refreshToken: string, placeId: string):
     const apiClient = await getGmbApiClient(refreshToken);
     const accessToken = (await apiClient.getAccessToken()).token;
     
-    // The Business Profile APIs require the account and location ID in the format 'accounts/{accountId}/locations/{locationId}'
-    // For simplicity, we'll assume a method to get this, but in a real app, you'd list accounts first.
-    // For now, we will use a placeholder account ID. The API often works with '-' as a wildcard for the user's primary account.
-    const accountId = '-';
-    // NOTE: The `locations` endpoint in the GMB API uses the Place ID directly as the location identifier.
-    const locationName = `accounts/${accountId}/locations/${placeId}`;
+    // The My Business API uses `accounts/{accountId}/locations/{locationId}`.
+    // The '-' is a wildcard for the authenticated user's primary account.
+    // The Place ID from Google Maps is used as the locationId here.
+    const locationName = `accounts/-/locations/${placeId}`;
 
     const url = `https://mybusiness.googleapis.com/v4/${locationName}/reviews?pageSize=10&orderBy=updateTime desc`;
 
