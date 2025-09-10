@@ -1,10 +1,11 @@
 /**
- * @fileOverview Service for interacting with Google Maps Places API.
- * This file uses the recommended "Places API (New)".
+ * @fileOverview Service for interacting with Google Maps Places API and Google Business Profile APIs.
  */
 import {z} from 'genkit';
+import { getGoogleOAuthClient } from '@/lib/google-oauth-client';
 
-// Schema for a single photo from the Places API
+// --- SCHEMAS FOR GOOGLE PLACES API (PUBLIC) ---
+
 const PhotoSchema = z.object({
     name: z.string(),
     widthPx: z.number().optional(),
@@ -12,15 +13,13 @@ const PhotoSchema = z.object({
 });
 export type Photo = z.infer<typeof PhotoSchema>;
 
-// Schema for opening hours, matching the new API structure
 const OpeningHoursSchema = z.object({
     openNow: z.boolean().optional(),
     weekdayDescriptions: z.array(z.string()).optional(),
 });
 export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
 
-// Schema for a single review from the Places API
-const ReviewSchema = z.object({
+const PublicReviewSchema = z.object({
   name: z.string(),
   rating: z.number().min(1).max(5),
   text: z.object({ text: z.string(), languageCode: z.string() }).nullable().optional(),
@@ -31,9 +30,7 @@ const ReviewSchema = z.object({
     photoUri: z.string().url(),
   }).nullable().optional(),
 });
-export type Review = z.infer<typeof ReviewSchema>;
 
-// Main schema for a Place, expanded with more details
 const PlaceSchema = z.object({
   id: z.string().describe("The unique identifier of the place."),
   name: z.string().optional().describe("The human-readable name for the place."),
@@ -50,14 +47,49 @@ const PlaceSchema = z.object({
   }).nullable().optional(),
   photos: z.array(PhotoSchema).optional(),
   regularOpeningHours: OpeningHoursSchema.nullable().optional(),
-  reviews: z.array(ReviewSchema).optional(), // Add reviews to the Place schema
+  reviews: z.array(PublicReviewSchema).optional(),
 });
-
 export type Place = z.infer<typeof PlaceSchema>;
 
 const GooglePlacesNewTextSearchResponseSchema = z.object({
   places: z.array(z.any()).optional(),
 });
+
+// --- SCHEMAS FOR GOOGLE BUSINESS PROFILE API (OAUTH) ---
+
+const GmbMetricValueSchema = z.object({
+  metric: z.string(),
+  totalValue: z.object({
+    value: z.string(),
+  }),
+});
+
+const GmbMetricSetSchema = z.object({
+  metric: z.string(),
+  timeSeries: z.object({
+    datedValues: z.array(z.object({
+      date: z.object({ year: z.number(), month: z.number(), day: z.number() }),
+      value: z.string(),
+    })),
+  }),
+});
+
+const GmbDailyMetricTimeSeriesSchema = z.object({
+    dailyMetric: z.string(),
+    timeSeries: z.object({
+        datedValues: z.array(z.object({
+            date: z.object({ year: z.number(), month: z.number(), day: z.number() }),
+            value: z.string(),
+        })),
+    }),
+});
+
+const GmbGetPerformanceResponseSchema = z.object({
+  timeSeries: z.array(GmbDailyMetricTimeSeriesSchema).optional(),
+});
+export type GmbPerformanceResponse = z.infer<typeof GmbGetPerformanceResponseSchema>;
+
+// --- INTERFACES ---
 
 interface PlaceResult {
     normalizedData: Place | null;
@@ -69,18 +101,11 @@ interface PlaceListResult {
     rawData: any;
 }
 
-/**
- * Normalizes the raw place data from Google API to our Place schema.
- * Ensures that any missing optional fields are set to null instead of undefined.
- * @param place The raw place data.
- * @returns A normalized Place object.
- */
+// --- HELPER FUNCTIONS ---
+
 function normalizePlace(place: any): Place {
   if (!place) return place;
-
-  // The 'name' field is obsolete for searchText, use 'displayName.text' instead.
   const displayName = place.displayName?.text ?? place.name;
-
   return {
     id: place.id,
     name: displayName,
@@ -98,33 +123,17 @@ function normalizePlace(place: any): Place {
   };
 }
 
+// --- PLACES API (PUBLIC) ---
 
-/**
- * Searches for places using Google Places API (New - searchText).
- * @param textQuery The search query (e.g., "Restaurant in New York").
- * @returns A promise that resolves to an object containing an array of Place objects and the raw API response.
- */
-export async function searchGooglePlaces(
-  query: string
-): Promise<PlaceListResult | null> {
+export async function searchGooglePlaces(query: string): Promise<PlaceListResult | null> {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    console.error("[GoogleMapsService] CRITICAL: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set.");
-    throw new Error("Server configuration error: Google API Key is missing.");
-  }
+  if (!apiKey) throw new Error("Server configuration error: Google API Key is missing.");
 
   const url = 'https://places.googleapis.com/v1/places:searchText';
-  
-  // Use 'displayName' instead of 'name' as it's the recommended field for searchText.
   const fieldMask = "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location,places.websiteUri,places.businessStatus";
-
-  const requestBody = {
-    textQuery: query,
-    languageCode: "es", 
-  };
+  const requestBody = { textQuery: query, languageCode: "es" };
 
   try {
-    console.log(`[GoogleMapsService] Searching for: "${requestBody.textQuery}"`);
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -134,79 +143,110 @@ export async function searchGooglePlaces(
       },
       body: JSON.stringify(requestBody),
     });
-
     const rawData = await response.json();
-
-    if (!response.ok) {
-        const errorMessage = rawData.error?.message || `Status: ${response.status}`;
-        console.error(`[GoogleMapsService] Search API Error: ${errorMessage}`);
-        throw new Error(`Google Places Search API request failed. ${errorMessage}`);
-    }
-
-    const validatedData = GooglePlacesNewTextSearchResponseSchema.safeParse(rawData);
+    if (!response.ok) throw new Error(`Google Places Search API request failed. ${rawData.error?.message || `Status: ${response.status}`}`);
     
+    const validatedData = GooglePlacesNewTextSearchResponseSchema.safeParse(rawData);
     if (!validatedData.success || !validatedData.data.places || validatedData.data.places.length === 0) {
-      console.log(`[GoogleMapsService] No results found for "${requestBody.textQuery}".`);
       return { normalizedData: [], rawData: rawData };
     }
     
-    const places = validatedData.data.places;
-    console.log(`[GoogleMapsService] Found ${places.length} places.`);
-    return {
-        normalizedData: places.map(normalizePlace),
-        rawData: rawData
-    };
-
+    return { normalizedData: validatedData.data.places.map(normalizePlace), rawData: rawData };
   } catch (error: any) {
     console.error("[GoogleMapsService] Critical error during searchGooglePlace:", error.message);
     throw error;
   }
 }
 
-/**
- * Gets detailed information for a specific place ID using Places API (New).
- * This is used to get the full, enriched data before connecting a business.
- * @param placeId The place ID to get details for.
- * @returns A promise that resolves to an object with detailed Place data and the raw API response.
- */
 export async function getGooglePlaceDetails(placeId: string): Promise<PlaceResult | null> {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-      console.error("[GoogleMapsService] CRITICAL: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set.");
-      throw new Error("Server configuration error: Google API Key is missing.");
-    }
-  
-    // Add 'reviews' to the fieldMask
+    if (!apiKey) throw new Error("Server configuration error: Google API Key is missing.");
+    
     const fieldMask = "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,rating,userRatingCount,types,businessStatus,location,photos,regularOpeningHours,reviews";
     const url = `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`;
   
     try {
-      console.log(`[GoogleMapsService] Getting details for placeId: "${placeId}"`);
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': fieldMask,
-        },
+        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fieldMask },
       });
-  
       const rawData = await response.json();
-
-      if (!response.ok) {
-          const errorMessage = rawData.error?.message || `Status: ${response.status}`;
-          console.error(`[GoogleMapsService] Details API Error: ${errorMessage}`);
-          throw new Error(`Google Places Details API request failed. ${errorMessage}`);
-      }
-  
-      console.log(`[GoogleMapsService] Successfully fetched details for ${rawData.displayName?.text}.`);
-      return {
-          normalizedData: normalizePlace(rawData),
-          rawData: rawData
-      };
-  
+      if (!response.ok) throw new Error(`Google Places Details API request failed. ${rawData.error?.message || `Status: ${response.status}`}`);
+      
+      return { normalizedData: normalizePlace(rawData), rawData: rawData };
     } catch (error: any) {
       console.error(`[GoogleMapsService] Critical error during getGooglePlaceDetails for placeId ${placeId}:`, error.message);
       throw error;
+    }
+}
+
+// --- BUSINESS PROFILE API (OAUTH) ---
+
+/**
+ * Creates an authenticated Google API client using a refresh token.
+ * @param refreshToken The refresh token of the business owner.
+ * @returns An authenticated OAuth2Client instance.
+ */
+async function getGmbApiClient(refreshToken: string) {
+    const oauth2Client = getGoogleOAuthClient();
+    oauth2Client.setCredentials({ refresh_token: refreshToken });
+    
+    // The google-auth-library will automatically handle refreshing the access token.
+    const tokenInfo = await oauth2Client.getAccessToken();
+    if (!tokenInfo.token) {
+        throw new Error("Failed to refresh GMB access token.");
+    }
+
+    return oauth2Client;
+}
+
+
+/**
+ * Fetches performance metrics for a business location.
+ * @param refreshToken The owner's refresh token.
+ * @param locationId The ID of the business location (e.g., 'places/ChIJ...')
+ * @returns A promise resolving to the performance metrics response.
+ */
+export async function getBusinessMetrics(refreshToken: string, locationId: string): Promise<GmbPerformanceResponse> {
+    const apiClient = await getGmbApiClient(refreshToken);
+    const accessToken = (await apiClient.getAccessToken()).token;
+
+    const url = `https://businessprofileperformance.googleapis.com/v1/locations/${locationId}:getDailyMetricsTimeSeries`;
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const params = new URLSearchParams({
+        'dailyMetric': 'BUSINESS_IMPRESSIONS_DESKTOP_MAPS',
+        'dailyMetric': 'BUSINESS_IMPRESSIONS_DESKTOP_SEARCH',
+        'dailyMetric': 'BUSINESS_IMPRESSIONS_MOBILE_MAPS',
+        'dailyMetric': 'BUSINESS_IMPRESSIONS_MOBILE_SEARCH',
+        'dailyMetric': 'BUSINESS_CONVERSATIONS',
+        'dailyMetric': 'BUSINESS_DIRECTION_REQUESTS',
+        'dailyMetric': 'WEBSITE_CLICKS',
+        'dailyMetric': 'CALL_CLICKS',
+        'dailyRange.start_date.year': thirtyDaysAgo.getFullYear().toString(),
+        'dailyRange.start_date.month': (thirtyDaysAgo.getMonth() + 1).toString(),
+        'dailyRange.start_date.day': thirtyDaysAgo.getDate().toString(),
+        'dailyRange.end_date.year': new Date().getFullYear().toString(),
+        'dailyRange.end_date.month': (new Date().getMonth() + 1).toString(),
+        'dailyRange.end_date.day': new Date().getDate().toString(),
+    });
+    
+    try {
+        const response = await fetch(`${url}?${params.toString()}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`GMB Performance API error: ${errorData.error?.message || response.statusText}`);
+        }
+
+        const rawData = await response.json();
+        const validatedData = GmbGetPerformanceResponseSchema.parse(rawData);
+        return validatedData;
+    } catch (error: any) {
+        console.error(`[GmbApiAdapter] Error fetching business metrics for ${locationId}:`, error);
+        throw error;
     }
 }

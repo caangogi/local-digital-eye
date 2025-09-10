@@ -145,8 +145,8 @@ const phases = [
             icon: <CloudCog />,
             tasks: [
                  { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.) y las últimas reseñas.", completed: true },
-                 { who: "user", text: "Habilitar las APIs `Business Profile Performance API`, `My Business Account Management API`, `Business Information API` y `Q&A API` en la consola de Google Cloud.", completed: false},
-                 { who: "bot", text: "Implementar el `GmbApiAdapter`, un servicio para encapsular las llamadas a la API de Google, incluyendo la lógica para refrescar tokens de acceso.", completed: false },
+                 { who: "user", text: "Habilitar las APIs `Business Profile Performance API`, `My Business Account Management API`, `Business Information API` y `Q&A API` en la consola de Google Cloud.", completed: true},
+                 { who: "bot", text: "Implementar el `GmbApiAdapter`, un servicio para encapsular las llamadas a la API de Google, incluyendo la lógica para refrescar tokens de acceso.", completed: true },
                  { who: "bot", text: "Crear un Cloud Function (o un cron job) que se ejecute diariamente para actualizar el `gmbInsightsCache` de todos los negocios conectados, implementando retirada exponencial para las llamadas a la API.", completed: false },
                  { who: "bot", text: "Implementar un botón de 'Refresco Manual' en el dashboard del dueño, limitado a una vez cada 24 horas, para forzar la actualización de su caché.", completed: false },
                  { who: "bot", text: "Crear herramientas de gestión para el `super_admin` que permitan disparar el cron job manualmente y configurar su frecuencia.", completed: false },
@@ -268,6 +268,3 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
-
-
-    
