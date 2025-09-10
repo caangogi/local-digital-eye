@@ -1,4 +1,5 @@
 
+
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
 import { getBusinessMetrics, getBusinessReviews } from '@/services/googleMapsService';
 import type { GmbPerformanceResponse, GmbReview } from '@/services/googleMapsService';
@@ -28,9 +29,9 @@ export class UpdateSingleBusinessCacheUseCase {
    * Executes the use case to update a single business.
    * @param businessId The ID of the business to update.
    * @param ownerId The ID of the owner initiating the request, for authorization.
-   * @returns A promise that resolves when the operation is complete.
+   * @returns A promise that resolves with the raw data fetched from Google.
    */
-  async execute(businessId: string, ownerId: string): Promise<void> {
+  async execute(businessId: string, ownerId: string): Promise<{ performanceData: GmbPerformanceResponse, reviewsData: GmbReview[] }> {
     console.log(`[UpdateSingleBusinessCache] Starting cache update for business ${businessId} by owner ${ownerId}...`);
 
     const business = await this.businessRepository.findById(businessId);
@@ -103,6 +104,9 @@ export class UpdateSingleBusinessCacheUseCase {
         await this.businessRepository.save(business);
 
         console.log(`[UpdateSingleBusinessCache] Successfully updated cache for business ${business.id}`);
+        
+        // Return the raw data
+        return { performanceData, reviewsData };
 
     } catch (error: any) {
         console.error(`[UpdateSingleBusinessCache] Failed to update cache for business ${business.id}:`, error.message);

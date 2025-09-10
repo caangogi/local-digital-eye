@@ -20,6 +20,8 @@ import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flo
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
 import { revalidatePath } from 'next/cache';
 import type { Place } from '@/services/googleMapsService';
+import type { GmbPerformanceResponse, GmbReview } from '@/services/googleMapsService';
+
 
 // This function centralizes repository and use case instantiation.
 function getBusinessUseCases() {
@@ -273,7 +275,14 @@ export async function extendBusinessTrial(businessId: string, daysToAdd: number)
  * @param businessId The ID of the business to refresh.
  * @returns An object indicating success or failure.
  */
-export async function refreshBusinessDataCache(businessId: string): Promise<{ success: boolean; message: string }> {
+export async function refreshBusinessDataCache(businessId: string): Promise<{ 
+    success: boolean; 
+    message: string;
+    rawData?: {
+        performanceData: GmbPerformanceResponse,
+        reviewsData: GmbReview[],
+    }
+}> {
     try {
         const sessionCookie = cookies().get('session')?.value;
         if (!sessionCookie) {
@@ -285,11 +294,11 @@ export async function refreshBusinessDataCache(businessId: string): Promise<{ su
         console.log(`[BusinessAction] Manual cache refresh requested for business ${businessId} by owner ${ownerId}.`);
 
         const { updateSingleBusinessCacheUseCase } = getBusinessUseCases();
-        await updateSingleBusinessCacheUseCase.execute(businessId, ownerId);
+        const rawData = await updateSingleBusinessCacheUseCase.execute(businessId, ownerId);
 
         revalidatePath('/dashboard');
 
-        return { success: true, message: 'Cache updated successfully.' };
+        return { success: true, message: 'Cache updated successfully.', rawData };
 
     } catch (error: any) {
         console.error(`Error refreshing cache for business ${businessId}:`, error);
