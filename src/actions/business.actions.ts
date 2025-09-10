@@ -14,7 +14,8 @@ import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-bu
 import { GetOwnedBusinessUseCase } from '@/backend/business/application/get-owned-business.use-case';
 import { UpdateBusinessStatusUseCase } from '@/backend/business/application/update-business-status.use-case';
 import { UpdateBusinessDetailsUseCase } from '@/backend/business/application/update-business-details.use-case';
-import { ExtendTrialUseCase } from '@/backend/business/application/extend-trial.use-case'; // Import new use case
+import { ExtendTrialUseCase } from '@/backend/business/application/extend-trial.use-case';
+import { UpdateSingleBusinessCacheUseCase } from '@/backend/business/application/update-single-business-cache.use-case';
 import type { GmbDataExtractionOutput } from '@/ai/flows/gmb-data-extraction-flow';
 import type { Business, SalesStatus } from '@/backend/business/domain/business.entity';
 import { revalidatePath } from 'next/cache';
@@ -30,7 +31,8 @@ function getBusinessUseCases() {
         getOwnedBusinessUseCase: new GetOwnedBusinessUseCase(businessRepository),
         updateBusinessStatusUseCase: new UpdateBusinessStatusUseCase(businessRepository),
         updateBusinessDetailsUseCase: new UpdateBusinessDetailsUseCase(businessRepository),
-        extendTrialUseCase: new ExtendTrialUseCase(businessRepository), // Add new use case
+        extendTrialUseCase: new ExtendTrialUseCase(businessRepository),
+        updateSingleBusinessCacheUseCase: new UpdateSingleBusinessCacheUseCase(businessRepository),
     };
 }
 
@@ -264,4 +266,33 @@ export async function extendBusinessTrial(businessId: string, daysToAdd: number)
     console.error('Error extending business trial:', error);
     return { success: false, message: error.message || 'An unexpected error occurred.' };
   }
+}
+
+/**
+ * Refreshes the GMB data cache for a single business manually.
+ * @param businessId The ID of the business to refresh.
+ * @returns An object indicating success or failure.
+ */
+export async function refreshBusinessDataCache(businessId: string): Promise<{ success: boolean; message: string }> {
+    try {
+        const sessionCookie = cookies().get('session')?.value;
+        if (!sessionCookie) {
+            return { success: false, message: 'Authentication required.' };
+        }
+        const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+        const ownerId = decodedToken.uid;
+
+        console.log(`[BusinessAction] Manual cache refresh requested for business ${businessId} by owner ${ownerId}.`);
+
+        const { updateSingleBusinessCacheUseCase } = getBusinessUseCases();
+        await updateSingleBusinessCacheUseCase.execute(businessId, ownerId);
+
+        revalidatePath('/dashboard');
+
+        return { success: true, message: 'Cache updated successfully.' };
+
+    } catch (error: any) {
+        console.error(`Error refreshing cache for business ${businessId}:`, error);
+        return { success: false, message: error.message || 'An unexpected error occurred.' };
+    }
 }

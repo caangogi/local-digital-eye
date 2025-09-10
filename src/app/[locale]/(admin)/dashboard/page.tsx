@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { auth } from "@/lib/firebase/firebase-admin-config";
 import { getOwnedBusiness } from "@/actions/business.actions";
 import { TrialCountdownBanner } from "./_components/TrialCountdownBanner";
+import { RefreshCacheButton } from "./_components/RefreshCacheButton";
 
 
 // This function will determine which dashboard to show based on the user's role
@@ -78,11 +79,16 @@ const OwnerDashboard = async () => {
             <h1 className="text-3xl font-bold tracking-tight font-headline">Tu Panel de Negocio</h1>
             <p className="text-muted-foreground">¡Bienvenido! Aquí tienes un resumen del rendimiento de tu negocio.</p>
           </div>
-          <Button asChild variant="outline">
-            <Link href="/mi-negocio">
-              <Briefcase className="mr-2 h-4 w-4" /> Ver mi Perfil Completo
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {business && (
+              <RefreshCacheButton businessId={business.id} lastUpdateTime={business.gmbInsightsCache?.lastUpdateTime} />
+            )}
+            <Button asChild variant="outline">
+              <Link href="/mi-negocio">
+                <Briefcase className="mr-2 h-4 w-4" /> Ver mi Perfil Completo
+              </Link>
+            </Button>
+          </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <StatCard title="Visibilidad Total" value={gmbInsights.totalViews?.toLocaleString() ?? 'N/A'} icon={<Eye />} description="Vistas en Búsqueda y Mapas" className="shadow-md hover:shadow-lg transition-shadow hover:shadow-[0_0_15px_5px_hsl(var(--accent)/0.2)]" />

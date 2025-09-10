@@ -1,0 +1,100 @@
+
+'use server';
+
+import type { BusinessRepositoryPort } from '../domain/business.repository.port';
+import { getBusinessMetrics, getBusinessReviews } from '@/services/googleMapsService';
+import type { GmbPerformanceResponse } from '@/services/googleMapsService';
+
+/**
+ * @fileoverview Defines the use case for updating the GMB insights cache for a single business.
+ * This use case is intended to be run manually by the business owner.
+ */
+
+export class UpdateSingleBusinessCacheUseCase {
+  constructor(private readonly businessRepository: BusinessRepositoryPort) {}
+
+  /**
+   * Executes the use case to update a single business.
+   * @param businessId The ID of the business to update.
+   * @param ownerId The ID of the owner initiating the request, for authorization.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async execute(businessId: string, ownerId: string): Promise<void> {
+    console.log(`[UpdateSingleBusinessCache] Starting cache update for business ${businessId} by owner ${ownerId}...`);
+
+    const business = await this.businessRepository.findById(businessId);
+    
+    if (!business) {
+        throw new Error('Business not found.');
+    }
+    
+    // Authorization check
+    if (business.ownerId !== ownerId) {
+        throw new Error('You are not authorized to refresh data for this business.');
+    }
+
+    if (business.gmbStatus !== 'linked') {
+        throw new Error('Business is not connected to Google. Cannot refresh data.');
+    }
+
+    if (!business.gmbRefreshToken || !business.placeId) {
+        throw new Error('Business is missing GMB refresh token or placeId.');
+    }
+    
+    // Prevent abuse: check if last update was recent (e.g., within 24 hours)
+    const now = new Date();
+    const lastUpdate = business.gmbInsightsCache?.lastUpdateTime;
+    if (lastUpdate) {
+        const hoursSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceUpdate < 24) {
+            throw new Error('Data can only be refreshed once every 24 hours.');
+        }
+    }
+
+    try {
+        // 1. Fetch Performance Metrics
+        const performanceData = await getBusinessMetrics(business.gmbRefreshToken, business.placeId);
+        
+        // 2. Fetch Latest Reviews
+        const reviewsData = await getBusinessReviews(business.gmbRefreshToken, business.placeId);
+
+        // 3. Process and aggregate data
+        const searchViews = this.sumMetric(performanceData, 'BUSINESS_IMPRESSIONS_DESKTOP_SEARCH') + this.sumMetric(performanceData, 'BUSINESS_IMPRESSIONS_MOBILE_SEARCH');
+        const mapViews = this.sumMetric(performanceData, 'BUSINESS_IMPRESSIONS_DESKTOP_MAPS') + this.sumMetric(performanceData, 'BUSINESS_IMPRESSIONS_MOBILE_MAPS');
+        const phoneActions = this.sumMetric(performanceData, 'CALL_CLICKS');
+        const websiteActions = this.sumMetric(performanceData, 'WEBSITE_CLICKS');
+        const directionActions = this.sumMetric(performanceData, 'BUSINESS_DIRECTION_REQUESTS');
+        
+        // 4. Update the business entity
+        business.gmbInsightsCache = {
+            searchViews,
+            mapViews,
+            totalViews: searchViews + mapViews,
+            websiteActions,
+            phoneActions,
+            directionActions,
+            totalActions: websiteActions + phoneActions + directionActions,
+            lastUpdateTime: new Date(),
+        };
+
+        business.topReviews = reviewsData;
+
+        await this.businessRepository.save(business);
+
+        console.log(`[UpdateSingleBusinessCache] Successfully updated cache for business ${business.id}`);
+
+    } catch (error: any) {
+        console.error(`[UpdateSingleBusinessCache] Failed to update cache for business ${business.id}:`, error.message);
+        // Re-throw the error so the Server Action can catch it and inform the user.
+        throw error;
+    }
+  }
+
+  private sumMetric(data: GmbPerformanceResponse, metricName: string): number {
+    const timeSeries = data.timeSeries?.find(ts => ts.dailyMetric === metricName);
+    if (!timeSeries || !timeSeries.timeSeries?.datedValues) {
+      return 0;
+    }
+    return timeSeries.timeSeries.datedValues.reduce((sum, current) => sum + parseInt(current.value, 10), 0);
+  }
+}
