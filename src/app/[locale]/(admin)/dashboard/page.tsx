@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -14,6 +14,8 @@ import type { Business } from '@/backend/business/domain/business.entity';
 import { TrialCountdownBanner } from "./_components/TrialCountdownBanner";
 import { RefreshCacheButton } from "./_components/RefreshCacheButton";
 import { DebugCollapse } from '@/components/dev/DebugCollapse';
+import { getOwnedBusiness } from '@/actions/business.actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 // This function will determine which dashboard to show based on the user's role
@@ -55,7 +57,7 @@ const AdminDashboard = () => (
 );
 
 interface OwnerDashboardProps {
-    business: Business | null; // Pass the business object as a prop
+    business: Business;
 }
 const OwnerDashboard = ({ business }: OwnerDashboardProps) => {
     const [debugData, setDebugData] = useState<any>(null);
@@ -117,24 +119,64 @@ const OwnerDashboard = ({ business }: OwnerDashboardProps) => {
     )
 };
 
+const OwnerDashboardSkeleton = () => (
+    <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <Skeleton className="h-9 w-72" />
+                <Skeleton className="h-5 w-96 mt-2" />
+            </div>
+            <div className="flex items-center gap-2">
+                <Skeleton className="h-9 w-36" />
+                <Skeleton className="h-9 w-44" />
+            </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
+        </div>
+        <Skeleton className="h-96" />
+    </div>
+);
+
 
 // This is now a client component to manage state
 export default function DashboardPage() {
   const { user } = useAuth();
   const [ownedBusiness, setOwnedBusiness] = useState<Business | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // You would fetch the business data here, for example in a useEffect
-  // For now, we'll just simulate it. This should be replaced with a proper
-  // server action call like `getOwnedBusiness()`
-  // Note: This part needs to be adapted to fetch data for real.
-  // The original server component logic is now moved inside a client component structure.
+  useEffect(() => {
+    if (user?.role === 'owner') {
+        const fetchBusiness = async () => {
+            setIsLoading(true);
+            const business = await getOwnedBusiness();
+            setOwnedBusiness(business);
+            setIsLoading(false);
+        };
+        fetchBusiness();
+    } else {
+        setIsLoading(false);
+    }
+  }, [user]);
   
   const role = getDashboardForRole(user?.role);
 
   return (
     <div className="flex flex-col gap-6">
       <SuperAdminButton />
-      {role === 'owner' ? <OwnerDashboard business={ownedBusiness} /> : <AdminDashboard />}
+      {isLoading ? (
+        <OwnerDashboardSkeleton />
+      ) : role === 'owner' ? (
+        ownedBusiness ? (
+          <OwnerDashboard business={ownedBusiness} />
+        ) : (
+          <p>No business linked to this account.</p> // Or a more detailed component
+        )
+      ) : (
+        <AdminDashboard />
+      )}
     </div>
   );
 }
