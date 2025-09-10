@@ -126,8 +126,8 @@ export class UpdateSingleBusinessCacheUseCase {
   }
 
   private sumMetric(data: GmbPerformanceResponse | null, metricName: string): number {
-    if (!data) return 0;
-    const timeSeries = data.timeSeries?.find(ts => ts.dailyMetric === metricName);
+    if (!data || !data.dailyMetricTimeSeries) return 0;
+    const timeSeries = data.dailyMetricTimeSeries.find(ts => ts.dailyMetric === metricName);
     if (!timeSeries || !timeSeries.timeSeries?.datedValues) {
       return 0;
     }

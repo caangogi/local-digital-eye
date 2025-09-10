@@ -68,7 +68,7 @@ const GmbDailyMetricTimeSeriesSchema = z.object({
 });
 
 const GmbGetPerformanceResponseSchema = z.object({
-  timeSeries: z.array(GmbDailyMetricTimeSeriesSchema).optional(),
+  dailyMetricTimeSeries: z.array(GmbDailyMetricTimeSeriesSchema).optional(),
 });
 export type GmbPerformanceResponse = z.infer<typeof GmbGetPerformanceResponseSchema>;
 
@@ -223,11 +223,12 @@ export async function getBusinessMetrics(refreshToken: string, placeId: string):
     const apiClient = await getGmbApiClient(refreshToken);
     const accessToken = (await apiClient.getAccessToken()).token;
 
-    // The Performance API uses `locations/{locationId}` where locationId is the Place ID.
-    const url = `https://businessprofileperformance.googleapis.com/v1/locations/${placeId}:getDailyMetricsTimeSeries`;
+    // Use fetchMultiDailyMetricsTimeSeries to get multiple metrics at once.
+    const url = `https://businessprofileperformance.googleapis.com/v1/locations/${placeId}:fetchMultiDailyMetricsTimeSeries`;
     
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const today = new Date();
 
     const dailyMetrics = [
         'BUSINESS_IMPRESSIONS_DESKTOP_MAPS',
@@ -244,12 +245,13 @@ export async function getBusinessMetrics(refreshToken: string, placeId: string):
         'dailyRange.start_date.year': thirtyDaysAgo.getFullYear().toString(),
         'dailyRange.start_date.month': (thirtyDaysAgo.getMonth() + 1).toString(),
         'dailyRange.start_date.day': thirtyDaysAgo.getDate().toString(),
-        'dailyRange.end_date.year': new Date().getFullYear().toString(),
-        'dailyRange.end_date.month': (new Date().getMonth() + 1).toString(),
-        'dailyRange.end_date.day': new Date().getDate().toString(),
+        'dailyRange.end_date.year': today.getFullYear().toString(),
+        'dailyRange.end_date.month': (today.getMonth() + 1).toString(),
+        'dailyRange.end_date.day': today.getDate().toString(),
     });
     
-    dailyMetrics.forEach(metric => params.append('dailyMetric', metric));
+    // Use `dailyMetrics` (plural) for fetchMultiDailyMetricsTimeSeries
+    dailyMetrics.forEach(metric => params.append('dailyMetrics', metric));
 
     try {
         const response = await fetch(`${url}?${params.toString()}`, {

@@ -76,7 +76,7 @@ export class UpdateGmbDataCacheUseCase {
         };
 
         // Map GMB API reviews to our domain's Review entity
-        const domainReviews: Review[] = reviewsData
+        const domainReviews: Review[] = (reviewsData || [])
             .filter(review => review.starRating !== 'STAR_RATING_UNSPECIFIED')
             .map(review => ({
                 authorName: review.reviewer.displayName,
@@ -105,8 +105,9 @@ export class UpdateGmbDataCacheUseCase {
     return { success: failed === 0, totalProcessed: businessesToUpdate.length, successful, failed, errors };
   }
 
-  private sumMetric(data: GmbPerformanceResponse, metricName: string): number {
-    const timeSeries = data.timeSeries?.find(ts => ts.dailyMetric === metricName);
+  private sumMetric(data: GmbPerformanceResponse | null, metricName: string): number {
+    if (!data || !data.dailyMetricTimeSeries) return 0;
+    const timeSeries = data.dailyMetricTimeSeries.find(ts => ts.dailyMetric === metricName);
     if (!timeSeries || !timeSeries.timeSeries?.datedValues) {
       return 0;
     }
