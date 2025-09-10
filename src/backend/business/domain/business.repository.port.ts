@@ -33,6 +33,12 @@ export interface BusinessRepositoryPort {
    * @returns A promise that resolves to an array of Business objects. Should typically be one.
    */
   findByOwnerId(ownerId: string): Promise<Business[]>;
+  
+  /**
+   * Finds all businesses that have an active GMB connection.
+   * @returns A promise that resolves to an array of Business objects.
+   */
+  findAllConnected(): Promise<Business[]>;
 
   /**
    * Deletes a business by its unique ID.

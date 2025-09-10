@@ -182,6 +182,27 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
   }
 
   /**
+   * Finds all businesses that have an active GMB connection.
+   * @returns A promise that resolves to an array of Business objects.
+   */
+  async findAllConnected(): Promise<Business[]> {
+    const snapshot = await this.collection.where('gmbStatus', '==', 'linked').get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => {
+      const data = this.fromFirestore(doc.data());
+      const rawData = { id: doc.id, ...data };
+      try {
+        return BusinessSchema.parse(rawData);
+      } catch (error) {
+        console.error(`[FirebaseBusinessRepository] Invalid data in findAllConnected for doc ${doc.id}:`, error);
+        return null;
+      }
+    }).filter((b): b is Business => b !== null);
+  }
+
+  /**
    * Deletes a business by its unique ID.
    * @param id The unique identifier of the business to delete.
    * @returns A promise that resolves to void when the operation is complete.

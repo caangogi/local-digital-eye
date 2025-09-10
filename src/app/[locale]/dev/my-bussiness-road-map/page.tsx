@@ -124,7 +124,7 @@ const phases = [
                  { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`, separando su experiencia de la del administrador.", completed: true },
                  { who: "bot", text: "Implementar la lógica de `trialEndsAt`: al conectar un negocio, establecer una fecha de fin de prueba (ej: 7 días en el futuro) en la entidad `Business`.", completed: true },
                  { who: "bot", text: "Añadir un componente de 'Banner de Cuenta Atrás' en el dashboard del dueño que muestre los días restantes de la prueba.", completed: true },
-                 { who: "bot", text: "Enriquecer el dashboard con métricas clave de GMB (vistas, búsquedas, valoraciones) obtenidas de nuestra caché de datos.", completed: true },
+                 { who: "bot", text: "Enriquecer el dashboard con métricas clave de GMB (vistas, búsquedas, valoraciones) obtenidas de nuestra caché de datos.", completed: false },
                  { who: "bot", text: "Añadir una sección de 'Últimas Reseñas' al dashboard, leyendo desde la caché.", completed: false },
             ]
         },
@@ -144,10 +144,10 @@ const phases = [
             title: "Hito 2.4: Sistema de Caché de Datos de GMB",
             icon: <CloudCog />,
             tasks: [
-                 { who: "bot", text: "Añadir a la entidad `Business` un campo `gmbInsightsCache` para almacenar las métricas obtenidas (vistas, búsquedas, etc.) y las últimas reseñas.", completed: true },
-                 { who: "user", text: "Habilitar las APIs `Business Profile Performance API`, `My Business Account Management API`, `Business Information API` y `Q&A API` en la consola de Google Cloud.", completed: true},
-                 { who: "bot", text: "Implementar el `GmbApiAdapter`, un servicio para encapsular las llamadas a la API de Google, incluyendo la lógica para refrescar tokens de acceso.", completed: true },
-                 { who: "bot", text: "Crear un Cloud Function (o un cron job) que se ejecute diariamente para actualizar el `gmbInsightsCache` de todos los negocios conectados, implementando retirada exponencial para las llamadas a la API.", completed: false },
+                 { who: "bot", text: "Actualizar la Entidad `Business` y Repositorio con el campo `gmbInsightsCache`.", completed: true },
+                 { who: "user", text: "Habilitar las APIs `Business Profile Performance`, `My Business Account Management`, `Business Information` y `Q&A` en Google Cloud.", completed: true},
+                 { who: "bot", text: "Implementar el Adaptador de la API de Google (`GmbApiAdapter`) para encapsular las llamadas a la API, incluyendo la lógica para refrescar tokens de acceso.", completed: true },
+                 { who: "bot", text: "Construir el Cron Job de Actualización Diaria (lógica en un `UseCase`) que actualiza la caché de todos los negocios conectados.", completed: true },
                  { who: "bot", text: "Implementar un botón de 'Refresco Manual' en el dashboard del dueño, limitado a una vez cada 24 horas, para forzar la actualización de su caché.", completed: false },
                  { who: "bot", text: "Crear herramientas de gestión para el `super_admin` que permitan disparar el cron job manualmente y configurar su frecuencia.", completed: false },
             ]
