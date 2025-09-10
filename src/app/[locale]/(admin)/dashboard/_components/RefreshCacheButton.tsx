@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, RefreshCw } from "lucide-react";
 import { refreshBusinessDataCache } from '@/actions/business.actions';
-import { differenceInHours } from 'date-fns';
 
 interface RefreshCacheButtonProps {
     businessId: string;
@@ -40,9 +39,11 @@ export function RefreshCacheButton({ businessId, lastUpdateTime, onRefreshComple
         });
     };
 
-    const now = new Date();
-    const hoursSinceLastUpdate = lastUpdateTime ? differenceInHours(now, lastUpdateTime) : 25;
-    const canRefresh = hoursSinceLastUpdate >= 24;
+    // Temporarily remove the time check for debugging purposes.
+    // const now = new Date();
+    // const hoursSinceLastUpdate = lastUpdateTime ? differenceInHours(now, lastUpdateTime) : 25;
+    // const canRefresh = hoursSinceLastUpdate >= 24;
+    const canRefresh = true; // Always allow refresh for now.
 
     return (
         <Button onClick={handleRefresh} disabled={isPending || !canRefresh} variant="outline" size="sm">
