@@ -6,7 +6,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Building, Phone, Globe, MapPin, Clock, Star, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 
 const StarRating = ({ rating, className }: { rating: number; className?: string }) => (
     <div className={`flex items-center gap-1 ${className}`}>
@@ -38,7 +37,6 @@ export default async function MyBusinessPage() {
         )
     }
     
-    const center = business.location ? { lat: business.location.latitude, lng: business.location.longitude } : null;
     const photoUrls = business.photos?.map(photo => `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=1000&key=${googleMapsApiKey}`) || [];
 
     return (
@@ -123,19 +121,8 @@ export default async function MyBusinessPage() {
                             </CardContent>
                         </Card>
                     )}
-                     {googleMapsApiKey && center && (
-                        <div className="h-64 w-full rounded-lg overflow-hidden border-2 border-primary/20 shadow-lg">
-                             <APIProvider apiKey={googleMapsApiKey}>
-                                <Map defaultCenter={center} defaultZoom={15} mapId="businessLocationMap" gestureHandling="cooperative">
-                                    <Marker position={center} />
-                                </Map>
-                            </APIProvider>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
     )
 }
-
-    
