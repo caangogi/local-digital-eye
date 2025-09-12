@@ -24,4 +24,3 @@ export async function createStripePortalSession(stripeCustomerId: string): Promi
 
     return { url: portalSession.url };
 }
-
