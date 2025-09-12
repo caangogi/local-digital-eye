@@ -13,7 +13,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth.tsx";
-import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye, Map, Building, Star } from "lucide-react";
+import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, Search, Eye, Map, Building, Star, MessageSquare } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 
@@ -37,7 +37,7 @@ export function AppSidebar() {
 
   const ownerNavItems = [
     { href: "/dashboard", label: t('dashboard'), icon: <LayoutDashboard /> },
-    { href: "/mi-negocio", label: t('myBusiness'), icon: <Building /> },
+    { href: "/feedback", label: 'Feedback', icon: <MessageSquare /> },
   ];
 
   const navItems = user?.role === 'owner' ? ownerNavItems : adminNavItems;

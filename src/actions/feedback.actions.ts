@@ -6,10 +6,12 @@
  */
 import { FirebaseFeedbackRepository } from '@/backend/feedback/infrastructure/firebase-feedback.repository';
 import { SubmitNegativeFeedbackUseCase } from '@/backend/feedback/application/submit-negative-feedback.use-case';
+import { ListBusinessFeedbackUseCase } from '@/backend/feedback/application/list-business-feedback.use-case';
 import type { Feedback } from '@/backend/feedback/domain/feedback.entity';
 
 const feedbackRepository = new FirebaseFeedbackRepository();
 const submitNegativeFeedbackUseCase = new SubmitNegativeFeedbackUseCase(feedbackRepository);
+const listBusinessFeedbackUseCase = new ListBusinessFeedbackUseCase(feedbackRepository);
 
 interface SubmitFeedbackInput {
     businessId: string;
@@ -57,4 +59,22 @@ export async function submitNegativeFeedback(feedbackData: SubmitFeedbackInput):
     console.error('Error submitting feedback:', error);
     return { success: false, message: error.message || 'An unexpected error occurred while submitting feedback.' };
   }
+}
+
+
+/**
+ * Lists all feedback for a specific business.
+ * This action would typically be protected to ensure only the business owner or an admin can see it.
+ * @param businessId The ID of the business whose feedback is to be retrieved.
+ * @returns An array of feedback objects.
+ */
+export async function listBusinessFeedback(businessId: string): Promise<Feedback[]> {
+    try {
+        console.log(`[FeedbackAction] Fetching feedback for business ${businessId}`);
+        const feedbackItems = await listBusinessFeedbackUseCase.execute(businessId);
+        return feedbackItems;
+    } catch (error: any) {
+        console.error(`Error listing feedback for business ${businessId}:`, error);
+        return []; // Return empty on error to prevent crashes
+    }
 }

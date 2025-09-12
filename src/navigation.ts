@@ -74,6 +74,10 @@ export const pathnames = {
     en: '/my-business',
     es: '/mi-negocio'
   },
+   '/feedback': {
+    en: '/feedback',
+    es: '/feedback'
+  },
 } satisfies Pathnames<typeof locales>;
 
 
