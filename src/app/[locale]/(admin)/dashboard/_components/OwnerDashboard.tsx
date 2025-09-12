@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import Image from "next/image";
 import QRCode from "qrcode";
 import { useToast } from '@/hooks/use-toast';
-import { TrialCountdownBanner } from "./_components/TrialCountdownBanner";
+import { TrialCountdownBanner } from "./TrialCountdownBanner";
 import { DebugCollapse } from '@/components/dev/DebugCollapse';
 
 interface OwnerDashboardProps {
