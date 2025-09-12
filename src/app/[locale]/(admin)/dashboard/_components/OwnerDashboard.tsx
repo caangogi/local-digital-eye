@@ -12,7 +12,6 @@ import Image from "next/image";
 import QRCode from "qrcode";
 import { useToast } from '@/hooks/use-toast';
 import { TrialCountdownBanner } from "./_components/TrialCountdownBanner";
-import { RefreshCacheButton } from "./_components/RefreshCacheButton";
 import { DebugCollapse } from '@/components/dev/DebugCollapse';
 
 interface OwnerDashboardProps {
@@ -96,11 +95,6 @@ export function OwnerDashboard({ business: initialBusiness }: OwnerDashboardProp
             <h1 className="text-3xl font-bold tracking-tight font-headline">Panel de {business.name}</h1>
             <p className="text-muted-foreground">¡Bienvenido! Aquí tienes un resumen del rendimiento y herramientas para tu negocio.</p>
           </div>
-          <RefreshCacheButton 
-            businessId={business.id}
-            lastUpdateTime={business.gmbInsightsCache?.lastUpdateTime}
-            onRefreshComplete={handleRefreshComplete}
-          />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
