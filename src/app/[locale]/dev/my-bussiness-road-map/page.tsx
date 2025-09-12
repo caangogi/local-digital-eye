@@ -130,8 +130,8 @@ const phases = [
             title: "Hito 2.3: Dashboard del Dueño (Fase 1) y Flujo de Pago",
             icon: <DollarSign />,
             tasks: [
-                { who: "bot", text: "Enriquecer el Dashboard del Dueño mostrando los datos ya disponibles en Firestore (Rating, Nº Reseñas, `topReviews`, etc.).", completed: false },
-                { who: "bot", text: "Crear una nueva sección/página 'Feedback de Clientes' para que el dueño pueda ver las reseñas negativas que le han dejado desde el formulario privado.", completed: false },
+                { who: "bot", text: "Enriquecer el Dashboard del Dueño mostrando los datos ya disponibles en Firestore (Rating, Nº Reseñas, `topReviews`, etc.).", completed: true },
+                { who: "bot", text: "Crear una nueva sección/página 'Feedback de Clientes' para que el dueño pueda ver las reseñas negativas que le han dejado desde el formulario privado.", completed: true },
                 { who: "bot", text: "Actualizar `generateOnboardingLink` para aceptar un `planType` ('freemium', 'professional') y guardarlo en el token JWT.", completed: false },
                 { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: true },
@@ -266,3 +266,5 @@ export default function MyBusinessRoadMapPage() {
     </div>
   );
 }
+
+    

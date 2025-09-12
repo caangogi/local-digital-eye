@@ -61,7 +61,7 @@ export async function generateOnboardingLink(input: OnboardingLinkInput): Promis
 
   // 5. Sign the token
   const token = jwt.sign(payload, jwtSecret, { expiresIn: '7d' }); // Token is valid for 7 days
-  console.log(`[OnboardingAction] Generated onboarding token for business ${businessId}`);
+  console.log(`[OnboardingAction] Generated onboarding token for business ${businessId} with plan ${planType}`);
 
   // 6. Construct the final URL
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
@@ -119,3 +119,5 @@ export async function validateOnboardingToken(token: string): Promise<Business> 
         throw error; // Re-throw other errors
     }
 }
+
+    

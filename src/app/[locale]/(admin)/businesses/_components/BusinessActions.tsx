@@ -109,6 +109,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const handleGenerateOnboardingLink = async () => {
     setIsGeneratingLink(true);
     try {
+        // For now, we default to the 'freemium' plan. This can be expanded later.
         const link = await generateOnboardingLink({ businessId: business.id, planType: 'freemium' });
         setOnboardingLink(link);
         setIsActionsModalOpen(false);
@@ -269,3 +270,5 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     </>
   );
 }
+
+    
