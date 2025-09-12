@@ -118,7 +118,7 @@ const phases = [
             ]
         },
         {
-            title: "Hito 2.2: Dashboard del Dueño del Negocio",
+            title: "Hito 2.2: Dashboard del Dueño del Negocio (Simplificación Inicial)",
             icon: <UserCog />,
             tasks: [
                  { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`, separando su experiencia de la del administrador.", completed: true },
@@ -127,13 +127,13 @@ const phases = [
             ]
         },
         {
-            title: "Hito 2.3: Dashboard del Dueño (Fase 1) y Flujo de Pago",
+            title: "Hito 2.3: Onboarding de Pago y Dashboard Funcional",
             icon: <DollarSign />,
             tasks: [
-                { who: "bot", text: "Enriquecer el Dashboard del Dueño mostrando los datos ya disponibles en Firestore (Rating, Nº Reseñas, `topReviews`, etc.).", completed: true },
-                { who: "bot", text: "Crear una nueva sección/página 'Feedback de Clientes' para que el dueño pueda ver las reseñas negativas que le han dejado desde el formulario privado.", completed: true },
-                { who: "bot", text: "Actualizar `generateOnboardingLink` para aceptar un `planType` ('freemium', 'professional') y guardarlo en el token JWT.", completed: false },
-                { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
+                { who: "bot", text: "Enriquecer el Dashboard del Dueño con los datos de Firestore (Rating, Nº Reseñas, `topReviews`, herramientas para compartir QR y enlaces).", completed: true },
+                { who: "bot", text: "Crear la página 'Feedback de Clientes' para que el dueño pueda ver las reseñas negativas que le han dejado desde el formulario privado.", completed: true },
+                { who: "bot", text: "Actualizar `generateOnboardingLink` y la UI para aceptar un `planType` ('freemium', 'professional', 'premium') y guardarlo en el token JWT.", completed: true },
+                { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe y añadir los Price IDs a las variables de entorno.", completed: false },
                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: true },
                 { who: "bot", text: "Modificar el flujo de `callback` de OAuth: si el plan es de pago, redirigir al usuario a una sesión de Stripe Checkout.", completed: false },
                 { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore.", completed: false },
@@ -267,4 +267,3 @@ export default function MyBusinessRoadMapPage() {
   );
 }
 
-    
