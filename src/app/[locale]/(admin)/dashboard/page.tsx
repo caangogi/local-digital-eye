@@ -130,13 +130,6 @@ const OwnerDashboard = ({ business }: OwnerDashboardProps) => {
             <h1 className="text-3xl font-bold tracking-tight font-headline">Panel de {business.name}</h1>
             <p className="text-muted-foreground">¡Bienvenido! Aquí tienes un resumen del rendimiento y herramientas para tu negocio.</p>
           </div>
-          {business && (
-              <RefreshCacheButton 
-                businessId={business.id} 
-                lastUpdateTime={business.gmbInsightsCache?.lastUpdateTime}
-                onRefreshComplete={setDebugData}
-              />
-          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
