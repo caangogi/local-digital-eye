@@ -55,7 +55,7 @@ export const pathnames = {
   },
   '/settings/billing': {
     en: '/settings/billing',
-    es: '/facturacion'
+    es: '/settings/billing' // Simplified to use the same path for both languages
   },
   // This is a dynamic route, we need to specify the slug part
   '/negocio/[businessId]': {
@@ -83,3 +83,5 @@ export const pathnames = {
 
 export const {Link, redirect, usePathname, useRouter} =
   createLocalizedPathnamesNavigation({locales, localePrefix, pathnames});
+
+    
