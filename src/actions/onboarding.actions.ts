@@ -15,6 +15,7 @@ import type { Business, SubscriptionPlan } from '@/backend/business/domain/busin
 const OnboardingLinkInputSchema = z.object({
   businessId: z.string(),
   planType: z.enum(['freemium', 'professional', 'premium']).default('freemium'),
+  setupFee: z.number().optional().describe("Optional setup fee in cents"),
 });
 
 type OnboardingLinkInput = z.infer<typeof OnboardingLinkInputSchema>;
@@ -26,7 +27,7 @@ type OnboardingLinkInput = z.infer<typeof OnboardingLinkInputSchema>;
  */
 export async function generateOnboardingLink(input: OnboardingLinkInput): Promise<string> {
   // 1. Validate input
-  const { businessId, planType } = OnboardingLinkInputSchema.parse(input);
+  const { businessId, planType, setupFee } = OnboardingLinkInputSchema.parse(input);
 
   // 2. Authorize the action (ensure the user is an admin and owns the business)
   const sessionCookie = (await cookies()).get('session')?.value;
@@ -54,14 +55,17 @@ export async function generateOnboardingLink(input: OnboardingLinkInput): Promis
   }
 
   // 4. Create JWT payload
-  const payload = {
+  const payload: { businessId: string, planType: SubscriptionPlan, setupFee?: number } = {
     businessId,
     planType,
   };
+  if (setupFee && setupFee > 0) {
+    payload.setupFee = setupFee;
+  }
 
   // 5. Sign the token
   const token = jwt.sign(payload, jwtSecret, { expiresIn: '7d' }); // Token is valid for 7 days
-  console.log(`[OnboardingAction] Generated onboarding token for business ${businessId} with plan ${planType}`);
+  console.log(`[OnboardingAction] Generated onboarding token for business ${businessId} with plan ${planType} and setup fee ${setupFee}`);
 
   // 6. Construct the final URL
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
@@ -205,3 +209,5 @@ function createInvitationEmailHtml({ onboardingLink, businessName, planName }: O
       </html>
   `;
 }
+
+    

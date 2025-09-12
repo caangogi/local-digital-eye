@@ -95,12 +95,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const onboardingToken = localStorage.getItem(ONBOARDING_TOKEN_KEY);
         if (onboardingToken) {
             console.log(`[Auth] Onboarding token found. Decoding to get businessId and planType.`);
-            const decodedToken = decode(onboardingToken) as { businessId: string; planType: SubscriptionPlan; };
+            const decodedToken = decode(onboardingToken) as { businessId: string; planType: SubscriptionPlan; setupFee?: number };
             
             if (decodedToken && decodedToken.businessId && decodedToken.planType) {
                 console.log(`[Auth] Redirecting to OAuth flow for business ${decodedToken.businessId} with plan ${decodedToken.planType}.`);
                 localStorage.removeItem(ONBOARDING_TOKEN_KEY); // Clean up the token
-                const oauthUrl = await getGoogleOAuthConsentUrl(decodedToken.businessId, decodedToken.planType);
+                
+                const oauthUrl = await getGoogleOAuthConsentUrl(decodedToken.businessId, decodedToken.planType, decodedToken.setupFee);
                 window.location.href = oauthUrl; // Redirect to Google OAuth consent screen
                 return; // Stop further execution
             } else {

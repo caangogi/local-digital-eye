@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useForm } from "react-hook-form";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { 
@@ -32,7 +33,7 @@ import {
     DropdownMenuSeparator, 
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus, Gift, Star, Crown, Send, MessageSquare } from "lucide-react";
+import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus, Gift, Star, Crown, Send, MessageSquare, DollarSign, Ban } from "lucide-react";
 import { Link } from "@/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
@@ -44,20 +45,40 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ExtendTrialDialog } from './dialogs/ExtendTrialDialog';
+import { Switch } from '@/components/ui/switch';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 
 interface BusinessActionsProps {
   business: Business;
   baseUrl: string;
 }
 
+const setupFeeSchema = z.object({
+  includeFee: z.boolean().default(true),
+  feeAmount: z.coerce.number().optional(),
+}).refine(data => {
+  if (data.includeFee) {
+    return data.feeAmount && data.feeAmount > 0;
+  }
+  return true;
+}, {
+  message: "El importe debe ser mayor que 0.",
+  path: ["feeAmount"],
+});
+
+type SetupFeeFormValues = z.infer<typeof setupFeeSchema>;
+
 export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const [isActionsModalOpen, setIsActionsModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isExtendTrialModalOpen, setIsExtendTrialModalOpen] = useState(false);
+  const [isSetupFeeModalOpen, setIsSetupFeeModalOpen] = useState(false);
+
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isGeneratingLink, setIsGeneratingLink] = useState<SubscriptionPlan | null>(null);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   const [onboardingLink, setOnboardingLink] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
@@ -65,6 +86,15 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   
   const { toast } = useToast();
+  
+  const form = useForm<SetupFeeFormValues>({
+    resolver: zodResolver(setupFeeSchema),
+    defaultValues: {
+      includeFee: true,
+      feeAmount: 279,
+    },
+  });
+  const includeFee = form.watch("includeFee");
 
   const profileLink = `${baseUrl}/negocio/${business.id}`;
 
@@ -103,8 +133,9 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
 
   const handleConnectGoogle = async () => {
     setIsConnecting(true);
+    // For manual re-connection, we assume the freemium path as it's the simplest.
     try {
-      const url = await getGoogleOAuthConsentUrl(business.id);
+      const url = await getGoogleOAuthConsentUrl(business.id, 'freemium');
       window.location.href = url;
     } catch (error: any) {
       toast({
@@ -112,17 +143,22 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
         description: "No se pudo iniciar la conexión con Google. " + error.message,
         variant: "destructive",
       });
-      setIsConnecting(false); // Reset on error
+      setIsConnecting(false);
     }
   };
 
-  const handleGenerateOnboardingLink = async (planType: SubscriptionPlan) => {
-    setIsGeneratingLink(planType);
+  const handleGenerateOnboardingLink = async (planType: SubscriptionPlan, setupFee?: number) => {
+    setIsGeneratingLink(true);
     try {
-        const link = await generateOnboardingLink({ businessId: business.id, planType });
+        const link = await generateOnboardingLink({ 
+            businessId: business.id, 
+            planType,
+            setupFee: setupFee ? setupFee * 100 : undefined // Convert to cents
+        });
         setOnboardingLink(link);
         setSelectedPlan(planType);
         setIsActionsModalOpen(false);
+        setIsSetupFeeModalOpen(false);
         setIsOnboardingModalOpen(true);
     } catch (error: any) {
         toast({
@@ -131,12 +167,21 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
             variant: "destructive",
         });
     } finally {
-        setIsGeneratingLink(null);
+        setIsGeneratingLink(false);
     }
+  };
+
+  const handleOpenSetupFeeModal = (plan: SubscriptionPlan) => {
+    setSelectedPlan(plan);
+    setIsSetupFeeModalOpen(true);
+  };
+  
+  const handleSetupFeeSubmit = (data: SetupFeeFormValues) => {
+    if (!selectedPlan || selectedPlan === 'freemium') return;
+    handleGenerateOnboardingLink(selectedPlan, data.includeFee ? data.feeAmount : undefined);
   };
   
   const handleDisconnectBusiness = () => {
-    // Here you would call the server action to disconnect the business
     console.log(`Disconnecting business ${business.id}`);
     toast({
         title: "Negocio Desconectado",
@@ -240,16 +285,16 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
                     <DropdownMenuContent>
                         <DropdownMenuLabel>Seleccionar Plan de Invitación</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('freemium')} disabled={isGeneratingLink === 'freemium'}>
-                            {isGeneratingLink === 'freemium' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Gift className="mr-2 h-4 w-4" />}
+                        <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('freemium')} disabled={isGeneratingLink}>
+                            {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Gift className="mr-2 h-4 w-4" />}
                             Prueba Gratuita
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('professional')} disabled={isGeneratingLink === 'professional'}>
-                             {isGeneratingLink === 'professional' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Star className="mr-2 h-4 w-4" />}
+                        <DropdownMenuItem onClick={() => handleOpenSetupFeeModal('professional')} disabled={isGeneratingLink}>
+                             <Star className="mr-2 h-4 w-4" />
                             Plan Profesional
                         </DropdownMenuItem>
-                         <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('premium')} disabled={isGeneratingLink === 'premium'}>
-                             {isGeneratingLink === 'premium' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Crown className="mr-2 h-4 w-4" />}
+                         <DropdownMenuItem onClick={() => handleOpenSetupFeeModal('premium')} disabled={isGeneratingLink}>
+                             <Crown className="mr-2 h-4 w-4" />
                             Plan Premium
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -348,6 +393,53 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <Dialog open={isSetupFeeModalOpen} onOpenChange={setIsSetupFeeModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={form.handleSubmit(handleSetupFeeSubmit)}>
+              <DialogHeader>
+                  <DialogTitle>Configurar Invitación de Pago</DialogTitle>
+                  <DialogDescription>
+                    Define si quieres incluir una cuota de alta para el <strong className="text-foreground">{getPlanName(selectedPlan)}</strong>.
+                  </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                  <div className="flex items-center space-x-2">
+                      <Switch 
+                          id="include-fee" 
+                          checked={includeFee} 
+                          onCheckedChange={(checked) => form.setValue("includeFee", checked)}
+                      />
+                      <Label htmlFor="include-fee">Incluir Cuota de Alta</Label>
+                  </div>
+                  {includeFee && (
+                      <div className="grid gap-2">
+                          <Label htmlFor="fee-amount">Importe de la Cuota de Alta (€)</Label>
+                           <div className="relative">
+                               <Input 
+                                  id="fee-amount" 
+                                  type="number"
+                                  step="0.01"
+                                  {...form.register("feeAmount")}
+                               />
+                               <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">€</div>
+                           </div>
+                           {form.formState.errors.feeAmount && (
+                              <p className="text-sm text-destructive">{form.formState.errors.feeAmount.message}</p>
+                           )}
+                      </div>
+                  )}
+              </div>
+              <DialogFooter>
+                  <Button type="button" variant="ghost" onClick={() => setIsSetupFeeModalOpen(false)}>Cancelar</Button>
+                  <Button type="submit" disabled={isGeneratingLink}>
+                    {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                    Generar Enlace de Invitación
+                  </Button>
+              </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <ExtendTrialDialog 
         businessId={business.id}
@@ -358,3 +450,5 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     </>
   );
 }
+
+    

@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { businessId, userId, planType } = JSON.parse(Buffer.from(state, 'base64').toString('utf-8')) as { businessId: string; userId: string; planType: SubscriptionPlan };
+    const { businessId, userId, planType, setupFee } = JSON.parse(Buffer.from(state, 'base64').toString('utf-8')) as { businessId: string; userId: string; planType: SubscriptionPlan, setupFee?: number };
     if (!businessId || !userId || !planType) {
       throw new Error('Invalid state: businessId, userId, or planType is missing.');
     }
-    console.log(`[OAuth Callback] Processing callback for businessId: ${businessId}, userId: ${userId}, planType: ${planType}`);
+    console.log(`[OAuth Callback] Processing callback for businessId: ${businessId}, userId: ${userId}, planType: ${planType}, setupFee: ${setupFee}`);
     
     const userRecord = await auth.getUser(userId);
     if (userRecord.customClaims?.role !== 'owner') {
@@ -97,23 +97,39 @@ export async function GET(request: NextRequest) {
         price: planType === 'professional' ? professionalPriceId : premiumPriceId,
         quantity: 1,
       },
-      {
+    ];
+
+    if (setupFee && setupFee > 0) {
+      lineItems.push({
         price_data: {
           currency: 'eur',
           product_data: {
             name: 'Cuota de Alta y Configuración Inicial',
           },
-          unit_amount: planType === 'professional' ? SETUP_FEES.professional : SETUP_FEES.premium,
+          unit_amount: setupFee, // fee in cents
         },
         quantity: 1,
-      }
-    ];
+      });
+    }
+
 
     const successUrl = new URL('/dashboard', baseUrl);
     successUrl.searchParams.set('payment', 'success');
     const cancelUrl = new URL('/dashboard', baseUrl);
     cancelUrl.searchParams.set('payment', 'cancelled');
     
+    const checkoutSessionMetadata = {
+        firebaseUID: userId,
+        businessId: businessId,
+        planType: planType,
+        gmb_auth_code: code,
+    };
+    if (setupFee) {
+        // @ts-ignore
+        checkoutSessionMetadata.setupFee = setupFee;
+    }
+
+
     // Create Stripe Checkout Session
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
@@ -128,12 +144,7 @@ export async function GET(request: NextRequest) {
             businessId: businessId,
         }
       },
-      metadata: { // Also add to session metadata for webhook retrieval before subscription is created
-        firebaseUID: userId,
-        businessId: businessId,
-        planType: planType,
-        gmb_auth_code: code, // Temporarily store the GMB auth code
-      }
+      metadata: checkoutSessionMetadata
     });
 
     if (!checkoutSession.url) {
@@ -141,8 +152,6 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`[OAuth Callback] Stripe Checkout session created for business ${businessId}. Redirecting to Stripe.`);
-    // IMPORTANT: Instead of saving GMB tokens now, we will save them in the Stripe webhook after successful payment.
-    // The `gmb_auth_code` is stored in the session metadata to be retrieved later.
     
     // Update the business with the plan and customer ID before redirecting
     business.subscriptionPlan = planType;
@@ -159,3 +168,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 }
+
+    
