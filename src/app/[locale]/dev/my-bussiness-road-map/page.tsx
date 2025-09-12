@@ -124,32 +124,30 @@ const phases = [
                  { who: "bot", text: "Diseñar y construir un dashboard específico para el rol 'owner' en la ruta `/dashboard`, separando su experiencia de la del administrador.", completed: true },
                  { who: "bot", text: "Implementar la lógica de `trialEndsAt`: al conectar un negocio, establecer una fecha de fin de prueba (ej: 7 días en el futuro) en la entidad `Business`.", completed: true },
                  { who: "bot", text: "Añadir un componente de 'Banner de Cuenta Atrás' en el dashboard del dueño que muestre los días restantes de la prueba.", completed: true },
-                 { who: "bot", text: "Enriquecer el dashboard con métricas clave de GMB (vistas, búsquedas, valoraciones) obtenidas de nuestra caché de datos.", completed: false },
-                 { who: "bot", text: "Añadir una sección de 'Últimas Reseñas' al dashboard, leyendo desde la caché.", completed: false },
             ]
         },
         {
-            title: "Hito 2.3: Gestión de Planes y Suscripciones con Stripe",
+            title: "Hito 2.3: Dashboard del Dueño (Fase 1) y Flujo de Pago",
             icon: <DollarSign />,
             tasks: [
-                 { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
-                 { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: true },
-                 { who: "bot", text: "Si el token de onboarding es de tipo 'premium', después del OAuth, redirigir al usuario a una sesión de Stripe Checkout para el pago.", completed: false },
-                 { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore.", completed: false },
-                 { who: "bot", text: "Crear un `cron job` diario que verifique los negocios en `freemium` cuya `trialEndsAt` haya expirado, cambie su estado y envíe notificaciones.", completed: false },
-                 { who: "bot", text: "Implementar un portal de cliente de Stripe para que el dueño pueda gestionar su suscripción (ej. actualizar método de pago, cancelar).", completed: false },
+                { who: "bot", text: "Enriquecer el Dashboard del Dueño mostrando los datos ya disponibles en Firestore (Rating, Nº Reseñas, `topReviews`, etc.).", completed: false },
+                { who: "bot", text: "Crear una nueva sección/página 'Feedback de Clientes' para que el dueño pueda ver las reseñas negativas que le han dejado desde el formulario privado.", completed: false },
+                { who: "bot", text: "Actualizar `generateOnboardingLink` para aceptar un `planType` ('freemium', 'professional') y guardarlo en el token JWT.", completed: false },
+                { who: "user", text: "Crear productos y precios (Suscripción Profesional, Premium) en el dashboard de Stripe.", completed: false },
+                { who: "bot", text: "Añadir a la entidad `Business` los campos: `subscriptionPlan`, `stripeCustomerId`, `stripeSubscriptionId`.", completed: true },
+                { who: "bot", text: "Modificar el flujo de `callback` de OAuth: si el plan es de pago, redirigir al usuario a una sesión de Stripe Checkout.", completed: false },
+                { who: "bot", text: "Crear un Webhook en `/api/webhooks/stripe` que escuche eventos de Stripe para actualizar el estado de la suscripción del negocio en Firestore.", completed: false },
             ]
         },
         {
-            title: "Hito 2.4: Sistema de Caché de Datos de GMB",
+            title: "Hito 2.4: Sistema de Caché de Datos de GMB (En Pausa)",
             icon: <CloudCog />,
             tasks: [
-                 { who: "bot", text: "Actualizar la Entidad `Business` y Repositorio con el campo `gmbInsightsCache`.", completed: true },
-                 { who: "user", text: "Habilitar las APIs `Business Profile Performance`, `My Business Account Management`, `Business Information` y `Q&A` en Google Cloud.", completed: true},
-                 { who: "bot", text: "Implementar el Adaptador de la API de Google (`GmbApiAdapter`) para encapsular las llamadas a la API, incluyendo la lógica para refrescar tokens de acceso.", completed: true },
-                 { who: "bot", text: "Construir el Cron Job de Actualización Diaria (lógica en un `UseCase`) que actualiza la caché de todos los negocios conectados.", completed: true },
+                 { who: "bot", text: "Actualizar la Entidad `Business` y Repositorio con el campo `gmbInsightsCache`." },
+                 { who: "user", text: "Habilitar las APIs `Business Profile Performance`, `My Business Account Management`, `Business Information` y `Q&A` en Google Cloud y solicitar aumento de cuota." },
+                 { who: "bot", text: "Implementar el Adaptador de la API de Google (`GmbApiAdapter`) para encapsular las llamadas a la API, incluyendo la lógica para refrescar tokens de acceso." },
+                 { who: "bot", text: "Construir el Cron Job de Actualización Diaria (lógica en un `UseCase`) que actualiza la caché de todos los negocios conectados." },
                  { who: "bot", text: "Implementar un botón de 'Refresco Manual' en el dashboard del dueño, limitado a una vez cada 24 horas, para forzar la actualización de su caché.", completed: false },
-                 { who: "bot", text: "Crear herramientas de gestión para el `super_admin` que permitan disparar el cron job manualmente y configurar su frecuencia.", completed: false },
             ]
         }
     ]
