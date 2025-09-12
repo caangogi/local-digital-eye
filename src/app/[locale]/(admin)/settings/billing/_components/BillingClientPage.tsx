@@ -176,10 +176,10 @@ export function BillingClientPage({ business }: BillingClientPageProps) {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button 
+                         <Button 
                             className="w-full" 
                             disabled={currentPlanId === plan.id}
-                            variant={plan.isRecommended ? "default" : "outline"}
+                            variant={currentPlanId === plan.id ? "outline" : (plan.isRecommended ? "default" : "secondary")}
                         >
                             {currentPlanId === plan.id ? <ShieldCheck className="mr-2 h-4 w-4"/> : <Star className="mr-2 h-4 w-4"/>}
                             {currentPlanId === plan.id ? 'Plan Actual' : plan.cta}
