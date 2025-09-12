@@ -23,8 +23,11 @@ import {
 import { auth as clientAuth } from '@/lib/firebase/firebase-client-config';
 import { createSession, clearSession } from '@/actions/auth.actions';
 import { getGoogleOAuthConsentUrl } from '@/actions/oauth.actions';
+import { decode } from 'jsonwebtoken';
+import type { SubscriptionPlan } from '@/backend/business/domain/business.entity';
 
-const ONBOARDING_BUSINESS_ID_KEY = 'onboardingBusinessId';
+
+const ONBOARDING_TOKEN_KEY = 'onboardingToken';
 
 
 interface User {
@@ -89,13 +92,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         console.log('[Auth] User state set. Role:', response.claims.role, 'Checking for onboarding flow...');
         
-        const onboardingBusinessId = localStorage.getItem(ONBOARDING_BUSINESS_ID_KEY);
-        if (onboardingBusinessId) {
-            console.log(`[Auth] Onboarding detected for business ${onboardingBusinessId}. Redirecting to OAuth flow.`);
-            localStorage.removeItem(ONBOARDING_BUSINESS_ID_KEY);
-            const oauthUrl = await getGoogleOAuthConsentUrl(onboardingBusinessId);
-            window.location.href = oauthUrl;
-            return; 
+        const onboardingToken = localStorage.getItem(ONBOARDING_TOKEN_KEY);
+        if (onboardingToken) {
+            console.log(`[Auth] Onboarding token found. Decoding to get businessId and planType.`);
+            const decodedToken = decode(onboardingToken) as { businessId: string; planType: SubscriptionPlan; };
+            
+            if (decodedToken && decodedToken.businessId && decodedToken.planType) {
+                console.log(`[Auth] Redirecting to OAuth flow for business ${decodedToken.businessId} with plan ${decodedToken.planType}.`);
+                localStorage.removeItem(ONBOARDING_TOKEN_KEY); // Clean up the token
+                const oauthUrl = await getGoogleOAuthConsentUrl(decodedToken.businessId, decodedToken.planType);
+                window.location.href = oauthUrl; // Redirect to Google OAuth consent screen
+                return; // Stop further execution
+            } else {
+                 console.warn('[Auth] Onboarding token was found but was invalid or malformed.');
+                 localStorage.removeItem(ONBOARDING_TOKEN_KEY);
+            }
         }
 
         const nextUrl = searchParams.get('next') || '/dashboard';
@@ -346,3 +357,5 @@ export function useAuth(): AuthState {
   }
   return context;
 }
+
+    

@@ -18,7 +18,7 @@ import { validateOnboardingToken } from '@/actions/onboarding.actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const ONBOARDING_BUSINESS_ID_KEY = 'onboardingBusinessId';
+const ONBOARDING_TOKEN_KEY = 'onboardingToken';
 
 
 interface OnboardingViewProps {
@@ -119,12 +119,13 @@ export function OnboardingView({ token }: OnboardingViewProps) {
       try {
         const businessDetails = await validateOnboardingToken(token);
         setBusiness(businessDetails);
-        localStorage.setItem(ONBOARDING_BUSINESS_ID_KEY, businessDetails.id);
-        console.log(`[OnboardingView] Business ID ${businessDetails.id} saved to localStorage.`);
+        // Save the whole token to be able to retrieve the planType later
+        localStorage.setItem(ONBOARDING_TOKEN_KEY, token);
+        console.log(`[OnboardingView] Onboarding token saved to localStorage.`);
         setValidationState('valid');
       } catch (e: any) {
         setErrorKey(e.message || 'invalidLink');
-        localStorage.removeItem(ONBOARDING_BUSINESS_ID_KEY);
+        localStorage.removeItem(ONBOARDING_TOKEN_KEY);
         setValidationState('invalid');
       }
     };
@@ -269,3 +270,5 @@ export function OnboardingView({ token }: OnboardingViewProps) {
     </Card>
   );
 }
+
+    
