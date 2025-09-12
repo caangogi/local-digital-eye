@@ -95,12 +95,18 @@ export function BillingClientPage({ business }: BillingClientPageProps) {
 
         setIsPortalLoading(true);
         try {
-            const { url } = await createStripePortalSession(business.stripeCustomerId);
-            window.location.href = url;
-        } catch (error) {
+            const response = await createStripePortalSession(business.stripeCustomerId);
+            
+            if (response.url) {
+                window.location.href = response.url;
+            } else {
+                throw new Error(response.error || "No se pudo abrir el portal de gestión de suscripción. Por favor, inténtalo de nuevo.");
+            }
+
+        } catch (error: any) {
             toast({
                 title: "Error",
-                description: "No se pudo abrir el portal de gestión de suscripción. Por favor, inténtalo de nuevo.",
+                description: error.message,
                 variant: "destructive",
             });
             setIsPortalLoading(false);
