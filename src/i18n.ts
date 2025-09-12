@@ -35,6 +35,6 @@ export default getRequestConfig(async ({locale}) => {
   return {
     locale,
     messages,
-    timeZone: 'Europe/London'
+    timeZone: 'Europe/Madrid'
   };
 });

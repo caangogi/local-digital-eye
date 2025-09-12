@@ -98,10 +98,11 @@ export async function GET(request: NextRequest) {
         stripeCustomerId = customer.id;
     }
 
-    const lineItems = [{
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [{
         price: planType === 'professional' ? professionalPriceId : premiumPriceId,
         quantity: 1,
     }];
+
     if (setupFee && setupFee > 0) {
       lineItems.push({
         price_data: { currency: 'eur', product_data: { name: 'Cuota de Alta y Configuración Inicial' }, unit_amount: setupFee },
@@ -126,7 +127,7 @@ export async function GET(request: NextRequest) {
       customer: stripeCustomerId,
       payment_method_types: ['card'],
       line_items: lineItems,
-      mode: 'subscription',
+      mode: setupFee && setupFee > 0 ? 'subscription' : 'subscription',
       success_url: successUrl.toString(),
       cancel_url: cancelUrl.toString(),
       // We pass the businessId and userId to the subscription metadata, so the webhook can use it.

@@ -7,10 +7,12 @@ import { es } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
 import { Timer, ArrowRight, XCircle } from 'lucide-react';
-import { Link } from '@/navigation';
+import { Link, useRouter } from '@/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 interface TrialCountdownBannerProps {
-    trialEndsAt: Date;
+    trialEndsAt: Date | null | undefined;
 }
 
 const calculateTimeLeft = (endDate: Date) => {
@@ -35,9 +37,37 @@ const calculateTimeLeft = (endDate: Date) => {
 
 export function TrialCountdownBanner({ trialEndsAt }: TrialCountdownBannerProps) {
     const [isVisible, setIsVisible] = useState(true);
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(trialEndsAt));
+    const [timeLeft, setTimeLeft] = useState(trialEndsAt ? calculateTimeLeft(trialEndsAt) : null);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { toast } = useToast();
 
     useEffect(() => {
+        // Handle payment success toast and refresh
+        const paymentStatus = searchParams.get('payment');
+        if (paymentStatus === 'success') {
+            toast({
+                title: "¡Pago completado!",
+                description: "Tu suscripción ha sido activada correctamente. ¡Bienvenido!",
+                variant: 'default',
+            });
+            router.refresh();
+            // Clean up URL to avoid re-triggering toast on refresh
+            window.history.replaceState(null, '', window.location.pathname);
+        } else if (paymentStatus === 'cancelled') {
+             toast({
+                title: "Pago cancelado",
+                description: "El proceso de pago fue cancelado. Puedes intentarlo de nuevo desde la página de facturación.",
+                variant: 'destructive',
+            });
+            router.refresh();
+            window.history.replaceState(null, '', window.location.pathname);
+        }
+    }, [searchParams, toast, router]);
+
+
+    useEffect(() => {
+        if (!trialEndsAt) return;
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft(trialEndsAt));
         }, 1000);
@@ -45,7 +75,7 @@ export function TrialCountdownBanner({ trialEndsAt }: TrialCountdownBannerProps)
         return () => clearInterval(timer);
     }, [trialEndsAt]);
 
-    if (!isVisible) {
+    if (!isVisible || !trialEndsAt || !timeLeft) {
         return null;
     }
 

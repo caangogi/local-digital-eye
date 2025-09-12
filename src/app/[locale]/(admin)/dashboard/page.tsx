@@ -122,7 +122,7 @@ const OwnerDashboard = ({ business }: OwnerDashboardProps) => {
 
     return (
       <div className="flex flex-col gap-6">
-        {business.subscriptionStatus === 'trialing' && business.trialEndsAt && (
+        {(business.subscriptionStatus === 'trialing' || business.subscriptionStatus === 'active') && (
              <TrialCountdownBanner trialEndsAt={business.trialEndsAt} />
         )}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

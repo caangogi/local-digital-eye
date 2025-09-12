@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth.tsx";
-import { LogOut, Settings, UserCircle, PanelLeft } from "lucide-react";
+import { LogOut, Settings, UserCircle, PanelLeft, CreditCard } from "lucide-react";
 import { Link } from "@/navigation"; // Use next-intl's Link
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -77,6 +77,14 @@ export function AppHeader() {
                   <span>{t('profile')}</span>
                 </Link>
               </DropdownMenuItem>
+               {user.role === 'owner' && (
+                 <DropdownMenuItem asChild>
+                    <Link href="/settings/billing">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        <span>Facturación</span>
+                    </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href="/settings">
                   <Settings className="mr-2 h-4 w-4" />
