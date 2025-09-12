@@ -89,7 +89,7 @@ export const BusinessSchema = z.object({
   
   // Subscription and Plan Management
   subscriptionPlan: SubscriptionPlanSchema.optional().nullable().default('freemium'),
-  subscriptionStatus: z.enum(['trialing', 'active', 'past_due', 'canceled', 'unpaid']).optional().nullable().default('trialing'),
+  subscriptionStatus: z.enum(['trialing', 'pending_payment', 'active', 'past_due', 'canceled', 'unpaid']).optional().nullable().default('trialing'),
   trialEndsAt: z.date().optional().nullable(),
   stripeCustomerId: z.string().optional().nullable(),
   stripeSubscriptionId: z.string().optional().nullable(),

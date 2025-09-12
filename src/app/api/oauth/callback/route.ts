@@ -8,11 +8,6 @@ import { auth } from '@/lib/firebase/firebase-admin-config';
 import { stripe } from '@/lib/stripe';
 import type { SubscriptionPlan } from '@/backend/business/domain/business.entity';
 
-// Define setup fees for each plan. In a real app, this might come from a config file.
-const SETUP_FEES = {
-    professional: 27900, // in cents, e.g., €279.00
-    premium: 46900,      // in cents, e.g., €469.00
-};
 
 export async function GET(request: NextRequest) {
   console.log('[OAuth Callback] Received request from Google.');
@@ -42,6 +37,24 @@ export async function GET(request: NextRequest) {
     }
     console.log(`[OAuth Callback] Processing callback for businessId: ${businessId}, userId: ${userId}, planType: ${planType}, setupFee: ${setupFee}`);
     
+    // --- Step 1: Immediately exchange code for tokens and save them ---
+    const oauth2Client = getGoogleOAuthClient();
+    const { tokens } = await oauth2Client.getToken(code);
+    if (!tokens.access_token || !tokens.refresh_token) {
+        throw new Error('Failed to retrieve access or refresh token from Google.');
+    }
+    
+    const saveGmbTokensUseCase = new SaveGmbTokensUseCase(businessRepository);
+    await saveGmbTokensUseCase.execute({
+        businessId,
+        ownerId: userId,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        expiryDate: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+    });
+    console.log(`[OAuth Callback] Step 1 COMPLETE: Google tokens saved for business ${businessId}.`);
+
+    // --- Step 2: Handle user role and get business details ---
     const userRecord = await auth.getUser(userId);
     if (userRecord.customClaims?.role !== 'owner') {
         await auth.setCustomUserClaims(userId, { ...userRecord.customClaims, role: 'owner' });
@@ -51,26 +64,21 @@ export async function GET(request: NextRequest) {
     const business = await getBusinessDetailsUseCase.execute(businessId);
     if (!business) throw new Error(`Business with ID ${businessId} not found.`);
 
-    // --- FREEMIUM/TRIAL PLAN LOGIC ---
+    // --- Step 3: Handle payment flow based on planType ---
     if (planType === 'freemium') {
-      const saveGmbTokensUseCase = new SaveGmbTokensUseCase(businessRepository);
-      const oauth2Client = getGoogleOAuthClient();
-      const { tokens } = await oauth2Client.getToken(code);
-      if (!tokens.access_token || !tokens.refresh_token) throw new Error('Failed to retrieve access or refresh token from Google.');
-      
-      await saveGmbTokensUseCase.execute({
-          businessId,
-          ownerId: userId,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
-          expiryDate: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
-          plan: 'freemium',
-      });
-      console.log(`[OAuth Callback] Freemium plan processed for business ${businessId}. Redirecting to dashboard.`);
-      const redirectUrl = new URL('/dashboard', baseUrl);
-      redirectUrl.searchParams.set('success', 'oauth_completed');
-      redirectUrl.searchParams.set('business_name', business.name);
-      return NextResponse.redirect(redirectUrl);
+        // For freemium, the process is complete. Update subscription status and redirect.
+        business.subscriptionPlan = 'freemium';
+        business.subscriptionStatus = 'trialing';
+        const trialEnds = new Date();
+        trialEnds.setDate(trialEnds.getDate() + 7);
+        business.trialEndsAt = trialEnds;
+        await businessRepository.save(business);
+
+        console.log(`[OAuth Callback] Freemium plan processed for business ${businessId}. Redirecting to dashboard.`);
+        const redirectUrl = new URL('/dashboard', baseUrl);
+        redirectUrl.searchParams.set('success', 'oauth_completed');
+        redirectUrl.searchParams.set('business_name', business.name);
+        return NextResponse.redirect(redirectUrl);
     }
 
     // --- PAID PLAN LOGIC ---
@@ -80,7 +88,6 @@ export async function GET(request: NextRequest) {
         throw new Error("Stripe Price ID for the selected plan is not configured on the server.");
     }
     
-    // Create or retrieve Stripe customer
     let stripeCustomerId = business.stripeCustomerId;
     if (!stripeCustomerId) {
         const customer = await stripe.customers.create({
@@ -91,44 +98,28 @@ export async function GET(request: NextRequest) {
         stripeCustomerId = customer.id;
     }
 
-    // Create line items: one for the recurring subscription, one for the one-time setup fee
-    const lineItems = [
-      {
+    const lineItems = [{
         price: planType === 'professional' ? professionalPriceId : premiumPriceId,
         quantity: 1,
-      },
-    ];
-
+    }];
     if (setupFee && setupFee > 0) {
       lineItems.push({
-        price_data: {
-          currency: 'eur',
-          product_data: {
-            name: 'Cuota de Alta y Configuración Inicial',
-          },
-          unit_amount: setupFee, // fee in cents
-        },
+        price_data: { currency: 'eur', product_data: { name: 'Cuota de Alta y Configuración Inicial' }, unit_amount: setupFee },
         quantity: 1,
       });
     }
-
 
     const successUrl = new URL('/dashboard', baseUrl);
     successUrl.searchParams.set('payment', 'success');
     const cancelUrl = new URL('/dashboard', baseUrl);
     cancelUrl.searchParams.set('payment', 'cancelled');
     
-    const checkoutSessionMetadata = {
-        firebaseUID: userId,
-        businessId: businessId,
-        planType: planType,
-        gmb_auth_code: code,
-    };
-    if (setupFee) {
-        // @ts-ignore
-        checkoutSessionMetadata.setupFee = setupFee;
-    }
-
+    // Update the business with plan, customer ID, and pending status before redirecting
+    business.subscriptionPlan = planType;
+    business.stripeCustomerId = stripeCustomerId;
+    business.subscriptionStatus = 'pending_payment';
+    await businessRepository.save(business);
+    console.log(`[OAuth Callback] Set business to 'pending_payment' for plan '${planType}'.`);
 
     // Create Stripe Checkout Session
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -138,13 +129,10 @@ export async function GET(request: NextRequest) {
       mode: 'subscription',
       success_url: successUrl.toString(),
       cancel_url: cancelUrl.toString(),
+      // We pass the businessId and userId to the subscription metadata, so the webhook can use it.
       subscription_data: {
-        metadata: {
-            firebaseUID: userId,
-            businessId: businessId,
-        }
+        metadata: { firebaseUID: userId, businessId: businessId }
       },
-      metadata: checkoutSessionMetadata
     });
 
     if (!checkoutSession.url) {
@@ -152,12 +140,6 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`[OAuth Callback] Stripe Checkout session created for business ${businessId}. Redirecting to Stripe.`);
-    
-    // Update the business with the plan and customer ID before redirecting
-    business.subscriptionPlan = planType;
-    business.stripeCustomerId = stripeCustomerId;
-    await businessRepository.save(business);
-    
     return NextResponse.redirect(checkoutSession.url);
 
   } catch (e: any) {
@@ -168,5 +150,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 }
-
-    
