@@ -1,5 +1,6 @@
 
 import type { BusinessRepositoryPort } from '../domain/business.repository.port';
+import type { SubscriptionPlan } from '../domain/business.entity';
 
 /**
  * @fileoverview Defines the use case for saving GMB OAuth tokens to a business.
@@ -11,6 +12,7 @@ interface SaveGmbTokensInput {
     accessToken: string;
     refreshToken: string;
     expiryDate?: Date;
+    plan: SubscriptionPlan; // Added plan type
 }
 
 export class SaveGmbTokensUseCase {
@@ -38,20 +40,23 @@ export class SaveGmbTokensUseCase {
     business.gmbRefreshToken = input.refreshToken;
     business.gmbTokenExpiryDate = input.expiryDate;
     
-    // ** CRITICAL FIX **: Initialize subscription and trial status upon owner connection.
-    business.subscriptionPlan = 'freemium';
-    business.subscriptionStatus = 'trialing'; 
-    business.stripeCustomerId = null;
-    business.stripeSubscriptionId = null;
-
-    // Set trial end date (e.g., 7 days from now)
-    const trialEnds = new Date();
-    trialEnds.setDate(trialEnds.getDate() + 7);
-    business.trialEndsAt = trialEnds;
-
+    // ** CRITICAL **: Initialize subscription and trial status upon owner connection.
+    business.subscriptionPlan = input.plan;
+    
+    if (input.plan === 'freemium') {
+        business.subscriptionStatus = 'trialing'; 
+        // Set trial end date (e.g., 7 days from now)
+        const trialEnds = new Date();
+        trialEnds.setDate(trialEnds.getDate() + 7);
+        business.trialEndsAt = trialEnds;
+    } else {
+        // For paid plans, status will be set by the webhook after payment
+        business.subscriptionStatus = null; 
+        business.trialEndsAt = null;
+    }
 
     // 3. Save the updated business object back to the repository
     await this.businessRepository.save(business);
-    console.log(`[SaveGmbTokensUseCase] Successfully updated tokens, owner, and initialized trial for business ${input.businessId}`);
+    console.log(`[SaveGmbTokensUseCase] Successfully updated tokens, owner, and subscription info for business ${input.businessId}`);
   }
 }

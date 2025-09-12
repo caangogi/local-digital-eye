@@ -108,6 +108,8 @@ export class FirebaseBusinessRepository implements BusinessRepositoryPort {
     dataToSave.stripeCustomerId = businessData.stripeCustomerId || null;
     dataToSave.stripeSubscriptionId = businessData.stripeSubscriptionId || null;
     dataToSave.gmbInsightsCache = businessData.gmbInsightsCache || null;
+    dataToSave.subscriptionPlan = businessData.subscriptionPlan || null;
+    dataToSave.subscriptionStatus = businessData.subscriptionStatus || null;
 
     await this.collection.doc(id).set(dataToSave, { merge: true });
     return validatedBusiness;

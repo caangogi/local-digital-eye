@@ -3,14 +3,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getGoogleOAuthClient } from '@/lib/google-oauth-client';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
 import { SaveGmbTokensUseCase } from '@/backend/business/application/save-gmb-tokens.use-case';
-import { FirebaseUserRepository } from '@/backend/user/infrastructure/firebase-user.repository';
 import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
 import { auth } from '@/lib/firebase/firebase-admin-config';
+import { stripe } from '@/lib/stripe';
+import type { SubscriptionPlan } from '@/backend/business/domain/business.entity';
 
-/**
- * Handles the OAuth 2.0 callback from Google.
- * This is where the user is redirected after granting (or denying) permissions.
- */
+// Define setup fees for each plan. In a real app, this might come from a config file.
+const SETUP_FEES = {
+    professional: 27900, // in cents, e.g., €279.00
+    premium: 46900,      // in cents, e.g., €469.00
+};
+
 export async function GET(request: NextRequest) {
   console.log('[OAuth Callback] Received request from Google.');
 
@@ -20,13 +23,10 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
 
   const businessRepository = new FirebaseBusinessRepository();
-  const saveGmbTokensUseCase = new SaveGmbTokensUseCase(businessRepository);
   const getBusinessDetailsUseCase = new GetBusinessDetailsUseCase(businessRepository);
   
-  // The base URL of your application, needed for the final redirect.
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
 
-  // Handle cases where the user denied access or an error occurred.
   if (error || !code || !state) {
     console.error(`[OAuth Callback] Error or missing parameters. Error: ${error}, Code: ${code}, State: ${state}`);
     const redirectUrl = new URL('/businesses', baseUrl);
@@ -35,16 +35,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  let businessName = '';
   try {
-    // Decode the state to get the businessId
-    const { businessId, userId } = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
-    if (!businessId || !userId) {
-      throw new Error('Invalid state: businessId or userId is missing.');
+    const { businessId, userId, planType } = JSON.parse(Buffer.from(state, 'base64').toString('utf-8')) as { businessId: string; userId: string; planType: SubscriptionPlan };
+    if (!businessId || !userId || !planType) {
+      throw new Error('Invalid state: businessId, userId, or planType is missing.');
     }
-    console.log(`[OAuth Callback] Processing callback for businessId: ${businessId} and userId: ${userId}`);
+    console.log(`[OAuth Callback] Processing callback for businessId: ${businessId}, userId: ${userId}, planType: ${planType}`);
     
-    // Set user custom claim to 'owner' if it's not already set
     const userRecord = await auth.getUser(userId);
     if (userRecord.customClaims?.role !== 'owner') {
         await auth.setCustomUserClaims(userId, { ...userRecord.customClaims, role: 'owner' });
@@ -52,39 +49,110 @@ export async function GET(request: NextRequest) {
     }
 
     const business = await getBusinessDetailsUseCase.execute(businessId);
-    if(business) {
-        businessName = business.name;
+    if (!business) throw new Error(`Business with ID ${businessId} not found.`);
+
+    // --- FREEMIUM/TRIAL PLAN LOGIC ---
+    if (planType === 'freemium') {
+      const saveGmbTokensUseCase = new SaveGmbTokensUseCase(businessRepository);
+      const oauth2Client = getGoogleOAuthClient();
+      const { tokens } = await oauth2Client.getToken(code);
+      if (!tokens.access_token || !tokens.refresh_token) throw new Error('Failed to retrieve access or refresh token from Google.');
+      
+      await saveGmbTokensUseCase.execute({
+          businessId,
+          ownerId: userId,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          expiryDate: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+          plan: 'freemium',
+      });
+      console.log(`[OAuth Callback] Freemium plan processed for business ${businessId}. Redirecting to dashboard.`);
+      const redirectUrl = new URL('/dashboard', baseUrl);
+      redirectUrl.searchParams.set('success', 'oauth_completed');
+      redirectUrl.searchParams.set('business_name', business.name);
+      return NextResponse.redirect(redirectUrl);
     }
 
-
-    // Exchange the authorization code for tokens
-    const oauth2Client = getGoogleOAuthClient();
-    const { tokens } = await oauth2Client.getToken(code);
-    console.log('[OAuth Callback] Tokens received from Google.');
-
-    if (!tokens.access_token || !tokens.refresh_token) {
-        throw new Error('Failed to retrieve access or refresh token from Google.');
+    // --- PAID PLAN LOGIC ---
+    const professionalPriceId = process.env.STRIPE_PRICE_ID_PROFESSIONAL;
+    const premiumPriceId = process.env.STRIPE_PRICE_ID_PREMIUM;
+    if ((planType === 'professional' && !professionalPriceId) || (planType === 'premium' && !premiumPriceId)) {
+        throw new Error("Stripe Price ID for the selected plan is not configured on the server.");
+    }
+    
+    // Create or retrieve Stripe customer
+    let stripeCustomerId = business.stripeCustomerId;
+    if (!stripeCustomerId) {
+        const customer = await stripe.customers.create({
+            email: userRecord.email,
+            name: userRecord.displayName,
+            metadata: { firebaseUID: userId }
+        });
+        stripeCustomerId = customer.id;
     }
 
-    // Save the tokens and link the owner to the business entity in Firestore
-    await saveGmbTokensUseCase.execute({
-        businessId,
-        ownerId: userId, // CRITICAL: Link the owner ID to the business
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        expiryDate: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+    // Create line items: one for the recurring subscription, one for the one-time setup fee
+    const lineItems = [
+      {
+        price: planType === 'professional' ? professionalPriceId : premiumPriceId,
+        quantity: 1,
+      },
+      {
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: 'Cuota de Alta y Configuración Inicial',
+          },
+          unit_amount: planType === 'professional' ? SETUP_FEES.professional : SETUP_FEES.premium,
+        },
+        quantity: 1,
+      }
+    ];
+
+    const successUrl = new URL('/dashboard', baseUrl);
+    successUrl.searchParams.set('payment', 'success');
+    const cancelUrl = new URL('/dashboard', baseUrl);
+    cancelUrl.searchParams.set('payment', 'cancelled');
+    
+    // Create Stripe Checkout Session
+    const checkoutSession = await stripe.checkout.sessions.create({
+      customer: stripeCustomerId,
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'subscription',
+      success_url: successUrl.toString(),
+      cancel_url: cancelUrl.toString(),
+      subscription_data: {
+        metadata: {
+            firebaseUID: userId,
+            businessId: businessId,
+        }
+      },
+      metadata: { // Also add to session metadata for webhook retrieval before subscription is created
+        firebaseUID: userId,
+        businessId: businessId,
+        planType: planType,
+        gmb_auth_code: code, // Temporarily store the GMB auth code
+      }
     });
-    console.log(`[OAuth Callback] Tokens and ownerId saved successfully for businessId: ${businessId}`);
 
-    // Redirect the user back to their dashboard with a success message
-    const redirectUrl = new URL('/dashboard', baseUrl); // Redirect owner to their dashboard
-    redirectUrl.searchParams.set('success', 'oauth_completed');
-    redirectUrl.searchParams.set('business_name', businessName);
-    return NextResponse.redirect(redirectUrl);
+    if (!checkoutSession.url) {
+      throw new Error("Failed to create Stripe Checkout session.");
+    }
+
+    console.log(`[OAuth Callback] Stripe Checkout session created for business ${businessId}. Redirecting to Stripe.`);
+    // IMPORTANT: Instead of saving GMB tokens now, we will save them in the Stripe webhook after successful payment.
+    // The `gmb_auth_code` is stored in the session metadata to be retrieved later.
+    
+    // Update the business with the plan and customer ID before redirecting
+    business.subscriptionPlan = planType;
+    business.stripeCustomerId = stripeCustomerId;
+    await businessRepository.save(business);
+    
+    return NextResponse.redirect(checkoutSession.url);
 
   } catch (e: any) {
     console.error('[OAuth Callback] A critical error occurred:', e);
-    // Redirect to the dashboard with an error. The user is likely logged in at this point.
     const redirectUrl = new URL('/dashboard', baseUrl); 
     redirectUrl.searchParams.set('error', 'oauth_critical_error');
     redirectUrl.searchParams.set('error_description', e.message || 'An unexpected error occurred during the OAuth callback.');

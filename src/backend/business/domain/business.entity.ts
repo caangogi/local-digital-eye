@@ -88,8 +88,8 @@ export const BusinessSchema = z.object({
   notes: z.string().optional().nullable().describe("Internal notes from the sales team."),
   
   // Subscription and Plan Management
-  subscriptionPlan: SubscriptionPlanSchema.default('freemium'),
-  subscriptionStatus: z.enum(['trialing', 'active', 'past_due', 'canceled', 'unpaid']).default('trialing'),
+  subscriptionPlan: SubscriptionPlanSchema.optional().nullable().default('freemium'),
+  subscriptionStatus: z.enum(['trialing', 'active', 'past_due', 'canceled', 'unpaid']).optional().nullable().default('trialing'),
   trialEndsAt: z.date().optional().nullable(),
   stripeCustomerId: z.string().optional().nullable(),
   stripeSubscriptionId: z.string().optional().nullable(),
