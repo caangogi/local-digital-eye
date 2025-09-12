@@ -6,11 +6,11 @@
  */
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { auth } from '@/lib/firebase/firebase-admin-config';
+import { auth, firestore } from '@/lib/firebase/firebase-admin-config';
 import { cookies } from 'next/headers';
 import { FirebaseBusinessRepository } from '@/backend/business/infrastructure/firebase-business.repository';
 import { GetBusinessDetailsUseCase } from '@/backend/business/application/get-business-details.use-case';
-import type { Business } from '@/backend/business/domain/business.entity';
+import type { Business, SubscriptionPlan } from '@/backend/business/domain/business.entity';
 
 const OnboardingLinkInputSchema = z.object({
   businessId: z.string(),
@@ -120,4 +120,88 @@ export async function validateOnboardingToken(token: string): Promise<Business> 
     }
 }
 
+
+/**
+ * Sends an onboarding invitation email to a potential business owner.
+ * This function uses the Firebase "Trigger Email" extension.
+ */
+const SendEmailInputSchema = z.object({
+  recipientEmail: z.string().email(),
+  onboardingLink: z.string().url(),
+  businessName: z.string(),
+  planName: z.string(),
+});
+type SendEmailInput = z.infer<typeof SendEmailInputSchema>;
+
+export async function sendOnboardingEmail(input: SendEmailInput): Promise<{ success: boolean; message: string; }> {
+    const { recipientEmail, onboardingLink, businessName, planName } = SendEmailInputSchema.parse(input);
+
+    const mailCollection = firestore.collection('mail');
     
+    const emailDocument = {
+      to: [recipientEmail],
+      message: {
+        subject: `Invitación para gestionar ${businessName}`,
+        html: createInvitationEmailHtml({ onboardingLink, businessName, planName }),
+      },
+    };
+
+    try {
+      await mailCollection.add(emailDocument);
+      console.log(`[OnboardingAction] Invitation email document created for ${recipientEmail}.`);
+      return { success: true, message: "Email de invitación enviado correctamente." };
+    } catch (error: any) {
+        console.error("[OnboardingAction] Failed to create email document:", error);
+        return { success: false, message: "No se pudo enviar el email. Por favor, inténtalo de nuevo." };
+    }
+}
+
+function createInvitationEmailHtml({ onboardingLink, businessName, planName }: Omit<SendEmailInput, 'recipientEmail'>): string {
+  const brandName = "Local Digital Eye";
+  const logoUrl = "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/public%2Fimages%2Fds.png?alt=media&token=d12ae2c6-310e-4044-bc9b-77d60b6fe4cf";
+  
+  return `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+          <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0; }
+              .container { max-width: 600px; margin: 20px auto; padding: 30px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); }
+              .header { text-align: center; border-bottom: 1px solid #eaeaea; padding-bottom: 20px; margin-bottom: 20px; }
+              .header img { max-width: 150px; }
+              .content { font-size: 16px; }
+              .content h1 { font-size: 24px; color: #1a1a1a; margin-bottom: 15px; }
+              .content p { margin-bottom: 15px; }
+              .business-info { background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee; }
+              .button-container { text-align: center; margin-top: 30px; }
+              .button { display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; }
+              .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header"><img src="${logoUrl}" alt="${brandName} Logo"></div>
+              <div class="content">
+                  <h1>¡Estás a un paso de potenciar tu negocio!</h1>
+                  <p>Hola,</p>
+                  <p>Has sido invitado a unirte a la plataforma <strong>${brandName}</strong> para tomar el control de la presencia online de tu negocio.</p>
+                  <div class="business-info">
+                      <strong>Negocio:</strong> ${businessName}<br>
+                      <strong>Plan de Invitación:</strong> ${planName}
+                  </div>
+                  <p>Para empezar, solo tienes que crear tu cuenta a través del siguiente enlace seguro:</p>
+                  <div class="button-container">
+                      <a href="${onboardingLink}" class="button">Crear Cuenta y Conectar</a>
+                  </div>
+                  <p style="margin-top: 30px;">Si tienes alguna pregunta, no dudes en contactarnos.</p>
+                  <p>Atentamente,<br>El equipo de ${brandName}</p>
+              </div>
+              <div class="footer">
+                  <p>Si no esperabas esta invitación, puedes ignorar este correo.</p>
+              </div>
+          </div>
+      </body>
+      </html>
+  `;
+}

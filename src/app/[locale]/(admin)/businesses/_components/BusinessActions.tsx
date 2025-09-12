@@ -32,16 +32,17 @@ import {
     DropdownMenuSeparator, 
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus, Gift, Star, Crown } from "lucide-react";
+import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus, Gift, Star, Crown, Send, MessageSquare } from "lucide-react";
 import { Link } from "@/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
-import { generateOnboardingLink } from "@/actions/onboarding.actions.ts";
+import { generateOnboardingLink, sendOnboardingEmail } from "@/actions/onboarding.actions.ts";
 import type { Business, SubscriptionPlan } from '@/backend/business/domain/business.entity';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { ExtendTrialDialog } from './dialogs/ExtendTrialDialog';
 
 interface BusinessActionsProps {
@@ -57,7 +58,11 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = useState<SubscriptionPlan | null>(null);
+
   const [onboardingLink, setOnboardingLink] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   
   const { toast } = useToast();
 
@@ -69,9 +74,6 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
       title: "¡Copiado!",
       description: successMessage,
     });
-    // Close modals on copy
-    setIsActionsModalOpen(false);
-    setIsOnboardingModalOpen(false);
   };
   
   const generateQRCode = async () => {
@@ -119,6 +121,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     try {
         const link = await generateOnboardingLink({ businessId: business.id, planType });
         setOnboardingLink(link);
+        setSelectedPlan(planType);
         setIsActionsModalOpen(false);
         setIsOnboardingModalOpen(true);
     } catch (error: any) {
@@ -141,6 +144,53 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
         variant: "destructive"
     });
   }
+
+  const getPlanName = (planType: SubscriptionPlan | null) => {
+    switch (planType) {
+      case 'freemium': return 'Prueba Gratuita';
+      case 'professional': return 'Plan Profesional';
+      case 'premium': return 'Plan Premium';
+      default: return 'Desconocido';
+    }
+  };
+
+  const generateInvitationMessage = (link: string, planName: string) => {
+    return `¡Hola! 🚀\n\nTe invito a tomar el control de la presencia online de "${business.name}" con nuestra plataforma.\n\nHe preparado tu acceso para el ${planName}. Solo tienes que registrarte a través de este enlace seguro para empezar a gestionar tu perfil, ver tus métricas y mucho más.\n\n👉 ${link}\n\n¡Espero verte dentro!\n\nUn saludo,`;
+  };
+
+  const handleSendEmail = async () => {
+    if (!recipientEmail || !selectedPlan || !onboardingLink) return;
+    setIsSendingEmail(true);
+    try {
+      const response = await sendOnboardingEmail({
+        recipientEmail,
+        onboardingLink,
+        businessName: business.name,
+        planName: getPlanName(selectedPlan),
+      });
+
+      if (response.success) {
+        toast({
+          title: "¡Email Enviado!",
+          description: `La invitación ha sido enviada a ${recipientEmail}.`,
+        });
+        setIsOnboardingModalOpen(false);
+        setRecipientEmail("");
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error al Enviar Email",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  }
+
+  const invitationMessage = generateInvitationMessage(onboardingLink, getPlanName(selectedPlan));
 
   const actionButtonClasses = "w-full justify-start p-3 h-auto";
   const gmbLinked = business.gmbStatus === 'linked';
@@ -263,25 +313,38 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
       </Dialog>
 
       <Dialog open={isOnboardingModalOpen} onOpenChange={setIsOnboardingModalOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Enlace de Invitación para el Dueño</DialogTitle>
-            <DialogDescription>Copia y envía este enlace al dueño del negocio para que pueda crear su cuenta y conectar sus servicios.</DialogDescription>
+            <DialogTitle>Invitación para <span className="text-primary">{getPlanName(selectedPlan)}</span></DialogTitle>
+            <DialogDescription>Copia el mensaje, envíalo por WhatsApp o manda un email directamente desde aquí.</DialogDescription>
           </DialogHeader>
-          <div className="py-4 space-y-2">
-            <Label htmlFor="onboarding-link">Enlace de Invitación Único</Label>
-            <div className="flex items-center space-x-2">
-              <Input id="onboarding-link" value={onboardingLink} readOnly className="text-xs"/>
-              <Button type="button" size="sm" onClick={() => copyToClipboard(onboardingLink, "¡Enlace de invitación copiado!")}>
-                  <span className="sr-only">Copiar</span>
-                  <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-             <p className="text-xs text-muted-foreground pt-2">Este enlace es válido durante 7 días y solo puede ser usado una vez.</p>
+
+          <div className="py-4 space-y-4">
+            <Label htmlFor="invitation-message">Mensaje de Invitación</Label>
+            <Textarea id="invitation-message" value={invitationMessage} readOnly rows={8} className="text-xs bg-muted/50" />
+             <div className="flex flex-col sm:flex-row gap-2">
+                <Button className="flex-1" onClick={() => copyToClipboard(invitationMessage, "¡Mensaje de invitación copiado!")}><Copy className="mr-2"/> Copiar Mensaje</Button>
+                <a href={`https://wa.me/?text=${encodeURIComponent(invitationMessage)}`} target="_blank" rel="noopener noreferrer" className="flex-1">
+                    <Button variant="outline" className="w-full bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="mr-2"/> WhatsApp</Button>
+                </a>
+             </div>
           </div>
+          
+          <Separator />
+          
+          <div className="space-y-4">
+            <Label htmlFor="recipient-email">O enviar por email directamente</Label>
+             <div className="flex flex-col sm:flex-row gap-2">
+                <Input id="recipient-email" type="email" placeholder="email.del.dueño@negocio.com" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} />
+                <Button onClick={handleSendEmail} disabled={isSendingEmail || !recipientEmail} className="w-full sm:w-auto">
+                    {isSendingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4"/>}
+                    Enviar Email
+                </Button>
+             </div>
+          </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setIsOnboardingModalOpen(false); setIsActionsModalOpen(true); }}>Volver</Button>
-            <DialogClose asChild><Button type="button" variant="secondary">Cerrar</Button></DialogClose>
+            <Button variant="outline" onClick={() => setIsOnboardingModalOpen(false)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
