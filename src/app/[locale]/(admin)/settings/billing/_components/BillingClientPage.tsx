@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Check, ShieldCheck, Star, Settings, Loader2 } from "lucide-react";
+import { Check, ShieldCheck, Star, Settings, Loader2, Cpu, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { Business } from '@/backend/business/domain/business.entity';
@@ -20,10 +20,11 @@ const plans = [
         id: "freemium",
         name: "Gratuito",
         price: "€0",
-        priceDescription: "para siempre",
+        priceDescription: "para empezar",
         features: [
             "Gestión básica de perfil",
-            "Hasta 10 respuestas a reseñas con IA / mes",
+            "Funnel de Perfil Público (Filtro de reseñas)",
+            "Generación de QR para pedir reseñas",
             "Informes de rendimiento semanales",
         ],
         cta: "Plan Actual"
@@ -31,13 +32,12 @@ const plans = [
     {
         id: "professional",
         name: "Profesional",
-        price: "€49",
+        price: "€97",
         priceDescription: "por mes",
         features: [
             "Todo lo del plan Gratuito",
-            "Respuestas ilimitadas con IA a reseñas",
-            "Publicaciones automáticas en GMB",
             "Monitorización de palabras clave",
+            "Publicaciones manuales en GMB",
             "Soporte prioritario por email"
         ],
         cta: "Actualizar Plan",
@@ -46,14 +46,15 @@ const plans = [
     {
         id: "premium",
         name: "Premium",
-        price: "€99",
+        price: "€197",
         priceDescription: "por mes",
         features: [
             "Todo lo del plan Profesional",
-            "Análisis avanzado de competidores",
-            "Creación de Microsite SEO",
+            "Respuestas ilimitadas con IA a reseñas",
+            "Publicaciones automáticas en GMB (con IA)",
+            "Análisis avanzado de competidores (con IA)",
+            "Creación y mantenimiento de Microsite SEO",
             "Gestor de cuenta dedicado",
-            "Soporte por teléfono y videollamada"
         ],
         cta: "Actualizar Plan",
     }
@@ -169,7 +170,10 @@ export function BillingClientPage({ business }: BillingClientPageProps) {
                         <ul className="space-y-3">
                         {plan.features.map(feature => (
                            <li key={feature} className="flex items-start gap-2 text-sm">
-                                <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                {feature.toLowerCase().includes('ia') ? 
+                                    <Cpu className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" /> : 
+                                    <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                }
                                 <span className="text-muted-foreground">{feature}</span>
                            </li> 
                         ))}
@@ -181,7 +185,7 @@ export function BillingClientPage({ business }: BillingClientPageProps) {
                             disabled={currentPlanId === plan.id}
                             variant={currentPlanId === plan.id ? "outline" : (plan.isRecommended ? "default" : "secondary")}
                         >
-                            {currentPlanId === plan.id ? <ShieldCheck className="mr-2 h-4 w-4"/> : <Star className="mr-2 h-4 w-4"/>}
+                            {currentPlanId === plan.id ? <ShieldCheck className="mr-2 h-4 w-4"/> : <Zap className="mr-2 h-4 w-4"/>}
                             {currentPlanId === plan.id ? 'Plan Actual' : plan.cta}
                         </Button>
                     </CardFooter>
