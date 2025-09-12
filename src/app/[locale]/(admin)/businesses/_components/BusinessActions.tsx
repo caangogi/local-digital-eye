@@ -24,12 +24,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus } from "lucide-react";
+import { 
+    DropdownMenu, 
+    DropdownMenuContent, 
+    DropdownMenuItem, 
+    DropdownMenuLabel, 
+    DropdownMenuSeparator, 
+    DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, ExternalLink, Link2, QrCode, Download, Trash2, Loader2, Link as LinkIcon, UserPlus, Copy, AlertTriangle, CalendarPlus, Gift, Star, Crown } from "lucide-react";
 import { Link } from "@/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getGoogleOAuthConsentUrl } from "@/actions/oauth.actions";
 import { generateOnboardingLink } from "@/actions/onboarding.actions.ts";
-import type { Business } from '@/backend/business/domain/business.entity';
+import type { Business, SubscriptionPlan } from '@/backend/business/domain/business.entity';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
@@ -48,7 +56,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
   const [isExtendTrialModalOpen, setIsExtendTrialModalOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState<SubscriptionPlan | null>(null);
   const [onboardingLink, setOnboardingLink] = useState("");
   
   const { toast } = useToast();
@@ -106,11 +114,10 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     }
   };
 
-  const handleGenerateOnboardingLink = async () => {
-    setIsGeneratingLink(true);
+  const handleGenerateOnboardingLink = async (planType: SubscriptionPlan) => {
+    setIsGeneratingLink(planType);
     try {
-        // For now, we default to the 'freemium' plan. This can be expanded later.
-        const link = await generateOnboardingLink({ businessId: business.id, planType: 'freemium' });
+        const link = await generateOnboardingLink({ businessId: business.id, planType });
         setOnboardingLink(link);
         setIsActionsModalOpen(false);
         setIsOnboardingModalOpen(true);
@@ -121,7 +128,7 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
             variant: "destructive",
         });
     } finally {
-        setIsGeneratingLink(false);
+        setIsGeneratingLink(null);
     }
   };
   
@@ -172,15 +179,33 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
             
             <Separator className="my-2" />
 
-            {/* Main Action */}
-            {!business.ownerId && (
-              <Button variant="default" className={cn(actionButtonClasses, "text-base p-4")} onClick={handleGenerateOnboardingLink} disabled={isGeneratingLink}>
-                  {isGeneratingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                  Invitar al Dueño
-              </Button>
-            )}
-            
-            {business.ownerId && (
+            {/* Main Actions based on owner status */}
+            {!business.ownerId ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="default" className={cn(actionButtonClasses, "text-base p-4")}>
+                           <UserPlus className="mr-2 h-4 w-4" /> Invitar al Dueño
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuLabel>Seleccionar Plan de Invitación</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('freemium')} disabled={isGeneratingLink === 'freemium'}>
+                            {isGeneratingLink === 'freemium' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Gift className="mr-2 h-4 w-4" />}
+                            Prueba Gratuita
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('professional')} disabled={isGeneratingLink === 'professional'}>
+                             {isGeneratingLink === 'professional' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Star className="mr-2 h-4 w-4" />}
+                            Plan Profesional
+                        </DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => handleGenerateOnboardingLink('premium')} disabled={isGeneratingLink === 'premium'}>
+                             {isGeneratingLink === 'premium' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Crown className="mr-2 h-4 w-4" />}
+                            Plan Premium
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+            ) : (
                 <Button variant="outline" className={cn(actionButtonClasses, "text-base p-4")} onClick={() => setIsExtendTrialModalOpen(true)}>
                     <CalendarPlus className="mr-2 h-4 w-4" /> Extender Prueba
                 </Button>
@@ -270,5 +295,3 @@ export function BusinessActions({ business, baseUrl }: BusinessActionsProps) {
     </>
   );
 }
-
-    

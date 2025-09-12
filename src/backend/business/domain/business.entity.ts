@@ -46,6 +46,9 @@ export const GmbInsightsCacheSchema = z.object({
     lastUpdateTime: z.date().optional().nullable(),
 });
 
+export const SubscriptionPlanSchema = z.enum(['freemium', 'professional', 'premium']);
+export type SubscriptionPlan = z.infer<typeof SubscriptionPlanSchema>;
+
 export const BusinessSchema = z.object({
   id: z.string().describe("Unique identifier for the business, typically the Google Place ID."),
   userId: z.string().describe("The ID of the user (sales agent) who connected this business."),
@@ -85,7 +88,7 @@ export const BusinessSchema = z.object({
   notes: z.string().optional().nullable().describe("Internal notes from the sales team."),
   
   // Subscription and Plan Management
-  subscriptionPlan: z.enum(['freemium', 'professional', 'premium']).default('freemium'),
+  subscriptionPlan: SubscriptionPlanSchema.default('freemium'),
   subscriptionStatus: z.enum(['trialing', 'active', 'past_due', 'canceled', 'unpaid']).default('trialing'),
   trialEndsAt: z.date().optional().nullable(),
   stripeCustomerId: z.string().optional().nullable(),
