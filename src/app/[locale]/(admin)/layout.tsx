@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import type React from 'react';
@@ -24,7 +23,7 @@ export default function AdminLayout({
 
     if (!isAuthenticated) {
        console.log(`[Auth Guard] Not authenticated. Redirecting to /login from ${pathname}`);
-       router.push(`/login`);
+       router.push(`/login?next=${pathname}`);
        return;
     }
 

@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -246,7 +245,3 @@ const StarRating = ({ rating, className }: { rating: number; className?: string 
         ))}
     </div>
 );
-
-    
-
-    

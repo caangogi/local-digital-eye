@@ -1,8 +1,6 @@
-
 import React from 'react';
 import { getBusinessDetails } from "@/actions/business.actions";
 import { notFound } from "next/navigation";
-import type { Business } from '@/backend/business/domain/business.entity';
 import { BusinessPublicProfileView } from './_components/BusinessPublicProfileView';
 
 // This is the SERVER COMPONENT responsible for fetching data
