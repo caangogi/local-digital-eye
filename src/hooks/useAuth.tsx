@@ -58,6 +58,12 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
+const PUBLIC_PATHS = ['/', '/dev/my-bussiness-road-map'];
+const isPublicPath = (path: string) => {
+    return PUBLIC_PATHS.includes(path) || path.startsWith('/negocio');
+};
+
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -90,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         checkPasswordProvider(fbUser);
         setAuthAction({ status: 'idle' });
         
-        console.log('[Auth] User state set. Role:', response.claims.role, 'Checking for onboarding flow...');
+        console.log('[Auth] User state set. Role:', response.claims.role, 'Checking for onboarding flow or redirection...');
         
         const onboardingToken = localStorage.getItem(ONBOARDING_TOKEN_KEY);
         if (onboardingToken) {
@@ -108,6 +114,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                  console.warn('[Auth] Onboarding token was found but was invalid or malformed.');
                  localStorage.removeItem(ONBOARDING_TOKEN_KEY);
             }
+        }
+        
+        // --- NEW REDIRECTION LOGIC ---
+        // If the user is already on a public page, don't redirect them away from it.
+        if (isPublicPath(currentPathname)) {
+            console.log(`[Auth] User is on a public path (${currentPathname}). No redirection needed.`);
+            setIsLoading(false);
+            return;
         }
 
         const nextUrl = searchParams.get('next') || '/dashboard';
@@ -130,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     setIsLoading(false);
-  }, [toast, router, searchParams]);
+  }, [toast, router, searchParams, currentPathname]);
 
   const checkPasswordProvider = (fbUser: FirebaseUser | null) => {
       if (!fbUser) {
@@ -358,3 +372,5 @@ export function useAuth(): AuthState {
   }
   return context;
 }
+
+    
