@@ -130,6 +130,7 @@ export async function GET(request: NextRequest) {
       mode: setupFee && setupFee > 0 ? 'subscription' : 'subscription',
       success_url: successUrl.toString(),
       cancel_url: cancelUrl.toString(),
+      automatic_tax: { enabled: true },
       // We pass the businessId and userId to the subscription metadata, so the webhook can use it.
       subscription_data: {
         metadata: { firebaseUID: userId, businessId: businessId }
